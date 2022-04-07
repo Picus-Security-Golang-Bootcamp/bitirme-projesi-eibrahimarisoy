@@ -1,0 +1,19 @@
+ServerConfig:
+  AppVersion:  
+  Mode:  
+  RoutePrefix:  
+  Debug:  
+  Port:  
+  TimeoutSecs:  
+  ReadTimeoutSecs:  
+  WriteTimeoutSecs:  
+
+JWTConfig:
+  SessionTime:  
+  SecretKey:  
+
+DBConfig:
+  DataSourceName:
+  MaxOpen: 
+  MaxIdle: 
+  MaxLifetime: 
