@@ -12,3 +12,8 @@
 *.out
 
 config-local.yaml
+./tmp
+tmp/
+tmp
+tmp/main
+/tmp

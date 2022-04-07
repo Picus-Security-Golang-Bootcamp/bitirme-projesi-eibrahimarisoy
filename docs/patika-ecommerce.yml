@@ -1,0 +1,120 @@
+swagger: "2.0"
+info:
+  description: "This is a Patika Ecommerce API server."
+  version: "1.0.0"
+  title: "Swagger PatikaStore"
+  termsOfService: "http://swagger.io/terms/"
+  contact:
+    email: "eibrahimarisoy@gmail.com"
+  license:
+    name: "Apache 2.0"
+    url: "http://www.apache.org/licenses/LICENSE-2.0.html"
+basePath: "/api/v1"
+tags:
+  - name: "auth"
+    description: "Authentication operations"
+  - name: "user"
+    description: "Everything about User"
+
+schemes:
+  - "https"
+  - "http"
+paths:
+  /register:
+    post:
+      tags:
+        - "user"
+      summary: "Register a new user"
+      description: "Register a new user"
+      operationId: "register"
+      consumes:
+        - "application/json"
+      produces:
+        - "application/json"
+      parameters:
+        - in: "body"
+          name: "body"
+          description: "User object that needs to be added to the store"
+          required: true
+          schema:
+            $ref: "#/definitions/RegisterUser"
+      responses:
+        "200":
+          description: "User registered successfully"
+          # schema:
+          #   $ref: "#/definitions/ResponseUser"
+        "400":
+          description: "Invalid user information"
+          # schema:
+            # $ref: "#/definitions/Error"
+        "409":
+          description: "User already exists"
+          # schema:
+          #   $ref: "#/definitions/Error"
+  /login:
+   post:
+      tags:
+        - "user"
+      summary: "Login a user"
+      description: "Login a user"
+      operationId: "login"
+      consumes:
+        - "application/json"
+      produces:
+        - "application/json"
+      parameters:
+        - in: "body"
+          name: "body"
+          description: "User object that needs to be added to the store"
+          required: true
+          schema:
+            $ref: "#/definitions/LoginUser"
+      responses:
+        "200":
+          description: "User logged in successfully"
+          # schema:
+          #   $ref: "#/definitions/ResponseUser" # TODO jwt eklenecek
+        "400":
+          description: "Invalid user information"
+          # schema:
+          #   $ref: "#/definitions/Error"
+        "401":
+          description: "Invalid username or password"
+          # schema:
+          #   $ref: "#/definitions/Error"
+
+
+definitions:
+  RegisterUser:
+    type: "object"
+    required:
+      - "username"
+      - "password"
+      - "email"
+      - "firstName"
+      - "lastName"
+
+    properties:
+      username:
+        type: "string"
+      firstName:
+        type: "string"
+      lastName:
+        type: "string"
+      email:
+        type: "string"
+        format: "email"
+      password:
+        type: "string"
+
+  LoginUser:
+    type: "object"
+    required:
+      - email
+      - password
+    properties:
+      email:
+        type: "string"
+        format: "email"
+      password:
+        type: "string"
