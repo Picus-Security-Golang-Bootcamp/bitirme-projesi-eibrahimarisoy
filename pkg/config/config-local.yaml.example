@@ -17,3 +17,17 @@ DBConfig:
   MaxOpen: 
   MaxIdle: 
   MaxLifetime: 
+
+LoggerConfig:
+  Development:
+  Encoding:
+  Level: 
+
+LoggerConfig22:
+  Level:  
+  File:  
+  Console:  
+  MaxSize:  
+  MaxAge:  
+  MaxBackups:  
+  Compress:

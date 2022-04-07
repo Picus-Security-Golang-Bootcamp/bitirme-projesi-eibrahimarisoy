@@ -10,6 +10,7 @@ type Config struct {
 	ServerConfig ServerConfig
 	JWTConfig    JWTConfig
 	DBConfig     DatabaseConfig
+	LoggerConfig LoggerConfig
 }
 
 // LoadConfig loads the configuration from the given file.
