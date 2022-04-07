@@ -41,8 +41,8 @@ paths:
       responses:
         "200":
           description: "User registered successfully"
-          # schema:
-          #   $ref: "#/definitions/ResponseUser"
+          schema:
+            $ref: "#/definitions/UserToRegisterResponse"
         "400":
           description: "Invalid user information"
           # schema:
@@ -118,3 +118,21 @@ definitions:
         format: "email"
       password:
         type: "string"
+
+  UserToRegisterResponse:
+    type: "object"
+    properties:
+      id:
+        type: "string"
+        format: "uuid"
+      username:
+        type: "string"
+      firstName:
+        type: "string"
+      lastName:
+        type: "string"
+      email:
+        type: "string"
+        format: "email"
+      isAdmin:
+        type: "boolean"
