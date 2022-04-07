@@ -11,7 +11,7 @@ type User struct {
 	FirstName *string `json:"firstName" gorm:"type:varchar(100); not null"`
 	LastName  *string `json:"lastName" gorm:"type:varchar(100); not null"`
 	Username  *string `json:"username" gorm:"unique" gorm:"type:varchar(100); not null"`
-	Email     *string `json:"email" gorm:"unique" gorm:"type:varchar(100); not null"`
+	Email     *string `json:"email" gorm:"unique" gorm:"type:varchar(100); not null" binding:"required,email"`
 	Password  string  `json:"password,omitempty" gorm:"type:varchar(100); not null"`
 
 	Roles []*Role `json:"roles" gorm:"many2many:user_roles"`
