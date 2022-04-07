@@ -8,6 +8,7 @@ import (
 	db "patika-ecommerce/pkg/database"
 	"patika-ecommerce/pkg/graceful"
 	logger "patika-ecommerce/pkg/logging"
+	"patika-ecommerce/pkg/router"
 	"time"
 
 	"github.com/gin-gonic/gin"
@@ -43,8 +44,8 @@ func main() {
 		WriteTimeout: time.Duration(cfg.ServerConfig.WriteTimeoutSecs) * time.Second,
 	}
 
-	// routerGroup := r.Group(cfg.ServerConfig.RoutePrefix)
-	// routerGroup.In
+	rootRouter := r.Group(cfg.ServerConfig.RoutePrefix)
+	router.InitializeRoutes(rootRouter, DB, cfg)
 
 	go func() {
 		if err := srv.ListenAndServe(); err != nil && err != http.ErrServerClosed {
