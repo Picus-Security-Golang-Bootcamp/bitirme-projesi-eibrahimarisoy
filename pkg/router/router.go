@@ -27,5 +27,6 @@ func InitializeRoutes(rootRouter *gin.RouterGroup, db *gorm.DB, cfg *config.Conf
 	userRepo.Migration()
 	// user.NewUserHandler(userGroup, userRepo)
 
-	auth.NewAuthHandler(authGroup, userRepo)
+	authService := auth.NewAuthService(cfg)
+	auth.NewAuthHandler(authGroup, userRepo, authService)
 }

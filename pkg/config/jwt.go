@@ -1,6 +1,7 @@
 package config
 
 type JWTConfig struct {
-	SessionTime int
-	SecretKey   string
+	SecretKey           string
+	AccessTokenLifeTime int
+	RefrehTokenLifeTime int
 }

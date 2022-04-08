@@ -9,11 +9,15 @@ import (
 )
 
 type authHandler struct {
-	userRepo *user.UserRepository
+	userRepo    *user.UserRepository
+	authService *AuthService
 }
 
-func NewAuthHandler(r *gin.RouterGroup, userRepo *user.UserRepository) {
-	handler := &authHandler{userRepo: userRepo}
+func NewAuthHandler(r *gin.RouterGroup, userRepo *user.UserRepository, authService *AuthService) {
+	handler := &authHandler{
+		userRepo:    userRepo,
+		authService: authService,
+	}
 
 	r.POST("/register", handler.register)
 	r.POST("/login", handler.login)
@@ -32,7 +36,7 @@ func (u *authHandler) register(c *gin.Context) {
 		return
 	}
 
-	c.JSON(200, UserToResponse(user))
+	c.JSON(200, u.authService.GetAuthTokenService(*user))
 }
 
 func (u *authHandler) login(c *gin.Context) {
@@ -60,5 +64,5 @@ func (u *authHandler) login(c *gin.Context) {
 	// 	return
 	// }
 
-	c.JSON(200, UserToResponse(user))
+	c.JSON(200, u.authService.GetAuthTokenService(*user))
 }

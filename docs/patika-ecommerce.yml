@@ -42,7 +42,7 @@ paths:
         "200":
           description: "User registered successfully"
           schema:
-            $ref: "#/definitions/UserToRegisterResponse"
+            $ref: "#/definitions/TokenResponse"
         "400":
           description: "Invalid user information"
           # schema:
@@ -72,8 +72,8 @@ paths:
       responses:
         "200":
           description: "User logged in successfully"
-          # schema:
-          #   $ref: "#/definitions/ResponseUser" # TODO jwt eklenecek
+          schema:
+            $ref: "#/definitions/TokenResponse"
         "400":
           description: "Invalid user information"
           # schema:
@@ -136,3 +136,11 @@ definitions:
         format: "email"
       isAdmin:
         type: "boolean"
+  
+  TokenResponse:
+    type: "object"
+    properties:
+      accessToken:
+        type: "string"
+      refreshToken:
+        type: "string"
