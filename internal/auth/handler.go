@@ -41,6 +41,7 @@ func (u *authHandler) register(c *gin.Context) {
 
 func (u *authHandler) login(c *gin.Context) {
 	var reqBody api.LoginUser
+
 	if err := c.ShouldBindJSON(&reqBody); err != nil {
 		c.JSON(400, gin.H{"msg": err.Error()})
 		return

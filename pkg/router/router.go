@@ -2,6 +2,7 @@ package router
 
 import (
 	auth "patika-ecommerce/internal/auth"
+	category "patika-ecommerce/internal/category"
 	"patika-ecommerce/internal/role"
 	user "patika-ecommerce/internal/user"
 
@@ -16,7 +17,7 @@ func InitializeRoutes(rootRouter *gin.RouterGroup, db *gorm.DB, cfg *config.Conf
 	authGroup := rootRouter.Group("/")
 	roleGroup := rootRouter.Group("/roles")
 	userGroup := rootRouter.Group("/users")
-	// authGroup := rootRouter.Group("/auth")
+	categoryGroup := rootRouter.Group("/categories")
 
 	// Role repository
 	roleRepo := role.NewRoleRepository(db)
@@ -30,4 +31,9 @@ func InitializeRoutes(rootRouter *gin.RouterGroup, db *gorm.DB, cfg *config.Conf
 
 	authService := auth.NewAuthService(cfg)
 	auth.NewAuthHandler(authGroup, userRepo, authService)
+
+	// Category repository
+	categoryRepo := category.NewCategoryRepository(db)
+	categoryRepo.Migration()
+	category.NewCategoryHandler(categoryGroup, categoryRepo)
 }
