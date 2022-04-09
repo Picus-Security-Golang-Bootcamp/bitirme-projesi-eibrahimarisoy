@@ -83,6 +83,62 @@ paths:
           # schema:
           #   $ref: "#/definitions/Error"
 
+  /categories:
+    get:
+      tags:
+        - "user"
+      summary: "Get all categories"
+      description: "Get all categories"
+      operationId: "getCategories"
+      produces:
+        - "application/json"
+      responses:
+        "200":
+          description: "Categories retrieved successfully"
+          schema:
+            type: array
+            items:
+              $ref: "#/definitions/CategoryResponse"
+
+        "400":
+          description: "Invalid category information"
+          # schema:
+          #   $ref: "#/definitions/Error"
+        "401":
+          description: "Unauthorized access"
+          # schema:
+          #   $ref: "#/definitions/Error"
+
+    post:
+      tags:
+        - "user"
+      summary: "Add a new category"
+      description: "Add a new category"
+      operationId: "addCategory"
+      consumes:
+        - "application/json"
+      produces:
+        - "application/json"
+      parameters:
+        - in: "body"
+          name: "body"
+          description: "Category object that needs to be added to the store"
+          required: true
+          schema:
+            $ref: "#/definitions/CategoryResponse"
+      responses:
+        "200":
+          description: "Category added successfully"
+          schema:
+            $ref: "#/definitions/CategoryRequest"
+        "400":
+          description: "Invalid category information"
+          # schema:
+          #   $ref: "#/definitions/Error"
+        "401":
+          description: "Unauthorized access"
+          # schema:
+          #   $ref: "#/definitions/Error"
 
 definitions:
   RegisterUser:
@@ -143,4 +199,27 @@ definitions:
       accessToken:
         type: "string"
       refreshToken:
+        type: "string"
+
+  CategoryResponse:
+    type: "object"
+    properties:
+      id:
+        type: "string"
+        format: "uuid"
+      name:
+        type: "string"
+      slug:
+        type: "string"
+      description:
+        type: "string"
+
+  CategoryRequest:
+    type: "object"
+    required:
+      - name
+    properties:
+      name:
+        type: "string"
+      description:
         type: "string"

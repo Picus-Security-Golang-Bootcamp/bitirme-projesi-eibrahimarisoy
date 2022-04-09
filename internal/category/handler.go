@@ -1,37 +1,61 @@
 package category
 
 import (
+	"patika-ecommerce/internal/api"
 	"patika-ecommerce/pkg/config"
+	mw "patika-ecommerce/pkg/middleware"
 
 	"github.com/gin-gonic/gin"
 )
 
-type roleHandler struct {
-	roleRepo *CategoryRepository
+type categoryHandler struct {
+	categoryRepo *CategoryRepository
 }
 
-func NewRoleHandler(r *gin.RouterGroup, cfg *config.Config) {
-	// handler := &roleHandler{roleRepo: roleRepo}
-	// r.Use(mw.AuthenticationMiddleware(cfg.JWTConfig.SecretKey))
-	// r.Use(mw.AdminMiddleware())
-	// r.POST("", handler.createRole)
-	// r.GET("/", handler.getRoles)
+func NewCategoryHandler(r *gin.RouterGroup, categoryRepo *CategoryRepository, cfg *config.Config) {
+	handler := &categoryHandler{categoryRepo: categoryRepo}
+	r.Use(mw.AuthenticationMiddleware(cfg.JWTConfig.SecretKey))
+	r.Use(mw.AdminMiddleware())
+	r.POST("", handler.createCategory)
+	r.GET("/", handler.getCategories)
 	// r.GET("/:id", handler.getRole)
 	// r.PUT("/:id", handler.updateRole)
 	// r.DELETE("/:id", handler.deleteRole)
 }
 
 // createRole creates a new role
-// func (r *roleHandler) createRole(c *gin.Context) {
-// 	role := &model.Role{}
-// 	if err := c.ShouldBindJSON(&role); err != nil {
-// 		c.JSON(400, gin.H{"error": err.Error()})
-// 		return
-// 	}
+func (r *categoryHandler) createCategory(c *gin.Context) {
+	categoryRequest := &api.CategoryRequest{}
+	if err := c.ShouldBindJSON(&categoryRequest); err != nil {
+		c.JSON(400, gin.H{"error": err.Error()})
+		return
+	}
 
-// 	if err := r.roleRepo.InsertRole(role); err != nil {
-// 		c.JSON(400, gin.H{"error": err.Error()})
-// 		return
-// 	}
-// 	c.JSON(200, role)
+	category := CategoryRequestToCategory(categoryRequest)
+	if err := r.categoryRepo.InsertCategory(category); err != nil {
+		c.JSON(400, gin.H{"error": err.Error()})
+		return
+	}
+	c.JSON(201, CategoryToCategoryResponse(category))
+}
+
+// getCategory returns all roles
+func (r *categoryHandler) getCategories(c *gin.Context) {
+
+	// userId := user.(*jwt_helper.JWTToken).UserId
+	// fmt.Println(userId)
+
+	// categories, err := r.categoryRepo.GetCategories()
+	// if err != nil {
+	// 	c.JSON(400, gin.H{"error": err.Error()})
+	// 	return
+	// }
+
+	c.JSON(200, nil)
+}
+
+// _, exists := c.Get("user")
+// if !exists {
+// 	c.JSON(401, gin.H{"error": "Authentication required"})
+// 	return
 // }
