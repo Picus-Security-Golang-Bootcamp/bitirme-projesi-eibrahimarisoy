@@ -42,7 +42,7 @@ type ProductRequest struct {
 
 	// stock
 	// Required: true
-	Stock *float64 `json:"stock"`
+	Stock *int64 `json:"stock"`
 }
 
 // Validate validates this product request

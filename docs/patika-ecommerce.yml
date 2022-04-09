@@ -15,7 +15,8 @@ tags:
     description: "Authentication operations"
   - name: "user"
     description: "Everything about User"
-
+  - name: "category"
+    description: "Everything about category"
 schemes:
   - "https"
   - "http"
@@ -23,7 +24,7 @@ paths:
   /register:
     post:
       tags:
-        - "user"
+        - "auth"
       summary: "Register a new user"
       description: "Register a new user"
       operationId: "register"
@@ -54,7 +55,7 @@ paths:
   /login:
    post:
       tags:
-        - "user"
+        - "auth"
       summary: "Login a user"
       description: "Login a user"
       operationId: "login"
@@ -86,7 +87,7 @@ paths:
   /categories:
     get:
       tags:
-        - "user"
+        - "category"
       summary: "Get all categories"
       description: "Get all categories"
       operationId: "getCategories"
@@ -111,7 +112,7 @@ paths:
 
     post:
       tags:
-        - "user"
+        - "category"
       summary: "Add a new category"
       description: "Add a new category"
       operationId: "addCategory"
@@ -143,7 +144,7 @@ paths:
   /categories/bulk-upload:
     post:
       tags:
-        - "Bulk Category"
+        - "category"
       summary: "Bulk upload categories"
       description: "Bulk upload categories"
       operationId: "bulkUploadCategories"
@@ -180,7 +181,7 @@ paths:
   /products:
     get:
       tags:
-        - "products"
+        - "product"
       summary: "Get all products"
       description: "Get all products"
       operationId: "getProducts"
@@ -261,25 +262,7 @@ definitions:
         format: "email"
       password:
         type: "string"
-
-  UserToRegisterResponse:
-    type: "object"
-    properties:
-      id:
-        type: "string"
-        format: "uuid"
-      username:
-        type: "string"
-      firstName:
-        type: "string"
-      lastName:
-        type: "string"
-      email:
-        type: "string"
-        format: "email"
-      isAdmin:
-        type: "boolean"
-  
+ 
   TokenResponse:
     type: "object"
     properties:
@@ -328,7 +311,7 @@ definitions:
       price:
         type: "number"
       stock:
-        type: "number"
+        type: "integer"
       sku:
         type: "string"
       categories:
@@ -352,7 +335,7 @@ definitions:
       price:
         type: "number"
       stock:
-        type: "number"
+        type: "integer"
       sku:
         type: "string"
       categories:

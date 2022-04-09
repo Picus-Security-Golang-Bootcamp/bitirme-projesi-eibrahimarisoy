@@ -43,7 +43,7 @@ type ProductResponse struct {
 	Slug string `json:"slug,omitempty"`
 
 	// stock
-	Stock float64 `json:"stock,omitempty"`
+	Stock int64 `json:"stock,omitempty"`
 }
 
 // Validate validates this product response

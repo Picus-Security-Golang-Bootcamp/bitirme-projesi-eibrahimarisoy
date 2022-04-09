@@ -28,15 +28,15 @@ func NewProductHandler(r *gin.RouterGroup, productRepo *ProductRepository, cfg *
 // createProduct creates a new product
 func (r *productHandler) createProduct(c *gin.Context) {
 	productReq := api.ProductRequest{}
-	fmt.Println("product: ", productReq)
 	if err := c.ShouldBindJSON(&productReq); err != nil {
 		c.JSON(400, gin.H{"error": err.Error()})
 		return
 	}
+	fmt.Println("product: ", &productReq)
 
-	// if err := r.productRepo.InsertProduct(product); err != nil {
-	// 	c.JSON(400, gin.H{"error": err.Error()})
-	// 	return
-	// }
+	if err := r.productRepo.InsertProduct(product); err != nil {
+		c.JSON(400, gin.H{"error": err.Error()})
+		return
+	}
 	c.JSON(200, productReq)
 }
