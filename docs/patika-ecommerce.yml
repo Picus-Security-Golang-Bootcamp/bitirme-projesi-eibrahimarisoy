@@ -125,12 +125,12 @@ paths:
           description: "Category object that needs to be added to the store"
           required: true
           schema:
-            $ref: "#/definitions/CategoryResponse"
+            $ref: "#/definitions/CategoryRequest"
       responses:
         "200":
           description: "Category added successfully"
           schema:
-            $ref: "#/definitions/CategoryRequest"
+            $ref: "#/definitions/CategoryResponse"
         "400":
           description: "Invalid category information"
           # schema:
