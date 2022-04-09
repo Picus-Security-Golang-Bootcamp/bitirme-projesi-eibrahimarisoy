@@ -140,6 +140,43 @@ paths:
           # schema:
           #   $ref: "#/definitions/Error"
 
+  /categories/bulk-upload:
+    post:
+      tags:
+        - "Bulk Category"
+      summary: "Bulk upload categories"
+      description: "Bulk upload categories"
+      operationId: "bulkUploadCategories"
+      consumes:
+        - "multipart/form-data"
+      produces:
+        - "application/json"
+      parameters:
+        - in: "formData"
+          name: "file"
+          description: "CSV file"
+          required: true
+          type: "file"
+        - in: "formData"
+          name: "delimiter"
+          description: "CSV delimiter"
+          required: true
+          type: "string"
+
+      responses:
+        "200":
+          description: "Categories uploaded successfully"
+          schema:
+            $ref: "#/definitions/CategoryResponse"
+        "400":
+          description: "Invalid category information"
+          # schema:
+          #   $ref: "#/definitions/Error"
+        "401":
+          description: "Unauthorized access"
+          # schema:
+          #   $ref: "#/definitions/Error"
+    
 definitions:
   RegisterUser:
     type: "object"

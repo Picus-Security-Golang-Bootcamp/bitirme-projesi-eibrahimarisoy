@@ -1,7 +1,6 @@
 package category
 
 import (
-	"encoding/csv"
 	"fmt"
 	"patika-ecommerce/internal/api"
 	"patika-ecommerce/pkg/config"
@@ -12,11 +11,15 @@ import (
 )
 
 type categoryHandler struct {
-	categoryRepo *CategoryRepository
+	categoryRepo    *CategoryRepository
+	categoryService *CategoryService
 }
 
-func NewCategoryHandler(r *gin.RouterGroup, categoryRepo *CategoryRepository, cfg *config.Config) {
-	handler := &categoryHandler{categoryRepo: categoryRepo}
+func NewCategoryHandler(r *gin.RouterGroup, categoryRepo *CategoryRepository, categoryService *CategoryService, cfg *config.Config) {
+	handler := &categoryHandler{
+		categoryRepo:    categoryRepo,
+		categoryService: categoryService,
+	}
 	r.Use(mw.AuthenticationMiddleware(cfg.JWTConfig.SecretKey))
 	r.Use(mw.AdminMiddleware())
 	r.POST("", handler.createCategory)
@@ -74,14 +77,16 @@ func (r *categoryHandler) createBulkCategories(c *gin.Context) {
 		return
 	}
 
-	f, _ := file.Open()
-	defer f.Close()
+	categories, err := r.categoryService.CreateBulkCategories(file)
 
-	lines, _ := csv.NewReader(f).ReadAll()
-	for _, line := range lines[1:] {
-		fmt.Println(line)
+	if err != nil {
+		c.JSON(400, gin.H{
+			"message": err.Error(),
+		})
+		return
 	}
-
+	fmt.Println(categories)
+	fmt.Println(len(categories))
 	c.JSON(200, gin.H{"message": "success"})
 }
 

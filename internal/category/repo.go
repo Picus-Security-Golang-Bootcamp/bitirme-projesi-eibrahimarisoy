@@ -19,7 +19,11 @@ func NewCategoryrRepository(db *gorm.DB) *CategoryRepository {
 
 // InsertCategory inserts a new category
 func (r *CategoryRepository) InsertCategory(category *model.Category) error {
-	return r.db.Save(category).Error
+	result := r.db.Where("name = ?", category.Name).FirstOrCreate(category)
+	if result.Error != nil {
+		return result.Error
+	}
+	return nil
 }
 
 // GetCategories returns all categories

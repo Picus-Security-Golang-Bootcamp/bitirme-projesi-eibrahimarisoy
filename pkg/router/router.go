@@ -35,5 +35,6 @@ func InitializeRoutes(rootRouter *gin.RouterGroup, db *gorm.DB, cfg *config.Conf
 	// Category repository
 	categoryRepo := category.NewCategoryrRepository(db)
 	categoryRepo.Migration()
-	category.NewCategoryHandler(categoryGroup, categoryRepo, cfg)
+	categoryService := category.NewCategoryService(categoryRepo)
+	category.NewCategoryHandler(categoryGroup, categoryRepo, categoryService, cfg)
 }
