@@ -176,7 +176,57 @@ paths:
           description: "Unauthorized access"
           # schema:
           #   $ref: "#/definitions/Error"
-    
+
+  /products:
+    get:
+      tags:
+        - "products"
+      summary: "Get all products"
+      description: "Get all products"
+      operationId: "getProducts"
+      consumes:
+        - "application/json"
+      produces:
+        - "application/json"
+      responses:
+        "200":
+          description: "Products retrieved successfully"
+          schema:
+            type: array
+            items:
+              $ref: "#/definitions/ProductResponse"
+
+    post:
+      tags:
+        - "product"
+      summary: "Add a new product"
+      description: "Add a new product"
+      operationId: "addProduct"
+      consumes:
+        - "application/json"
+      produces:
+        - "application/json"
+      parameters:
+        - in: "body"
+          name: "body"
+          description: "Product object that needs to be added to the store"
+          required: true
+          schema:
+            $ref: "#/definitions/ProductRequest"
+      responses:
+        "200":
+          description: "Product added successfully"
+          schema:
+            $ref: "#/definitions/ProductResponse"
+        "400":
+          description: "Invalid product information"
+          # schema:
+          #   $ref: "#/definitions/Error"
+        "401":
+          description: "Unauthorized access"
+          # schema:
+          #   $ref: "#/definitions/Error"
+
 definitions:
   RegisterUser:
     type: "object"
@@ -260,3 +310,53 @@ definitions:
         type: "string"
       description:
         type: "string"
+  
+  ProductRequest:
+    type: "object"
+    required:
+      - name
+      - description
+      - price
+      - stock
+      - sku
+      - categories
+    properties:
+      name:
+        type: "string"
+      description:
+        type: "string"
+      price:
+        type: "number"
+      stock:
+        type: "number"
+      sku:
+        type: "string"
+      categories:
+        type: "array"
+        items:
+          type: "string"
+          format: "uuid"
+
+  ProductResponse:
+    type: "object"
+    properties:
+      id:
+        type: "string"
+        format: "uuid"
+      slug:
+        type: "string"
+      name:
+        type: "string"
+      description:
+        type: "string"
+      price:
+        type: "number"
+      stock:
+        type: "number"
+      sku:
+        type: "string"
+      categories:
+        type: "array"
+        items:
+          type: "string"
+          format: "uuid"
