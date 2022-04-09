@@ -22,3 +22,12 @@ func CategoryToCategoryResponse(category *model.Category) *api.CategoryResponse 
 		Description: category.Description,
 	}
 }
+
+// CategoriesToCategoryResponse converts a list of Categories to a list of CategoryResponse
+func CategoriesToCategoryResponse(categories []*model.Category) []*api.CategoryResponse {
+	var categoryResponses []*api.CategoryResponse
+	for _, category := range categories {
+		categoryResponses = append(categoryResponses, CategoryToCategoryResponse(category))
+	}
+	return categoryResponses
+}

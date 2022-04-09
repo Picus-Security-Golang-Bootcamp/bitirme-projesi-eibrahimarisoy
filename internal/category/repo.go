@@ -21,3 +21,12 @@ func NewCategoryrRepository(db *gorm.DB) *CategoryRepository {
 func (r *CategoryRepository) InsertCategory(category *model.Category) error {
 	return r.db.Save(category).Error
 }
+
+// GetCategories returns all categories
+func (r *CategoryRepository) GetCategories() ([]*model.Category, error) {
+	var categories []*model.Category
+	if err := r.db.Find(&categories).Error; err != nil {
+		return nil, err
+	}
+	return categories, nil
+}

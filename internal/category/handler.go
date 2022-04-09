@@ -42,16 +42,13 @@ func (r *categoryHandler) createCategory(c *gin.Context) {
 // getCategory returns all roles
 func (r *categoryHandler) getCategories(c *gin.Context) {
 
-	// userId := user.(*jwt_helper.JWTToken).UserId
-	// fmt.Println(userId)
+	categories, err := r.categoryRepo.GetCategories()
+	if err != nil {
+		c.JSON(400, gin.H{"error": err.Error()})
+		return
+	}
 
-	// categories, err := r.categoryRepo.GetCategories()
-	// if err != nil {
-	// 	c.JSON(400, gin.H{"error": err.Error()})
-	// 	return
-	// }
-
-	c.JSON(200, nil)
+	c.JSON(200, CategoriesToCategoryResponse(categories))
 }
 
 // _, exists := c.Get("user")
