@@ -1,7 +1,6 @@
 package product
 
 import (
-	"fmt"
 	"patika-ecommerce/internal/api"
 	"patika-ecommerce/internal/model"
 
@@ -29,7 +28,6 @@ func ProductRequestToProduct(productRequest *api.ProductRequest) *model.Product 
 
 func ProductToResponse(product *model.Product) *api.ProductResponse {
 	stock := int64(*product.Stock)
-	fmt.Println("product: ", product.Categories)
 
 	categories := []strfmt.UUID{}
 	for _, c := range *product.Categories {
@@ -55,3 +53,26 @@ func ProductsToResponse(products *[]model.Product) []*api.ProductResponse {
 	}
 	return response
 }
+
+// func ProductUpdateRequestToProduct(productUpdateRequest *api.ProductUpdateRequest) *model.Product {
+// 	stockAddr := productUpdateRequest.Stock
+// 	stock := int(stockAddr)
+
+// 	categories := []model.Category{}
+// 	for _, c := range productUpdateRequest.Categories {
+// 		categories = append(categories, model.Category{Base: model.Base{ID: c.ID}})
+// 	}
+
+// 	fmt.Printf("%+v", productUpdateRequest)
+
+// 	a := &model.Product{
+// 		Name:        &productUpdateRequest.Name,
+// 		Description: productUpdateRequest.Description,
+// 		Price:       &productUpdateRequest.Price,
+// 		Stock:       &stock,
+// 		Categories:  &categories,
+// 	}
+// 	fmt.Println("ddddddddddd", a.ToString())
+
+// 	return a
+// }

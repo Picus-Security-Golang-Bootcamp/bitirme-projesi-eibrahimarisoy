@@ -280,7 +280,7 @@ paths:
           description: "Product object that needs to be added to the store"
           required: true
           schema:
-            $ref: "#/definitions/ProductUpdateRequest"
+            $ref: "#/definitions/ProductRequest"
       responses:
         "200":
           description: "Product updated successfully"
@@ -446,18 +446,3 @@ definitions:
         type: "string"
         format: "uuid"
         
-  ProductUpdateRequest:
-    type: "object"
-    properties:
-      name:
-        type: "string"
-      description:
-        type: "string"
-      price:
-        type: "number"
-      stock:
-        type: "integer"
-      categories:
-        type: "array"
-        items:
-          $ref: "#/definitions/ProductRequestCategory"

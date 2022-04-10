@@ -44,9 +44,9 @@ func (r *ProductRepository) GetProducts() (*[]model.Product, error) {
 }
 
 // GetProduct get a single product
-func (r *ProductRepository) GetProduct(sku string) (*model.Product, error) {
+func (r *ProductRepository) GetProduct(id string) (*model.Product, error) {
 	product := new(model.Product)
-	result := r.db.Preload("Categories").Where("sku = ?", sku).First(&product)
+	result := r.db.Preload("Categories").Where("id = ?", id).First(&product)
 	if result.Error != nil {
 		return nil, result.Error
 	}
@@ -60,6 +60,34 @@ func (r *ProductRepository) DeleteProduct(sku string) error {
 	// r.db.Model(&product).Association("Categories").Clear()
 
 	result := r.db.Omit("product_categories").Where("sku = ?", sku).Delete(&product)
+	if result.Error != nil {
+		return result.Error
+	}
+	fmt.Println("product: ", product)
+	return nil
+}
+
+// UpdateProduct update a single product
+func (r *ProductRepository) UpdateProduct(product *model.Product) error {
+	fmt.Println("////////////////product: ", product.ToString())
+	// result := r.db.Model(&product).Updates(model.Product{
+	// 	Name:        product.Name,
+	// 	Description: product.Description,
+	// 	Price:       product.Price,
+	// 	Stock:       product.Stock,
+	// 	Categories:  product.Categories,
+	// })
+
+	result := r.db.Model(&product).Updates(
+		map[string]interface{}{
+			"Name":        product.Name,
+			"Description": product.Description,
+			"Price":       product.Price,
+			"Stock":       product.Stock,
+			"Categories":  product.Categories,
+		},
+	)
+
 	if result.Error != nil {
 		return result.Error
 	}

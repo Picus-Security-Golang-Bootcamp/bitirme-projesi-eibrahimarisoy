@@ -10,6 +10,7 @@ import (
 	mw "patika-ecommerce/pkg/middleware"
 
 	"github.com/gin-gonic/gin"
+	"github.com/go-openapi/strfmt"
 	"gorm.io/gorm"
 )
 
@@ -26,7 +27,7 @@ func NewProductHandler(r *gin.RouterGroup, productRepo *ProductRepository, cfg *
 	r.Use(mw.AuthenticationMiddleware(cfg.JWTConfig.SecretKey))
 	r.Use(mw.AdminMiddleware())
 	r.POST("", handler.createProduct)
-	// r.PUT("/:id", handler.updateProduct)
+	r.PUT("/:id", handler.updateProduct)
 	r.DELETE("/:id", handler.deleteProduct)
 }
 
@@ -97,4 +98,37 @@ func (r *productHandler) deleteProduct(c *gin.Context) {
 		return
 	}
 	c.JSON(204, nil)
+}
+
+// updateProduct updates a single product
+func (r *productHandler) updateProduct(c *gin.Context) {
+	productReq := &api.ProductRequest{}
+
+	if err := c.ShouldBindUri(&productReq); err != nil {
+		c.JSON(400, gin.H{"msg": err.Error()})
+		return
+	}
+	if err := c.ShouldBindJSON(&productReq); err != nil {
+		c.JSON(400, gin.H{"msg": err.Error()})
+		return
+	}
+
+	product := ProductRequestToProduct(productReq)
+	fmt.Println("************product: ", product)
+	product.ID = strfmt.UUID(c.Param("id"))
+
+	err := r.productRepo.UpdateProduct(product)
+	// fmt.Println("-----------product: ", product.ToString())
+
+	if err != nil {
+		if errors.Is(err, gorm.ErrRecordNotFound) {
+			c.JSON(404, gin.H{"msg": "product not found"})
+			return
+		}
+		c.JSON(400, gin.H{"error": err.Error()})
+		return
+	}
+	fmt.Println("******************")
+	fmt.Println("product: ", product.ToString())
+	c.JSON(200, ProductToResponse(product))
 }
