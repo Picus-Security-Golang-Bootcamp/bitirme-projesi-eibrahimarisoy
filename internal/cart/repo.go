@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"patika-ecommerce/internal/model"
 
+	"github.com/go-openapi/strfmt"
 	"gorm.io/gorm"
 )
 
@@ -62,6 +63,19 @@ func (r *CartRepository) GetCreatedCart(user model.User) (*model.Cart, error) {
 	return cart, nil
 }
 
+// GetCartByID returns a cart by id
+func (r *CartRepository) GetCartByID(id strfmt.UUID) (*model.Cart, error) {
+	cart := &model.Cart{}
+	if err := r.db.Preload("Items.Product").Where("id = ?", id).First(cart).Error; err != nil {
+		if err == gorm.ErrRecordNotFound {
+			return nil, nil
+		}
+		return nil, err
+	}
+	fmt.Println("Created cart", cart)
+	return cart, nil
+}
+
 // UpdateCart updates a cart
 func (r *CartRepository) UpdateCart(cart *model.Cart) error {
 
@@ -79,7 +93,10 @@ func (r *CartItemRepository) Create(cart *model.Cart, product *model.Product) er
 	}
 	// cart.Items = append(cart.Items, *cartItem)
 
-	// result := r.db.Where("name = ?", category.Name).FirstOrCreate(category)
-
 	return r.db.Create(cartItem).Error
+}
+
+// UpdateCartItem updates a cart item
+func (r *CartItemRepository) UpdateCartItem(cartItem *model.CartItem) error {
+	return r.db.Model(&cartItem).Updates(cartItem).Error
 }

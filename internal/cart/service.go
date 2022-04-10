@@ -38,18 +38,35 @@ func (r *CartService) AddToCart(user model.User, req *api.CartAddRequest) (*mode
 		return nil, fmt.Errorf("cart not found")
 	}
 
-	if err := cart.CanAddProduct(req.ProductID, int(req.Quantity)); err != nil {
-		return nil, err
-	}
-
-	product, err := r.productRepo.GetProductWithoutCategories(string(req.ProductID))
+	product, err := r.productRepo.GetProductWithoutCategories(req.ProductID)
 	if err != nil {
 		return nil, err
 	}
 
-	if err := r.cartItemRepo.Create(cart, product); err != nil {
-		return nil, err
+	if *product.Stock < req.Quantity {
+		return nil, fmt.Errorf("product stock is not enough")
 	}
+
+	is_exists := false
+	for _, item := range cart.Items {
+		if item.ProductID == req.ProductID {
+			item.Quantity += int(req.Quantity)
+			r.cartItemRepo.UpdateCartItem(&item)
+			is_exists = true
+			break
+		}
+	}
+	if !is_exists {
+		product, err := r.productRepo.GetProductWithoutCategories(req.ProductID)
+		if err != nil {
+			return nil, err
+		}
+
+		if err := r.cartItemRepo.Create(cart, product); err != nil {
+			return nil, err
+		}
+	}
+	cart, err = r.cartRepo.GetCartByID(cart.ID)
 
 	return cart, nil
 }

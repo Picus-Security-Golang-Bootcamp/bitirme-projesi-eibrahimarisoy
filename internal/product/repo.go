@@ -6,6 +6,7 @@ import (
 	"math"
 	"patika-ecommerce/internal/model"
 
+	"github.com/go-openapi/strfmt"
 	"gorm.io/gorm"
 )
 
@@ -81,7 +82,7 @@ func (r *ProductRepository) GetProduct(id string) (*model.Product, error) {
 }
 
 // GetProductWithoutCategories get a single product
-func (r *ProductRepository) GetProductWithoutCategories(id string) (*model.Product, error) {
+func (r *ProductRepository) GetProductWithoutCategories(id strfmt.UUID) (*model.Product, error) {
 	product := new(model.Product)
 	result := r.db.Where("id = ?", id).First(&product)
 	if result.Error != nil {

@@ -2,7 +2,6 @@ package model
 
 import (
 	"fmt"
-	"strconv"
 
 	"github.com/go-openapi/strfmt"
 	"github.com/gosimple/slug"
@@ -15,7 +14,7 @@ type Product struct {
 	Slug        string   `json:"slug" gorm:"unique"`
 	Description string   `json:"description"`
 	Price       *float64 `json:"price"`
-	Stock       *int     `json:"stock"`
+	Stock       *int64   `json:"stock"`
 	SKU         *string  `json:"sku" gorm:"unique"`
 
 	Categories   *[]Category   `json:"categories" gorm:"many2many:product_categories"`
@@ -38,7 +37,7 @@ func (p *Product) ToString() string {
 		"ID: " + p.ID.String() +
 		"Name: " + *p.Name +
 		"Description: " + p.Description +
-		"Price: " + fmt.Sprintf("%f", *p.Price) +
-		"Stock: " + strconv.Itoa(*p.Stock)
+		"Price: " + fmt.Sprintf("%f", *p.Price)
+	// "Stock: " + strconv.Itoa(p.Stock)
 	// "SKU: " + *p.SKU
 }

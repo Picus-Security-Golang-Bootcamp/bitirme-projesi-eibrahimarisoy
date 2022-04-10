@@ -10,7 +10,7 @@ import (
 
 func ProductRequestToProduct(productRequest *api.ProductRequest) *model.Product {
 	stockAddr := productRequest.Stock
-	stock := int(*stockAddr)
+	stock := int64(*stockAddr)
 
 	categories := []model.Category{}
 	for _, c := range productRequest.Categories {
