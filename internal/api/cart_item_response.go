@@ -27,7 +27,8 @@ type CartItemResponse struct {
 	ID strfmt.UUID `json:"id,omitempty"`
 
 	// product
-	Product *ProductResponse `json:"product,omitempty"`
+	// Format: uuid
+	Product strfmt.UUID `json:"product,omitempty"`
 
 	// quantity
 	Quantity int64 `json:"quantity,omitempty"`
@@ -68,47 +69,15 @@ func (m *CartItemResponse) validateProduct(formats strfmt.Registry) error {
 		return nil
 	}
 
-	if m.Product != nil {
-		if err := m.Product.Validate(formats); err != nil {
-			if ve, ok := err.(*errors.Validation); ok {
-				return ve.ValidateName("product")
-			} else if ce, ok := err.(*errors.CompositeError); ok {
-				return ce.ValidateName("product")
-			}
-			return err
-		}
+	if err := validate.FormatOf("product", "body", "uuid", m.Product.String(), formats); err != nil {
+		return err
 	}
 
 	return nil
 }
 
-// ContextValidate validate this cart item response based on the context it is used
+// ContextValidate validates this cart item response based on context it is used
 func (m *CartItemResponse) ContextValidate(ctx context.Context, formats strfmt.Registry) error {
-	var res []error
-
-	if err := m.contextValidateProduct(ctx, formats); err != nil {
-		res = append(res, err)
-	}
-
-	if len(res) > 0 {
-		return errors.CompositeValidationError(res...)
-	}
-	return nil
-}
-
-func (m *CartItemResponse) contextValidateProduct(ctx context.Context, formats strfmt.Registry) error {
-
-	if m.Product != nil {
-		if err := m.Product.ContextValidate(ctx, formats); err != nil {
-			if ve, ok := err.(*errors.Validation); ok {
-				return ve.ValidateName("product")
-			} else if ce, ok := err.(*errors.CompositeError); ok {
-				return ce.ValidateName("product")
-			}
-			return err
-		}
-	}
-
 	return nil
 }
 

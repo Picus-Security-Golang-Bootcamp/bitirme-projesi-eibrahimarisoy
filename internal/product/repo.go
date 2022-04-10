@@ -80,6 +80,17 @@ func (r *ProductRepository) GetProduct(id string) (*model.Product, error) {
 	return product, nil
 }
 
+// GetProductWithoutCategories get a single product
+func (r *ProductRepository) GetProductWithoutCategories(id string) (*model.Product, error) {
+	product := new(model.Product)
+	result := r.db.Where("id = ?", id).First(&product)
+	if result.Error != nil {
+		return nil, result.Error
+	}
+	fmt.Println("product: ", product)
+	return product, nil
+}
+
 // DeleteProduct delete a single product
 func (r *ProductRepository) DeleteProduct(sku string) error {
 	product := new(model.Product)

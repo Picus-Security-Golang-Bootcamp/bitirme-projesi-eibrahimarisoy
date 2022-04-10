@@ -354,6 +354,38 @@
             description: "Unauthorized access"
             # schema:
             #   $ref: "#/definitions/Error"
+    /cart/add:
+      post:
+        tags:
+          - "cart"
+        summary: "Add a product to cart"
+        description: "Add a product to cart"
+        operationId: "addProductToCart"
+        consumes:
+          - "application/json"
+        produces:
+          - "application/json"
+        parameters:
+          - in: "body"
+            name: "body"
+            description: "Product object that needs to be added to the cart"
+            required: true
+            schema:
+              $ref: "#/definitions/CartAddRequest"
+        responses:
+          "201":
+            description: "Product added to cart successfully"
+            schema:
+              $ref: "#/definitions/CartResponse"
+          "400":
+            description: "Invalid cart information"
+            # schema:
+            #   $ref: "#/definitions/Error"
+          "401":
+            description: "Unauthorized access"
+            # schema:
+            #   $ref: "#/definitions/Error"
+
 
   definitions:
     RegisterUser:
@@ -469,7 +501,23 @@
           items:
             type: "string"
             format: "uuid"
-    
+    ProductBasicResponse:
+      type: "object"
+      properties:
+        id:
+          type: "string"
+          format: "uuid"
+        slug:
+          type: "string"
+        name:
+          type: "string"
+        description:
+          type: "string"
+        price:
+          type: "number"
+        stock:
+          type: "integer"
+
     ProductRequestCategory:
       type: "object"
       properties:
@@ -513,11 +561,21 @@
           type: "string"
           format: "uuid"
         product:
-          $ref: "#/definitions/ProductResponse"
+          type: "string"
+          format: "uuid"
         quantity:
           type: "integer"
         Price:
           type: "number"
+
+    CartAddRequest:
+      type: "object"
+      properties:
+        productId:
+          type: "string"
+          format: "uuid"
+        quantity:
+          type: "integer"
 
   parameters:
     offsetParam:

@@ -1,6 +1,7 @@
 package product
 
 import (
+	"fmt"
 	"patika-ecommerce/internal/api"
 	"patika-ecommerce/internal/model"
 
@@ -52,6 +53,20 @@ func ProductsToResponse(products *[]model.Product) []*api.ProductResponse {
 		response = append(response, ProductToResponse(&product))
 	}
 	return response
+}
+
+func ProductToProductBasicResponse(product *model.Product) *api.ProductBasicResponse {
+	fmt.Println(product)
+	stock := int64(*product.Stock)
+
+	return &api.ProductBasicResponse{
+		ID:          product.ID,
+		Slug:        product.Slug,
+		Name:        *product.Name,
+		Description: product.Description,
+		Price:       *product.Price,
+		Stock:       stock,
+	}
 }
 
 // func ProductUpdateRequestToProduct(productUpdateRequest *api.ProductUpdateRequest) *model.Product {

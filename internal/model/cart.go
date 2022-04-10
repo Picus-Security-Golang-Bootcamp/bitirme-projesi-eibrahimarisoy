@@ -22,12 +22,6 @@ type Cart struct {
 
 	Items []CartItem `json:"items"`
 }
-
-func (c *Cart) BeforeCreate(tx *gorm.DB) error {
-	c.Status = CartStatusCreated
-	return nil
-}
-
 type CartItem struct {
 	Base
 	CartID strfmt.UUID `json:"cart_id"`
@@ -36,6 +30,23 @@ type CartItem struct {
 	ProductID strfmt.UUID `json:"product_id"`
 	Product   Product     `json:"product"`
 
-	Quantity int `json:"quantity"`
-	Price    int `json:"price"`
+	Quantity int     `json:"quantity"`
+	Price    float64 `json:"price"`
+}
+
+func (c *Cart) BeforeCreate(tx *gorm.DB) error {
+	c.Status = CartStatusCreated
+	return nil
+}
+
+func (c *Cart) CanAddProduct(id strfmt.UUID, quantity int) error {
+	// TODO
+	item := CartItem{
+		CartID:    c.ID,
+		ProductID: id,
+		Quantity:  quantity,
+	}
+	c.Items = append(c.Items, item)
+
+	return nil
 }
