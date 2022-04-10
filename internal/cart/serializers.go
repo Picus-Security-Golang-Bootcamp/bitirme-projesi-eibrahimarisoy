@@ -3,6 +3,7 @@ package cart
 import (
 	"patika-ecommerce/internal/api"
 	"patika-ecommerce/internal/model"
+	"patika-ecommerce/internal/product"
 )
 
 func CartToCartResponse(cart *model.Cart) *api.CartResponse {
@@ -31,4 +32,26 @@ func CartAddRequestToCartItem(req *api.CartAddRequest) *model.CartItem {
 		ProductID: req.ProductID,
 		Quantity:  int(req.Quantity),
 	}
+}
+
+// CartItemToCartItemResponse converts a cart item to a cart item response
+func CartItemToCartItemResponse(item *model.CartItem) *api.CartItemDetailResponse {
+	return &api.CartItemDetailResponse{
+		ID:       item.ID,
+		Product:  product.ProductToProductBasicResponse(&item.Product),
+		Quantity: int64(item.Quantity),
+		Price:    float64(item.Price),
+	}
+}
+
+// CartItemsToCartItemResponse converts a cart item to a cart item response
+func CartItemsToCartItemResponse(items []model.CartItem) []*api.CartItemDetailResponse {
+	cartItemResponse := []*api.CartItemDetailResponse{}
+
+	for _, v := range items {
+		item := CartItemToCartItemResponse(&v)
+		cartItemResponse = append(cartItemResponse, item)
+	}
+
+	return cartItemResponse
 }

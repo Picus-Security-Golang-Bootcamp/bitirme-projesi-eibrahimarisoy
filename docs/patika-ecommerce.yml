@@ -385,7 +385,38 @@
             description: "Unauthorized access"
             # schema:
             #   $ref: "#/definitions/Error"
-
+    /cart/list:
+      get:
+        tags:
+          - "cart"
+        summary: "Get all products in cart"
+        description: "Get all products in cart"
+        operationId: "getProductsInCart"
+        consumes:
+          - "application/json"
+        produces:
+          - "application/json"
+        # parameters:
+        #   - $ref: '#/parameters/offsetParam'
+        #   - $ref: '#/parameters/limitParam'
+        #   - $ref: '#/parameters/queryParam'
+        #   - $ref: '#/parameters/sortParam'
+        responses:
+          "200":
+            description: "Products retrieved successfully"
+            schema:
+              type: array
+              items:
+                $ref: "#/definitions/CartItemDetailResponse"
+          "400":
+            description: "Invalid cart information"
+            # schema:
+            #   $ref: "#/definitions/Error"
+          "401":
+            description: "Unauthorized access"
+            # schema:
+            #   $ref: "#/definitions/Error"
+        
 
   definitions:
     RegisterUser:
@@ -501,6 +532,7 @@
           items:
             type: "string"
             format: "uuid"
+    
     ProductBasicResponse:
       type: "object"
       properties:
@@ -576,6 +608,20 @@
           format: "uuid"
         quantity:
           type: "integer"
+
+    CartItemDetailResponse:
+      type: "object"
+      properties:
+        id:
+          type: "string"
+          format: "uuid"
+        product:
+          type: "string"
+          $ref: "#/definitions/ProductBasicResponse"
+        quantity:
+          type: "integer"
+        Price:
+          type: "number"
 
   parameters:
     offsetParam:

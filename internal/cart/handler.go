@@ -21,7 +21,7 @@ func NewCartHandler(r *gin.RouterGroup, cfg *config.Config, cartService *CartSer
 	r.Use(mw.AuthenticationMiddleware(cfg.JWTConfig.SecretKey))
 	r.POST("", handler.getOrCreateCart)
 	r.POST("/add", handler.AddToCart)
-
+	r.GET("/list", handler.ListCartItem)
 	// r.GET("", handler.getCarts)
 	// r.GET("/:id", handler.getCart)
 	// r.PUT("/:id", handler.updateCart)
@@ -51,13 +51,24 @@ func (r *cartHandler) AddToCart(c *gin.Context) {
 	user := c.MustGet("user").(*model.User)
 
 	cart, err := r.cartService.AddToCart(*user, req)
-	for _, item := range cart.Items {
-		fmt.Println("XXXXXXXXXXX", item)
-	}
+
 	if err != nil {
 		c.JSON(500, gin.H{"error": err.Error()})
 		return
 	}
 
 	c.JSON(200, CartToCartResponse(cart))
+}
+
+// ListCartItem lists all cart items
+func (r *cartHandler) ListCartItem(c *gin.Context) {
+	user := c.MustGet("user").(*model.User)
+
+	cart, err := r.cartService.GetOrCreateCart(*user)
+	if err != nil {
+		c.JSON(400, gin.H{"error": err.Error()})
+		return
+	}
+
+	c.JSON(200, CartItemsToCartItemResponse(cart.Items))
 }
