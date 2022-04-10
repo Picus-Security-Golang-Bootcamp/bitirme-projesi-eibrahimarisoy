@@ -38,6 +38,7 @@ func ProductToResponse(product *model.Product) *api.ProductResponse {
 
 	return &api.ProductResponse{
 		ID:          product.ID,
+		Slug:        product.Slug,
 		Name:        *product.Name,
 		Description: product.Description,
 		Price:       *product.Price,

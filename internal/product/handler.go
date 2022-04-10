@@ -38,7 +38,7 @@ func (r *productHandler) createProduct(c *gin.Context) {
 		c.JSON(400, gin.H{"error": err.Error()})
 		return
 	}
-	c.JSON(200, ProductToResponse(product))
+	c.JSON(201, ProductToResponse(product))
 }
 
 // getProducts gets all products

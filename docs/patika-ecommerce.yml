@@ -337,6 +337,7 @@ definitions:
         type: "integer"
       sku:
         type: "string"
+        uniqueItems: true
       categories:
         type: "array"
         items:

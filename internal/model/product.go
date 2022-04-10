@@ -9,7 +9,7 @@ import (
 type Product struct {
 	Base
 	Name        *string  `json:"name"`
-	Slug        string   `json:"slug"`
+	Slug        string   `json:"slug" gorm:"->;<-:create"`
 	Description string   `json:"description"`
 	Price       *float64 `json:"price"`
 	Stock       *int     `json:"stock"`

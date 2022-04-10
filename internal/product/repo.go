@@ -1,6 +1,7 @@
 package product
 
 import (
+	"errors"
 	"fmt"
 	"patika-ecommerce/internal/model"
 
@@ -21,19 +22,15 @@ func NewProductRepository(db *gorm.DB) *ProductRepository {
 
 // InsertProduct insert product
 func (r *ProductRepository) InsertProduct(product *model.Product) error {
-	result := r.db.Where("sku = ?", product.SKU).FirstOrCreate(product)
+	result := r.db.Where("sku = ?", product.SKU).Create(product)
 	if result.Error != nil {
-		return result.Error
-	}
-	// fmt.Println(r.db.Model(product).Association("Categories").Count())
-	// if product.CategoriesID != nil {
-	// 	for _, categoryID := range product.CategoriesID {
-	// 		fmt.Println("categoryID: ", categoryID)
-	// 		r.db.Debug().Model(*product).Omit("Languages").Association("Categories").Append(&model.Category{Base: model.Base{ID: categoryID}})
-	// 	}
-	// }
-	return nil
+		if errors.Is(result.Error, gorm.ErrRecordNotFound) {
 
+			return fmt.Errorf("product with sku %s already exists", *product.SKU)
+		}
+	}
+
+	return nil
 }
 
 // GetProducts get all products
