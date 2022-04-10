@@ -196,7 +196,6 @@ paths:
             type: array
             items:
               $ref: "#/definitions/ProductResponse"
-
     post:
       tags:
         - "product"
@@ -215,10 +214,106 @@ paths:
           schema:
             $ref: "#/definitions/ProductRequest"
       responses:
-        "200":
+        "201":
           description: "Product added successfully"
           schema:
             $ref: "#/definitions/ProductResponse"
+        "400":
+          description: "Invalid product information"
+          # schema:
+          #   $ref: "#/definitions/Error"
+        "401":
+          description: "Unauthorized access"
+          # schema:
+          #   $ref: "#/definitions/Error"
+
+  /products/{id}:
+    get:
+      tags:
+        - "product"
+      summary: "Get a product by ID"
+      description: "Get a product by ID"
+      operationId: "getProductById"
+      consumes:
+        - "application/json"
+      produces:
+        - "application/json"
+      parameters:
+        - in: "path"
+          name: "id"
+          description: "ID of the product to return"
+          required: true
+          type: "string"
+          format: "uuid"
+      responses:
+        "200":
+          description: "Product retrieved successfully"
+          schema:
+            $ref: "#/definitions/ProductResponse"
+        "400":
+          description: "Invalid product information"
+          # schema:
+          #   $ref: "#/definitions/Error"
+        "401":
+          description: "Unauthorized access"
+          # schema:
+          #   $ref: "#/definitions/Error"
+    put:
+      tags:
+        - "product"
+      summary: "Update a product by ID"
+      description: "Update a product by ID"
+      operationId: "updateProductById"
+      consumes:
+        - "application/json"
+      produces:
+        - "application/json"
+      parameters:
+        - in: "path"
+          name: "id"
+          description: "ID of the product to return"
+          required: true
+          type: "string"
+          format: "uuid"
+        - in: "body"
+          name: "body"
+          description: "Product object that needs to be added to the store"
+          required: true
+          schema:
+            $ref: "#/definitions/ProductUpdateRequest"
+      responses:
+        "200":
+          description: "Product updated successfully"
+          schema:
+            $ref: "#/definitions/ProductResponse"
+        "400":
+          description: "Invalid product information"
+          # schema:
+          #   $ref: "#/definitions/Error"
+        "401":
+          description: "Unauthorized access"
+          # schema:
+          #   $ref: "#/definitions/Error
+    delete:
+      tags:
+        - "product"
+      summary: "Delete a product by ID"
+      description: "Delete a product by ID"
+      operationId: "deleteProductById"
+      consumes:
+        - "application/json"
+      produces:
+        - "application/json"
+      parameters:
+        - in: "path"
+          name: "id"
+          description: "ID of the product to return"
+          required: true
+          type: "string"
+          format: "uuid"
+      responses:
+        "204":
+          description: "Product deleted successfully"
         "400":
           description: "Invalid product information"
           # schema:
@@ -350,4 +445,19 @@ definitions:
       id:
         type: "string"
         format: "uuid"
-
+        
+  ProductUpdateRequest:
+    type: "object"
+    properties:
+      name:
+        type: "string"
+      description:
+        type: "string"
+      price:
+        type: "number"
+      stock:
+        type: "integer"
+      categories:
+        type: "array"
+        items:
+          $ref: "#/definitions/ProductRequestCategory"
