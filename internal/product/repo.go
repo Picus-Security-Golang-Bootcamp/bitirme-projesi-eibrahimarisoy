@@ -3,6 +3,7 @@ package product
 import (
 	"errors"
 	"fmt"
+	"math"
 	"patika-ecommerce/internal/model"
 
 	"gorm.io/gorm"
@@ -33,14 +34,39 @@ func (r *ProductRepository) InsertProduct(product *model.Product) error {
 }
 
 // GetProducts get all products
-func (r *ProductRepository) GetProducts() (*[]model.Product, error) {
+func (r *ProductRepository) GetProducts(pagination *model.Pagination) (*model.Pagination, int, error) {
 	products := new([]model.Product)
-	result := r.db.Preload("Categories").Find(&products)
-	if result.Error != nil {
-		return nil, result.Error
+
+	totalRows, totalPages := int64(0), 0
+
+	offset := (pagination.Page - 1) * pagination.Limit
+
+	// generate where query
+	search := pagination.Q
+
+	find := r.db
+	find = find.Limit(pagination.Limit).Offset(offset).Order(pagination.Sort)
+	if search != "" {
+		find := find.Scopes(Search(search))
+		fmt.Println("search: ", find)
 	}
-	fmt.Println("products: ", products)
-	return products, nil
+
+	find = find.Find(products)
+	fmt.Println("find: ", products)
+
+	pagination.Rows = products
+	err := find.Count(&totalRows).Error
+
+	if err != nil {
+		return nil, 0, err
+	}
+
+	pagination.TotalRows = totalRows
+
+	// calculate total pages
+	totalPages = int(math.Ceil(float64(totalRows) / float64(pagination.Limit)))
+
+	return pagination, totalPages, nil
 }
 
 // GetProduct get a single product
@@ -69,15 +95,6 @@ func (r *ProductRepository) DeleteProduct(sku string) error {
 
 // UpdateProduct update a single product
 func (r *ProductRepository) UpdateProduct(product *model.Product) error {
-	fmt.Println("////////////////product: ", product.ToString())
-	// result := r.db.Model(&product).Updates(model.Product{
-	// 	Name:        product.Name,
-	// 	Description: product.Description,
-	// 	Price:       product.Price,
-	// 	Stock:       product.Stock,
-	// 	Categories:  product.Categories,
-	// })
-
 	result := r.db.Model(&product).Updates(
 		map[string]interface{}{
 			"Name":        product.Name,
@@ -91,6 +108,5 @@ func (r *ProductRepository) UpdateProduct(product *model.Product) error {
 	if result.Error != nil {
 		return result.Error
 	}
-	fmt.Println("product: ", product)
 	return nil
 }

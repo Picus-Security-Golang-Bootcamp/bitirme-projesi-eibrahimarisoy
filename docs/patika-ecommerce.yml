@@ -189,6 +189,12 @@ paths:
         - "application/json"
       produces:
         - "application/json"
+      parameters:
+        - $ref: '#/parameters/offsetParam'
+        - $ref: '#/parameters/limitParam'
+        - $ref: '#/parameters/queryParam'
+        - $ref: '#/parameters/sortParam'
+
       responses:
         "200":
           description: "Products retrieved successfully"
@@ -280,7 +286,7 @@ paths:
           description: "Product object that needs to be added to the store"
           required: true
           schema:
-            $ref: "#/definitions/ProductRequest"
+            $ref: "#/definitions/ProductUpdateRequest"
       responses:
         "200":
           description: "Product updated successfully"
@@ -332,7 +338,6 @@ definitions:
       - "email"
       - "firstName"
       - "lastName"
-
     properties:
       username:
         type: "string"
@@ -446,3 +451,55 @@ definitions:
         type: "string"
         format: "uuid"
         
+  ProductUpdateRequest:
+    type: "object"
+    properties:
+      name:
+        type: "string"
+      description:
+        type: "string"
+      price:
+        type: "number"
+      stock:
+        type: "integer"
+      categories:
+        type: "array"
+        items:
+          $ref: "#/definitions/ProductRequestCategory"
+
+
+
+
+parameters:
+  offsetParam:
+    in: query
+    name: offset
+    required: false
+    type: integer
+    minimum: 0
+    description: The number of items to skip before starting to collect the result set.
+  limitParam:
+    in: query
+    name: limit
+    required: false
+    type: integer
+    minimum: 1
+    maximum: 50
+    default: 20
+    description: The numbers of items to return.
+  queryParam:
+    in: query
+    name: q
+    required: false
+    type: string
+    description: Query Parameters
+  sortParam:
+    in: query
+    name: sort
+    required: false
+    type: string
+    description: Sort Parameters
+  
+  
+  
+  

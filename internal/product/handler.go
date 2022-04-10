@@ -6,6 +6,7 @@ import (
 	"patika-ecommerce/internal/api"
 	"patika-ecommerce/internal/model"
 	"patika-ecommerce/pkg/config"
+	"patika-ecommerce/pkg/utils"
 
 	mw "patika-ecommerce/pkg/middleware"
 
@@ -49,12 +50,46 @@ func (r *productHandler) createProduct(c *gin.Context) {
 
 // getProducts gets all products
 func (r *productHandler) getProducts(c *gin.Context) {
-	products, err := r.productRepo.GetProducts()
+	pagination := utils.GeneratePaginationFromRequest(c)
+	data, totalPages, err := r.productRepo.GetProducts(&pagination)
+
 	if err != nil {
 		c.JSON(400, gin.H{"error": err.Error()})
 		return
 	}
-	c.JSON(200, ProductsToResponse(products))
+
+	// get current url path
+	urlPath := c.Request.URL.Path
+
+	// search query params
+	searchQueryParams := pagination.Q
+
+	// set first & last page pagination response
+	data.FirstPage = fmt.Sprintf("%s?limit=%d&page=%d&sort=%s&q=%s", urlPath, pagination.Limit, 0, pagination.Sort, searchQueryParams)
+	data.LastPage = fmt.Sprintf("%s?limit=%d&page=%d&sort=%s&q=%s", urlPath, pagination.Limit, totalPages, pagination.Sort, searchQueryParams)
+
+	fmt.Println("data: ", data.Page)
+	if data.Page > 1 {
+		// set previous page pagination response
+		data.PreviousPage = fmt.Sprintf("%s?limit=%d&page=%d&sort=%s&q=%s", urlPath, pagination.Limit, data.Page-1, pagination.Sort, searchQueryParams)
+	}
+
+	if data.Page < totalPages {
+		// set next page pagination response
+		data.NextPage = fmt.Sprintf("%s?limit=%d&page=%d&sort=%s&q=%s", urlPath, pagination.Limit, data.Page+1, pagination.Sort, searchQueryParams)
+	}
+
+	if data.Page > totalPages {
+		// reset previous page
+		data.PreviousPage = ""
+	}
+
+	// if data.Page == totalPages {
+	// 	// reset next page
+	// 	data.NextPage = ""
+	// }
+
+	c.JSON(200, data)
 }
 
 // getProduct gets a single product
