@@ -19,7 +19,7 @@ func NewProductHandler(r *gin.RouterGroup, productRepo *ProductRepository, cfg *
 	r.Use(mw.AuthenticationMiddleware(cfg.JWTConfig.SecretKey))
 	r.Use(mw.AdminMiddleware())
 	r.POST("", handler.createProduct)
-	// r.GET("/", handler.getProducts)
+	r.GET("", handler.getProducts)
 	// r.GET("/:id", handler.getProduct)
 	// r.PUT("/:id", handler.updateProduct)
 	// r.DELETE("/:id", handler.deleteroduct)
@@ -33,10 +33,20 @@ func (r *productHandler) createProduct(c *gin.Context) {
 		return
 	}
 	fmt.Println("product: ", &productReq)
-
+	product := ProductRequestToProduct(&productReq)
 	if err := r.productRepo.InsertProduct(product); err != nil {
 		c.JSON(400, gin.H{"error": err.Error()})
 		return
 	}
-	c.JSON(200, productReq)
+	c.JSON(200, ProductToResponse(product))
+}
+
+// getProducts gets all products
+func (r *productHandler) getProducts(c *gin.Context) {
+	products, err := r.productRepo.GetProducts()
+	if err != nil {
+		c.JSON(400, gin.H{"error": err.Error()})
+		return
+	}
+	c.JSON(200, ProductsToResponse(products))
 }

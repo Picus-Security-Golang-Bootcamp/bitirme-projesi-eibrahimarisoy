@@ -317,8 +317,7 @@ definitions:
       categories:
         type: "array"
         items:
-          type: "string"
-          format: "uuid"
+          $ref: "#/definitions/ProductRequestCategory" 
 
   ProductResponse:
     type: "object"
@@ -343,3 +342,11 @@ definitions:
         items:
           type: "string"
           format: "uuid"
+  
+  ProductRequestCategory:
+    type: "object"
+    properties:
+      id:
+        type: "string"
+        format: "uuid"
+

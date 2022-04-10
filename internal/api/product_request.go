@@ -22,7 +22,7 @@ type ProductRequest struct {
 
 	// categories
 	// Required: true
-	Categories []strfmt.UUID `json:"categories"`
+	Categories []*ProductRequestCategory `json:"categories"`
 
 	// description
 	// Required: true
@@ -86,9 +86,19 @@ func (m *ProductRequest) validateCategories(formats strfmt.Registry) error {
 	}
 
 	for i := 0; i < len(m.Categories); i++ {
+		if swag.IsZero(m.Categories[i]) { // not required
+			continue
+		}
 
-		if err := validate.FormatOf("categories"+"."+strconv.Itoa(i), "body", "uuid", m.Categories[i].String(), formats); err != nil {
-			return err
+		if m.Categories[i] != nil {
+			if err := m.Categories[i].Validate(formats); err != nil {
+				if ve, ok := err.(*errors.Validation); ok {
+					return ve.ValidateName("categories" + "." + strconv.Itoa(i))
+				} else if ce, ok := err.(*errors.CompositeError); ok {
+					return ce.ValidateName("categories" + "." + strconv.Itoa(i))
+				}
+				return err
+			}
 		}
 
 	}
@@ -141,8 +151,37 @@ func (m *ProductRequest) validateStock(formats strfmt.Registry) error {
 	return nil
 }
 
-// ContextValidate validates this product request based on context it is used
+// ContextValidate validate this product request based on the context it is used
 func (m *ProductRequest) ContextValidate(ctx context.Context, formats strfmt.Registry) error {
+	var res []error
+
+	if err := m.contextValidateCategories(ctx, formats); err != nil {
+		res = append(res, err)
+	}
+
+	if len(res) > 0 {
+		return errors.CompositeValidationError(res...)
+	}
+	return nil
+}
+
+func (m *ProductRequest) contextValidateCategories(ctx context.Context, formats strfmt.Registry) error {
+
+	for i := 0; i < len(m.Categories); i++ {
+
+		if m.Categories[i] != nil {
+			if err := m.Categories[i].ContextValidate(ctx, formats); err != nil {
+				if ve, ok := err.(*errors.Validation); ok {
+					return ve.ValidateName("categories" + "." + strconv.Itoa(i))
+				} else if ce, ok := err.(*errors.CompositeError); ok {
+					return ce.ValidateName("categories" + "." + strconv.Itoa(i))
+				}
+				return err
+			}
+		}
+
+	}
+
 	return nil
 }
 
