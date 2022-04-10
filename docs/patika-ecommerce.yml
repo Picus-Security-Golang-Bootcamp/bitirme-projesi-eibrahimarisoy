@@ -429,7 +429,7 @@
           - "application/json"
         parameters:
           - in: "path"
-            name: "itemId"
+            name: "id"
             description: "ID of the Cart Item in cart to return"
             required: true
             type: "string"
@@ -451,7 +451,39 @@
             #   $ref: "#/definitions/Error"
           "401":
             description: "Unauthorized access"
-
+    # TODO add delete
+    /orders:
+      post:
+        tags:
+          - "orders"
+        summary: "Create an order"
+        description: "Create an order"
+        operationId: "createOrder"
+        consumes:
+          - "application/json"
+        produces:
+          - "application/json"
+        parameters:
+          - in: "body"
+            name: "body"
+            description: "Order object that needs to be added to the store"
+            required: true
+            schema:
+              $ref: "#/definitions/OrderRequest"
+        responses:
+          "201":
+            description: "Order created successfully"
+            schema:
+              $ref: "#/definitions/OrderResponse"
+          "400":
+            description: "Invalid order information"
+            # schema:
+            #   $ref: "#/definitions/Error"
+          "401":
+            description: "Unauthorized access"
+            # schema:
+            #   $ref: "#/definitions/Error"
+      
   definitions:
     RegisterUser:
       type: "object"
@@ -662,6 +694,28 @@
       properties:
         quantity:
           type: "integer"
+
+    OrderRequest:
+      type: "object"
+      required:
+        - cartId
+      properties:
+        cartId:
+          type: "string"
+          format: "uuid"
+
+    OrderResponse:
+      type: "object"
+      properties:
+        id:
+          type: "string"
+          format: "uuid"
+        cartId:
+          type: "string"
+          format: "uuid"
+        status:
+          type: "string"
+
 
   parameters:
     offsetParam:

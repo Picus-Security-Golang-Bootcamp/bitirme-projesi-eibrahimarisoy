@@ -54,4 +54,5 @@ func InitializeRoutes(rootRouter *gin.RouterGroup, db *gorm.DB, cfg *config.Conf
 	cartRepo.Migration()
 	cartService := cart.NewCartService(cartRepo, productRepo, cartItemRepo)
 	cart.NewCartHandler(cartGroup, cfg, cartService)
+
 }
