@@ -63,6 +63,18 @@ func (r *CartRepository) GetCreatedCart(user model.User) (*model.Cart, error) {
 	return cart, nil
 }
 
+// GetCreatedCartWithItemsAndProducts returns a cart by user id
+func (r *CartRepository) GetCreatedCartWithItemsAndProducts(user model.User) (*model.Cart, error) {
+	cart := &model.Cart{}
+	if err := r.db.Preload("Items.Product").Where("user_id = ? AND status = ?", user.ID, model.CartStatusCreated).First(cart).Error; err != nil {
+		if err == gorm.ErrRecordNotFound {
+			return nil, nil
+		}
+		return nil, err
+	}
+	return cart, nil
+}
+
 // GetCartByID returns a cart by id
 func (r *CartRepository) GetCartByID(id strfmt.UUID) (*model.Cart, error) {
 	cart := &model.Cart{}
@@ -99,4 +111,22 @@ func (r *CartItemRepository) Create(cart *model.Cart, product *model.Product) er
 // UpdateCartItem updates a cart item
 func (r *CartItemRepository) UpdateCartItem(cartItem *model.CartItem) error {
 	return r.db.Model(&cartItem).Updates(cartItem).Error
+}
+
+// GetCartItemByID returns a cart item by id
+func (r *CartItemRepository) GetCartItemByCartAndIDWithProduct(cart *model.Cart, id strfmt.UUID) (*model.CartItem, error) {
+	cartItem := &model.CartItem{}
+	if err := r.db.Model(&cartItem).Preload("Product").Where("cart_id = ? AND id = ?", cart.ID, id).First(cartItem).Error; err != nil {
+		if err == gorm.ErrRecordNotFound {
+			return nil, nil
+		}
+		return nil, err
+	}
+
+	return cartItem, nil
+}
+
+// DeleteCartItem deletes a cart item
+func (r *CartItemRepository) DeleteCartItem(cartItem *model.CartItem) error {
+	return r.db.Delete(cartItem).Error
 }

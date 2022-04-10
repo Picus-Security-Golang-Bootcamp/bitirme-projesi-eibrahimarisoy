@@ -385,7 +385,7 @@
             description: "Unauthorized access"
             # schema:
             #   $ref: "#/definitions/Error"
-    /cart/list:
+    /cart/items:
       get:
         tags:
           - "cart"
@@ -416,7 +416,41 @@
             description: "Unauthorized access"
             # schema:
             #   $ref: "#/definitions/Error"
-        
+    /cart/items/{id}:
+      put:
+        tags:
+          - "cart"
+        summary: "Update a cart item in cart by ID"
+        description: "Update a cart item in cart by ID"
+        operationId: "updateCartItemInCartById"
+        consumes:
+          - "application/json"
+        produces:
+          - "application/json"
+        parameters:
+          - in: "path"
+            name: "itemId"
+            description: "ID of the Cart Item in cart to return"
+            required: true
+            type: "string"
+            format: "uuid"
+          - in: "body"
+            name: "body"
+            description: "Update Cart Item object that needs to be added to the cart"
+            required: true
+            schema:
+              $ref: "#/definitions/CartItemUpdateRequest"
+        responses:
+          "200":
+            description: "Product in cart updated successfully"
+            schema:
+              $ref: "#/definitions/CartResponse"
+          "400":
+            description: "Invalid cart information"
+            # schema:
+            #   $ref: "#/definitions/Error"
+          "401":
+            description: "Unauthorized access"
 
   definitions:
     RegisterUser:
@@ -622,6 +656,12 @@
           type: "integer"
         Price:
           type: "number"
+
+    CartItemUpdateRequest:
+      type: "object"
+      properties:
+        quantity:
+          type: "integer"
 
   parameters:
     offsetParam:

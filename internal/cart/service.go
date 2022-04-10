@@ -5,6 +5,8 @@ import (
 	"patika-ecommerce/internal/api"
 	"patika-ecommerce/internal/model"
 	product "patika-ecommerce/internal/product"
+
+	"github.com/go-openapi/strfmt"
 )
 
 type CartService struct {
@@ -69,4 +71,47 @@ func (r *CartService) AddToCart(user model.User, req *api.CartAddRequest) (*mode
 	cart, err = r.cartRepo.GetCartByID(cart.ID)
 
 	return cart, nil
+}
+
+// UpdateCartItem updates a cart item
+func (r *CartService) UpdateCartItem(user model.User, id strfmt.UUID, req *api.CartItemUpdateRequest) (*model.CartItem, error) {
+	cart, err := r.cartRepo.GetCreatedCartWithItemsAndProducts(user)
+	if err != nil {
+		return nil, err
+	}
+
+	cartItem, err := r.cartItemRepo.GetCartItemByCartAndIDWithProduct(cart, id)
+	if err != nil {
+		return nil, err
+	}
+
+	if req.Quantity > *cartItem.Product.Stock {
+		return nil, fmt.Errorf("product stock is not enough")
+	}
+
+	cartItem.Quantity = int(req.Quantity)
+	if err := r.cartItemRepo.UpdateCartItem(cartItem); err != nil {
+		return nil, err
+	}
+
+	return cartItem, nil
+}
+
+// DeleteCartItem deletes a cart item
+func (r *CartService) DeleteCartItem(user model.User, id strfmt.UUID) error {
+	cart, err := r.cartRepo.GetCreatedCartWithItemsAndProducts(user) // TODO
+	if err != nil {
+		return err
+	}
+
+	cartItem, err := r.cartItemRepo.GetCartItemByCartAndIDWithProduct(cart, id)
+	if err != nil {
+		return err
+	}
+
+	if err := r.cartItemRepo.DeleteCartItem(cartItem); err != nil {
+		return err
+	}
+
+	return nil
 }
