@@ -4,6 +4,7 @@ import (
 	auth "patika-ecommerce/internal/auth"
 	cart "patika-ecommerce/internal/cart"
 	category "patika-ecommerce/internal/category"
+	"patika-ecommerce/internal/order"
 	product "patika-ecommerce/internal/product"
 	role "patika-ecommerce/internal/role"
 	user "patika-ecommerce/internal/user"
@@ -21,7 +22,7 @@ func InitializeRoutes(rootRouter *gin.RouterGroup, db *gorm.DB, cfg *config.Conf
 	userGroup := rootRouter.Group("/users")
 	categoryGroup := rootRouter.Group("/categories")
 	productGroup := rootRouter.Group("/products")
-	cartGroup := rootRouter.Group("/carts")
+	cartGroup := rootRouter.Group("/cart")
 
 	// Role repository
 	roleRepo := role.NewRoleRepository(db)
@@ -55,4 +56,7 @@ func InitializeRoutes(rootRouter *gin.RouterGroup, db *gorm.DB, cfg *config.Conf
 	cartService := cart.NewCartService(cartRepo, productRepo, cartItemRepo)
 	cart.NewCartHandler(cartGroup, cfg, cartService)
 
+	// Order repository
+	orderRepo := order.NewOrderRepository(db)
+	orderRepo.Migration()
 }
