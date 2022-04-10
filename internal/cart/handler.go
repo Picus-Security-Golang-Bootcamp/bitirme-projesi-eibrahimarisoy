@@ -1,6 +1,8 @@
 package cart
 
 import (
+	"fmt"
+	"patika-ecommerce/internal/model"
 	"patika-ecommerce/pkg/config"
 	mw "patika-ecommerce/pkg/middleware"
 
@@ -15,7 +17,7 @@ func NewCartHandler(r *gin.RouterGroup, cfg *config.Config, cartService *CartSer
 	handler := &cartHandler{cartService: cartService}
 
 	r.Use(mw.AuthenticationMiddleware(cfg.JWTConfig.SecretKey))
-	r.POST("", handler.createCart)
+	r.POST("", handler.getOrCreateCart)
 
 	// r.GET("", handler.getCarts)
 	// r.GET("/:id", handler.getCart)
@@ -24,18 +26,14 @@ func NewCartHandler(r *gin.RouterGroup, cfg *config.Config, cartService *CartSer
 }
 
 // createCart creates a new cart
-func (r *cartHandler) createCart(c *gin.Context) {
-	// cartReq := api.CartRequest{}
-	// if err := c.ShouldBindJSON(&cartReq); err != nil {
-	// 	c.JSON(400, gin.H{"error": err.Error()})
-	// 	return
-	// }
-	// fmt.Println("cart: ", &cartReq)
-	// cart := CartRequestToCart(&cartReq)
-	// if err := r.cartService.InsertCart(cart); err != nil {
-	// 	c.JSON(400, gin.H{"error": err.Error()})
-	// 	return
-	// }
-	// c.JSON(201, CartToResponse(cart))
-	c.JSON(201, gin.H{"message": "created cart"})
+func (r *cartHandler) getOrCreateCart(c *gin.Context) {
+	user := c.MustGet("user").(*model.User)
+	fmt.Println(user)
+	cart, err := r.cartService.GetOrCreateCart(*user)
+	if err != nil {
+		c.JSON(500, gin.H{"error": err.Error()})
+		return
+	}
+
+	c.JSON(201, CartToCartResponse(cart))
 }

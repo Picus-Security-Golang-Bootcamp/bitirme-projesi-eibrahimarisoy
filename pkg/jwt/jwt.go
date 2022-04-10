@@ -2,7 +2,9 @@ package jwt_helper
 
 import (
 	"encoding/json"
+	"patika-ecommerce/internal/model"
 
+	"github.com/go-openapi/strfmt"
 	"github.com/golang-jwt/jwt/v4"
 )
 
@@ -23,7 +25,7 @@ func GenerateToken(claims *jwt.Token, secret string) string {
 	return token
 }
 
-func VerifyToken(token string, secret string) *JWTToken {
+func VerifyToken(token string, secret string) *model.User {
 	hmacSecretString := secret
 	hmacSecret := []byte(hmacSecretString)
 
@@ -45,5 +47,18 @@ func VerifyToken(token string, secret string) *JWTToken {
 	jsonString, _ := json.Marshal(decodedClaims)
 	json.Unmarshal(jsonString, &decodedToken)
 
-	return &decodedToken
+	// decode the claims into a model.user struct and return it
+	user := model.User{
+		Base: model.Base{
+			ID: strfmt.UUID(decodedToken.UserId),
+		},
+		// FirstName: decodedToken.UserId,
+		// LastName:  decodedToken.UserId,
+		// Username:  decodedToken.UserId,
+		Email:   &decodedToken.Email,
+		IsAdmin: decodedToken.IsAdmin,
+		Roles:   []*model.Role{},
+	}
+
+	return &user
 }

@@ -2,6 +2,7 @@ package mw
 
 import (
 	"net/http"
+	"patika-ecommerce/internal/model"
 	jwtHelper "patika-ecommerce/pkg/jwt"
 	"strings"
 
@@ -49,7 +50,7 @@ func AdminMiddleware() gin.HandlerFunc {
 			return
 		}
 
-		isAdmin := user.(*jwtHelper.JWTToken).IsAdmin
+		isAdmin := user.(*model.User).IsAdmin
 		if !isAdmin {
 			c.JSON(http.StatusUnauthorized, gin.H{"error": "You are not authorized!"})
 			c.Abort()
