@@ -8,6 +8,7 @@ import (
 
 	"github.com/go-openapi/strfmt"
 	"gorm.io/gorm"
+	"gorm.io/gorm/clause"
 )
 
 type ProductRepository struct {
@@ -15,7 +16,8 @@ type ProductRepository struct {
 }
 
 func (r *ProductRepository) Migration() {
-	r.db.AutoMigrate(&model.Role{})
+	r.db.AutoMigrate(&model.Product{})
+
 }
 
 func NewProductRepository(db *gorm.DB) *ProductRepository {
@@ -93,11 +95,13 @@ func (r *ProductRepository) GetProductWithoutCategories(id strfmt.UUID) (*model.
 }
 
 // DeleteProduct delete a single product
-func (r *ProductRepository) DeleteProduct(sku string) error {
-	product := new(model.Product)
-	// r.db.Model(&product).Association("Categories").Clear()
+func (r *ProductRepository) DeleteProduct(product *model.Product) error {
+	// r.db.Model(&product).Association("Categories").Delete(&product)
+	// r.db.Model(&product).Association("Categories").Delete(&product)
 
-	result := r.db.Omit("product_categories").Where("sku = ?", sku).Delete(&product)
+	result := r.db.Select(clause.Associations).Delete(&product)
+	// result := r.db.Where(model.Product{}).Delete(&product)
+
 	if result.Error != nil {
 		return result.Error
 	}

@@ -11,7 +11,7 @@ type Category struct {
 	Slug        string `json:"slug"`
 	Description string `json:"description"`
 
-	Products []Product `json:"products" gorm:"many2many:product_categories;"`
+	Products []Product `json:"products" gorm:"many2many:product_categories"`
 }
 
 func (c *Category) BeforeCreate(tx *gorm.DB) error {

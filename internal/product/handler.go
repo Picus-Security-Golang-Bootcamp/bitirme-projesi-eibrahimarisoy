@@ -124,7 +124,17 @@ func (r *productHandler) deleteProduct(c *gin.Context) {
 	}
 	id := c.Param("id")
 
-	if err := r.productRepo.DeleteProduct(id); err != nil {
+	product, err := r.productRepo.GetProduct(id)
+	if err != nil {
+		if errors.Is(err, gorm.ErrRecordNotFound) {
+			c.JSON(404, gin.H{"msg": "product not found"})
+			return
+		}
+		c.JSON(400, gin.H{"error": err.Error()})
+		return
+	}
+
+	if err := r.productRepo.DeleteProduct(product); err != nil {
 		if errors.Is(err, gorm.ErrRecordNotFound) {
 			c.JSON(404, gin.H{"msg": "product not found"})
 			return

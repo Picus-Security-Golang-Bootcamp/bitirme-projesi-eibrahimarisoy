@@ -23,7 +23,7 @@ func ProductRequestToProduct(productRequest *api.ProductRequest) *model.Product 
 		Price:       productRequest.Price,
 		Stock:       &stock,
 		SKU:         productRequest.Sku,
-		Categories:  &categories,
+		Categories:  categories,
 	}
 }
 
@@ -31,7 +31,7 @@ func ProductToResponse(product *model.Product) *api.ProductResponse {
 	stock := int64(*product.Stock)
 
 	categories := []strfmt.UUID{}
-	for _, c := range *product.Categories {
+	for _, c := range product.Categories {
 		categories = append(categories, c.ID)
 	}
 
