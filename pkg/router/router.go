@@ -23,6 +23,7 @@ func InitializeRoutes(rootRouter *gin.RouterGroup, db *gorm.DB, cfg *config.Conf
 	categoryGroup := rootRouter.Group("/categories")
 	productGroup := rootRouter.Group("/products")
 	cartGroup := rootRouter.Group("/cart")
+	orderGroup := rootRouter.Group("/orders")
 
 	// Role repository
 	roleRepo := role.NewRoleRepository(db)
@@ -51,8 +52,9 @@ func InitializeRoutes(rootRouter *gin.RouterGroup, db *gorm.DB, cfg *config.Conf
 
 	// Cart repository
 	cartRepo := cart.NewCartRepository(db)
-	cartItemRepo := cart.NewCartItemRepository(db)
 	cartRepo.Migration()
+	cartItemRepo := cart.NewCartItemRepository(db)
+	cartItemRepo.Migration()
 	cartService := cart.NewCartService(cartRepo, productRepo, cartItemRepo)
 	cart.NewCartHandler(cartGroup, cfg, cartService)
 
@@ -61,7 +63,7 @@ func InitializeRoutes(rootRouter *gin.RouterGroup, db *gorm.DB, cfg *config.Conf
 	orderRepo.Migration()
 	orderItemRepo := order.NewOrderItemRepository(db)
 	orderItemRepo.Migration()
-	orderService := order.NewOrderService(orderRepo, orderItemRepo)
-	order.NewOrderHandler(rootRouter, cfg, orderService)
+	orderService := order.NewOrderService(orderRepo, orderItemRepo, cartRepo)
+	order.NewOrderHandler(orderGroup, cfg, orderService)
 
 }
