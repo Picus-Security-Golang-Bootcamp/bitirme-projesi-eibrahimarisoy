@@ -59,4 +59,9 @@ func InitializeRoutes(rootRouter *gin.RouterGroup, db *gorm.DB, cfg *config.Conf
 	// Order repository
 	orderRepo := order.NewOrderRepository(db)
 	orderRepo.Migration()
+	orderItemRepo := order.NewOrderItemRepository(db)
+	orderItemRepo.Migration()
+	orderService := order.NewOrderService(orderRepo, orderItemRepo)
+	order.NewOrderHandler(rootRouter, cfg, orderService)
+
 }
