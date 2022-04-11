@@ -13,11 +13,6 @@ import (
 	"github.com/golang-jwt/jwt/v4"
 )
 
-type JwtToken struct {
-	accesToken   string
-	refreshToken string
-}
-
 type AuthService struct {
 	cfg      *config.Config
 	userRepo *user.UserRepository

@@ -5,6 +5,7 @@ import (
 	"patika-ecommerce/internal/model"
 )
 
+// RegisterToUser converts a RegisterUser to a User
 func RegisterToUser(user *api.RegisterUser) *model.User {
 	a := (user.Email).String()
 
@@ -20,6 +21,7 @@ func RegisterToUser(user *api.RegisterUser) *model.User {
 	}
 }
 
+// LoginToUser converts a LoginUser to a User
 func LoginToUser(user *api.LoginUser) *model.User {
 	a := (user.Email).String()
 

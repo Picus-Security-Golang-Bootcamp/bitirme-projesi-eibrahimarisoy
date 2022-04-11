@@ -6,7 +6,7 @@ import (
 	"errors"
 	"fmt"
 	"net/http"
-	"patika-ecommerce/internals/api"
+	"patika-ecommerce/internal/api"
 	"strings"
 
 	"gorm.io/gorm"
@@ -21,7 +21,7 @@ var (
 	UniqueError         = errors.New("Item should be unique on database")
 )
 
-type RestError api.ApiErrorResponse
+type RestError api.APIErrorResponse
 
 type RestErr interface {
 	Status() int

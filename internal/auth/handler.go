@@ -2,9 +2,11 @@ package auth
 
 import (
 	"patika-ecommerce/internal/api"
+	httpErr "patika-ecommerce/internal/httpErrors"
 	"patika-ecommerce/pkg/config"
 
 	"github.com/gin-gonic/gin"
+	"github.com/go-openapi/strfmt"
 )
 
 type authHandler struct {
@@ -12,6 +14,7 @@ type authHandler struct {
 	cfg         *config.Config
 }
 
+// NewAuthHandler creates a new auth handler
 func NewAuthHandler(r *gin.RouterGroup, authService *AuthService, cfg *config.Config) {
 	handler := &authHandler{
 		authService: authService,
@@ -23,10 +26,16 @@ func NewAuthHandler(r *gin.RouterGroup, authService *AuthService, cfg *config.Co
 	r.POST("/refresh", handler.refresh)
 }
 
+// register is used to register a new user
 func (u *authHandler) register(c *gin.Context) {
 	var userBody api.RegisterUser
 	if err := c.ShouldBindJSON(&userBody); err != nil {
 		c.JSON(400, gin.H{"error": err.Error()})
+		return
+	}
+
+	if err := userBody.Validate(strfmt.NewFormats()); err != nil {
+		c.JSON(httpErr.ErrorResponse(err))
 		return
 	}
 
@@ -40,6 +49,7 @@ func (u *authHandler) register(c *gin.Context) {
 	c.JSON(200, resp)
 }
 
+// login is used to login a user
 func (u *authHandler) login(c *gin.Context) {
 	var reqBody api.LoginUser
 
