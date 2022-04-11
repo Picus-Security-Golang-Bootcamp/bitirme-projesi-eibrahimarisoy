@@ -5,6 +5,8 @@ import (
 	"patika-ecommerce/internal/api"
 	"patika-ecommerce/internal/cart"
 	"patika-ecommerce/internal/model"
+
+	"github.com/go-openapi/strfmt"
 )
 
 type OrderService struct {
@@ -46,4 +48,18 @@ func (r *OrderService) CompleteOrder(user *model.User, req *api.OrderRequest) (*
 // GetOrdersByUser returns all orders of a user
 func (r *OrderService) GetOrdersByUser(user *model.User) ([]*model.Order, error) {
 	return r.orderRepo.GetOrdersByUser(user)
+}
+
+// CancelOrder cancels an order
+func (r *OrderService) CancelOrder(user *model.User, id strfmt.UUID) error {
+	order, err := r.orderRepo.GetOrderByIdAndUser(user, id)
+	if err != nil {
+		return err
+	}
+
+	if !order.IsCancelable() {
+		return fmt.Errorf("order is not cancelable")
+	}
+
+	return r.orderRepo.CancelOrder(order)
 }

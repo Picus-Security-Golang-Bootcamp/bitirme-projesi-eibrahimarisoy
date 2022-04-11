@@ -3,6 +3,7 @@ package order
 import (
 	"patika-ecommerce/internal/model"
 
+	"github.com/go-openapi/strfmt"
 	"gorm.io/gorm"
 )
 
@@ -70,4 +71,14 @@ func (r *OrderRepository) GetOrdersByUser(user *model.User) ([]*model.Order, err
 	}
 
 	return orders, nil
+}
+
+// GetOrderByIdAndUser returns an order by id and user
+func (r *OrderRepository) GetOrderByIdAndUser(user *model.User, id strfmt.UUID) (*model.Order, error) {
+	var order model.Order
+	if err := r.db.Where("id = ? AND user_id = ?", id, user.ID).First(&order).Error; err != nil {
+		return nil, err
+	}
+
+	return &order, nil
 }

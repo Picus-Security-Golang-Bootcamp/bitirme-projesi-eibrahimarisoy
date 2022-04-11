@@ -35,3 +35,8 @@ type OrderItem struct {
 
 	Price float64 `json:"price"`
 }
+
+func (o *Order) IsCancelable() bool {
+	// TODO TODO TODO
+	return o.Status == OrderStatusCompleted
+}

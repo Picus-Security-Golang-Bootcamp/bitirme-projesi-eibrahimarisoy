@@ -20,6 +20,7 @@ func NewOrderHandler(r *gin.RouterGroup, cfg *config.Config, orderService *Order
 	r.Use(mw.AuthenticationMiddleware(cfg.JWTConfig.SecretKey))
 	r.POST("", handler.completeOrder)
 	r.GET("/", handler.listOrders)
+	r.PUT("/:id", handler.cancelOrder)
 	//
 }
 
@@ -54,4 +55,20 @@ func (r *orderHandler) listOrders(c *gin.Context) {
 	}
 
 	c.JSON(200, OrdersToOrderDetaledResponse(orders))
+}
+
+// cancelOrder cancels an order
+func (r *orderHandler) cancelOrder(c *gin.Context) {
+	id := c.Param("id")
+
+	user := c.MustGet("user").(*model.User)
+
+	order, err := r.orderService.CancelOrder(user, id)
+
+	if err != nil {
+		c.JSON(500, gin.H{"error": err.Error()})
+		return
+	}
+
+	c.JSON(200, order)
 }
