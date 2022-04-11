@@ -1,26 +1,26 @@
 package auth
 
 import (
-	"fmt"
 	"patika-ecommerce/internal/api"
-	user "patika-ecommerce/internal/user"
+	"patika-ecommerce/pkg/config"
 
 	"github.com/gin-gonic/gin"
 )
 
 type authHandler struct {
-	userRepo    *user.UserRepository
 	authService *AuthService
+	cfg         *config.Config
 }
 
-func NewAuthHandler(r *gin.RouterGroup, userRepo *user.UserRepository, authService *AuthService) {
+func NewAuthHandler(r *gin.RouterGroup, authService *AuthService, cfg *config.Config) {
 	handler := &authHandler{
-		userRepo:    userRepo,
 		authService: authService,
+		cfg:         cfg,
 	}
 
 	r.POST("/register", handler.register)
 	r.POST("/login", handler.login)
+	r.POST("/refresh", handler.refresh)
 }
 
 func (u *authHandler) register(c *gin.Context) {
@@ -30,13 +30,14 @@ func (u *authHandler) register(c *gin.Context) {
 		return
 	}
 
-	user, err := u.userRepo.InsertUser(RegisterToUser(&userBody))
+	resp, err := u.authService.RegisterService(RegisterToUser(&userBody))
+
 	if err != nil {
 		c.JSON(400, gin.H{"error": err.Error()})
 		return
 	}
 
-	c.JSON(200, u.authService.GetAuthTokenService(*user))
+	c.JSON(200, resp)
 }
 
 func (u *authHandler) login(c *gin.Context) {
@@ -46,24 +47,31 @@ func (u *authHandler) login(c *gin.Context) {
 		c.JSON(400, gin.H{"msg": err.Error()})
 		return
 	}
-	user, err := u.userRepo.GetUserByEmail((reqBody.Email).String())
+
+	resp, err := u.authService.LoginService(LoginToUser(&reqBody))
+
 	if err != nil {
 		c.JSON(400, gin.H{"msg": err.Error()})
 		return
 	}
 
-	// user := LoginToUser(&reqBody)
+	c.JSON(200, resp)
+}
 
-	if !user.CheckPassword(*reqBody.Password) {
-		c.JSON(400, gin.H{"msg": "Invalid password"})
+// refresh is used to refresh the token
+func (u *authHandler) refresh(c *gin.Context) {
+	var reqBody api.RefreshToken
+	if err := c.ShouldBindJSON(&reqBody); err != nil {
+		c.JSON(400, gin.H{"msg": err.Error()})
 		return
 	}
-	fmt.Println(LoginToUser(&reqBody))
 
-	// if err != nil {
-	// 	c.JSON(400, gin.H{"error": err.Error()})
-	// 	return
-	// }
+	resp, err := u.authService.RefreshTokenService(*reqBody.RefreshToken)
+	// user, err := u.userRepo.GetUserByEmail((reqBody.Email).String())
+	if err != nil {
+		c.JSON(400, gin.H{"msg": err.Error()})
+		return
+	}
 
-	c.JSON(200, u.authService.GetAuthTokenService(*user))
+	c.JSON(200, resp)
 }

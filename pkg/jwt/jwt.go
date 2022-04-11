@@ -52,13 +52,20 @@ func VerifyToken(token string, secret string) *model.User {
 		Base: model.Base{
 			ID: strfmt.UUID(decodedToken.UserId),
 		},
-		// FirstName: decodedToken.UserId,
-		// LastName:  decodedToken.UserId,
-		// Username:  decodedToken.UserId,
 		Email:   &decodedToken.Email,
 		IsAdmin: decodedToken.IsAdmin,
 		Roles:   []*model.Role{},
 	}
 
 	return &user
+}
+
+// ParseToken parses a token string into a jwt.Token
+func ParseToken(token string, secret string) (*jwt.Token, error) {
+	hmacSecretString := secret
+	hmacSecret := []byte(hmacSecretString)
+
+	return jwt.Parse(token, func(token *jwt.Token) (interface{}, error) {
+		return hmacSecret, nil
+	})
 }

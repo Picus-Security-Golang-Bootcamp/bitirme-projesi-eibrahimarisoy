@@ -87,6 +87,39 @@
             schema:
               $ref: "#/definitions/ApiErrorResponse"
 
+    /refresh:
+      post:
+        tags:
+          - "auth"
+        summary: "Refresh a user token"
+        description: "Refresh a user token"
+        operationId: "refresh"
+        consumes:
+          - "application/json"
+        produces:
+          - "application/json"
+        parameters:
+          - in: "body"
+            name: "body"
+            description: "User object that needs to be added to the store"
+            required: true
+            schema:
+              $ref: "#/definitions/RefreshToken"
+        responses:
+          "200":
+            description: "User logged in successfully"
+            schema:
+              $ref: "#/definitions/TokenResponse"
+          "400":
+            description: "Invalid user information"
+            schema:
+              $ref: "#/definitions/ApiErrorResponse"
+          "401":
+            description: "Invalid username or password"
+            schema:
+              $ref: "#/definitions/ApiErrorResponse"
+
+
     /categories:
       get:
         tags:
@@ -553,6 +586,14 @@
       properties:
         accessToken:
           type: "string"
+        refreshToken:
+          type: "string"
+
+    RefreshToken:
+      type: "object"
+      required:
+        - refreshToken
+      properties:
         refreshToken:
           type: "string"
 
