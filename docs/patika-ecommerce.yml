@@ -49,12 +49,12 @@
               $ref: "#/definitions/TokenResponse"
           "400":
             description: "Invalid user information"
-            # schema:
-              # $ref: "#/definitions/Error"
+            schema:
+              $ref: "#/definitions/ApiErrorResponse"
           "409":
             description: "User already exists"
-            # schema:
-            #   $ref: "#/definitions/Error"
+            schema:
+              $ref: "#/definitions/ApiErrorResponse"
     /login:
      post:
         tags:
@@ -80,12 +80,12 @@
               $ref: "#/definitions/TokenResponse"
           "400":
             description: "Invalid user information"
-            # schema:
-            #   $ref: "#/definitions/Error"
+            schema:
+              $ref: "#/definitions/ApiErrorResponse"
           "401":
             description: "Invalid username or password"
-            # schema:
-            #   $ref: "#/definitions/Error"
+            schema:
+              $ref: "#/definitions/ApiErrorResponse"
 
     /categories:
       get:
@@ -106,12 +106,12 @@
 
           "400":
             description: "Invalid category information"
-            # schema:
-            #   $ref: "#/definitions/Error"
+            schema:
+              $ref: "#/definitions/ApiErrorResponse"
           "401":
             description: "Unauthorized access"
-            # schema:
-            #   $ref: "#/definitions/Error"
+            schema:
+              $ref: "#/definitions/ApiErrorResponse"
 
       post:
         tags:
@@ -137,12 +137,12 @@
               $ref: "#/definitions/CategoryResponse"
           "400":
             description: "Invalid category information"
-            # schema:
-            #   $ref: "#/definitions/Error"
+            schema:
+              $ref: "#/definitions/ApiErrorResponse"
           "401":
             description: "Unauthorized access"
-            # schema:
-            #   $ref: "#/definitions/Error"
+            schema:
+              $ref: "#/definitions/ApiErrorResponse"
 
     /categories/bulk-upload:
       post:
@@ -174,12 +174,12 @@
               $ref: "#/definitions/CategoryResponse"
           "400":
             description: "Invalid category information"
-            # schema:
-            #   $ref: "#/definitions/Error"
+            schema:
+              $ref: "#/definitions/ApiErrorResponse"
           "401":
             description: "Unauthorized access"
-            # schema:
-            #   $ref: "#/definitions/Error"
+            schema:
+              $ref: "#/definitions/ApiErrorResponse"
 
     /products:
       get:
@@ -229,12 +229,12 @@
               $ref: "#/definitions/ProductResponse"
           "400":
             description: "Invalid product information"
-            # schema:
-            #   $ref: "#/definitions/Error"
+            schema:
+              $ref: "#/definitions/ApiErrorResponse"
           "401":
             description: "Unauthorized access"
-            # schema:
-            #   $ref: "#/definitions/Error"
+            schema:
+              $ref: "#/definitions/ApiErrorResponse"
 
     /products/{id}:
       get:
@@ -261,12 +261,12 @@
               $ref: "#/definitions/ProductResponse"
           "400":
             description: "Invalid product information"
-            # schema:
-            #   $ref: "#/definitions/Error"
+            schema:
+              $ref: "#/definitions/ApiErrorResponse"
           "401":
             description: "Unauthorized access"
-            # schema:
-            #   $ref: "#/definitions/Error"
+            schema:
+              $ref: "#/definitions/ApiErrorResponse"
       put:
         tags:
           - "product"
@@ -297,11 +297,11 @@
               $ref: "#/definitions/ProductResponse"
           "400":
             description: "Invalid product information"
-            # schema:
-            #   $ref: "#/definitions/Error"
+            schema:
+              $ref: "#/definitions/ApiErrorResponse"
           "401":
             description: "Unauthorized access"
-            # schema:
+            schema:
             #   $ref: "#/definitions/Error
       delete:
         tags:
@@ -325,12 +325,12 @@
             description: "Product deleted successfully"
           "400":
             description: "Invalid product information"
-            # schema:
-            #   $ref: "#/definitions/Error"
+            schema:
+              $ref: "#/definitions/ApiErrorResponse"
           "401":
             description: "Unauthorized access"
-            # schema:
-            #   $ref: "#/definitions/Error"
+            schema:
+              $ref: "#/definitions/ApiErrorResponse"
 
     /cart:
       post:
@@ -348,12 +348,12 @@
               $ref: "#/definitions/CartResponse"
           "400":
             description: "Invalid cart information"
-            # schema:
-            #   $ref: "#/definitions/Error"
+            schema:
+              $ref: "#/definitions/ApiErrorResponse"
           "401":
             description: "Unauthorized access"
-            # schema:
-            #   $ref: "#/definitions/Error"
+            schema:
+              $ref: "#/definitions/ApiErrorResponse"
     /cart/add:
       post:
         tags:
@@ -379,12 +379,12 @@
               $ref: "#/definitions/CartResponse"
           "400":
             description: "Invalid cart information"
-            # schema:
-            #   $ref: "#/definitions/Error"
+            schema:
+              $ref: "#/definitions/ApiErrorResponse"
           "401":
             description: "Unauthorized access"
-            # schema:
-            #   $ref: "#/definitions/Error"
+            schema:
+              $ref: "#/definitions/ApiErrorResponse"
     /cart/items:
       get:
         tags:
@@ -410,12 +410,12 @@
                 $ref: "#/definitions/CartItemDetailResponse"
           "400":
             description: "Invalid cart information"
-            # schema:
-            #   $ref: "#/definitions/Error"
+            schema:
+              $ref: "#/definitions/ApiErrorResponse"
           "401":
             description: "Unauthorized access"
-            # schema:
-            #   $ref: "#/definitions/Error"
+            schema:
+              $ref: "#/definitions/ApiErrorResponse"
     /cart/items/{id}:
       put:
         tags:
@@ -447,8 +447,8 @@
               $ref: "#/definitions/CartResponse"
           "400":
             description: "Invalid cart information"
-            # schema:
-            #   $ref: "#/definitions/Error"
+            schema:
+              $ref: "#/definitions/ApiErrorResponse"
           "401":
             description: "Unauthorized access"
     # TODO add delete
@@ -477,12 +477,12 @@
               $ref: "#/definitions/OrderResponse"
           "400":
             description: "Invalid order information"
-            # schema:
-            #   $ref: "#/definitions/Error"
+            schema:
+              $ref: "#/definitions/ApiErrorResponse"
           "401":
             description: "Unauthorized access"
-            # schema:
-            #   $ref: "#/definitions/Error"
+            schema:
+              $ref: "#/definitions/ApiErrorResponse"
       get:
         tags:
           - "orders"
@@ -507,12 +507,12 @@
                 $ref: "#/definitions/OrderDetailedResponse"
           "400":
             description: "Invalid order information"
-            # schema:
-            #   $ref: "#/definitions/Error"
+            schema:
+              $ref: "#/definitions/ApiErrorResponse"
           "401":
             description: "Unauthorized access"
-            # schema:
-            #   $ref: "#/definitions/Error"
+            schema:
+              $ref: "#/definitions/ApiErrorResponse"
 
   definitions:
     RegisterUser:
@@ -777,6 +777,17 @@
           type: "integer"
         Price:
           type: "number"
+
+    ApiErrorResponse:
+      type: "object"
+      properties:
+        code:
+          type: "integer"
+        message:
+          type: "string"
+        details:
+          description: a (key, value) map.
+          type: "object"
 
   parameters:
     offsetParam:
