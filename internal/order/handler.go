@@ -8,6 +8,7 @@ import (
 	mw "patika-ecommerce/pkg/middleware"
 
 	"github.com/gin-gonic/gin"
+	"github.com/go-openapi/strfmt"
 )
 
 type orderHandler struct {
@@ -63,12 +64,12 @@ func (r *orderHandler) cancelOrder(c *gin.Context) {
 
 	user := c.MustGet("user").(*model.User)
 
-	order, err := r.orderService.CancelOrder(user, id)
+	err := r.orderService.CancelOrder(user, strfmt.UUID(id))
 
 	if err != nil {
-		c.JSON(500, gin.H{"error": err.Error()})
+		c.JSON(400, gin.H{"error": err.Error()})
 		return
 	}
-
-	c.JSON(200, order)
+	resp := map[string]string{"message": "order cancelled"}
+	c.JSON(200, resp)
 }

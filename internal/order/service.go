@@ -57,9 +57,5 @@ func (r *OrderService) CancelOrder(user *model.User, id strfmt.UUID) error {
 		return err
 	}
 
-	if !order.IsCancelable() {
-		return fmt.Errorf("order is not cancelable")
-	}
-
 	return r.orderRepo.CancelOrder(order)
 }

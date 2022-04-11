@@ -1,6 +1,7 @@
 package order
 
 import (
+	"errors"
 	"patika-ecommerce/internal/model"
 
 	"github.com/go-openapi/strfmt"
@@ -81,4 +82,20 @@ func (r *OrderRepository) GetOrderByIdAndUser(user *model.User, id strfmt.UUID) 
 	}
 
 	return &order, nil
+}
+
+// CancelOrder cancels an order
+func (r *OrderRepository) CancelOrder(order *model.Order) error {
+	// TODO product stock update
+	if !order.IsCancelable() {
+		// return model.ErrOrderCannotBeCanceled
+		return errors.New("order cannot be canceled")
+	}
+
+	order.Status = model.OrderStatusCancelled
+	if err := r.db.Save(order).Error; err != nil {
+		return err
+	}
+
+	return nil
 }

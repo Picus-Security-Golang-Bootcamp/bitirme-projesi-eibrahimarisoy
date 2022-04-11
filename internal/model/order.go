@@ -1,6 +1,10 @@
 package model
 
-import "github.com/go-openapi/strfmt"
+import (
+	"time"
+
+	"github.com/go-openapi/strfmt"
+)
 
 type OrderStatus string
 
@@ -38,5 +42,11 @@ type OrderItem struct {
 
 func (o *Order) IsCancelable() bool {
 	// TODO TODO TODO
-	return o.Status == OrderStatusCompleted
+	today := time.Now()
+	lastDay := today.AddDate(0, 0, 14)
+	if o.CreatedAt.Before(lastDay) && o.Status == OrderStatusCompleted {
+		return true
+	}
+	return false
+
 }
