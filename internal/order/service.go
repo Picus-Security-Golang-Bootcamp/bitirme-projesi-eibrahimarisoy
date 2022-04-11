@@ -40,17 +40,10 @@ func (r *OrderService) CompleteOrder(user *model.User, req *api.OrderRequest) (*
 		return nil, err
 	}
 
-	// for _, item := range req.Items {
-	// 	orderItem := &model.OrderItem{
-	// 		OrderID:   order.ID,
-	// 		ProductID: item.ProductID,
-	// 		Quantity:  item.Quantity,
-	// 	}
-
-	// 	if err := r.orderItemRepo.db.Create(orderItem).Error; err != nil {
-	// 		return nil, err
-	// 	}
-	// }
-
 	return order, nil
+}
+
+// GetOrdersByUser returns all orders of a user
+func (r *OrderService) GetOrdersByUser(user *model.User) ([]*model.Order, error) {
+	return r.orderRepo.GetOrdersByUser(user)
 }

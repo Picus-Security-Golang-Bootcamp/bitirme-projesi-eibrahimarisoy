@@ -483,7 +483,37 @@
             description: "Unauthorized access"
             # schema:
             #   $ref: "#/definitions/Error"
-      
+      get:
+        tags:
+          - "orders"
+        summary: "Get all orders"
+        description: "Get all orders"
+        operationId: "getAllOrders"
+        consumes:
+          - "application/json"
+        produces:
+          - "application/json"
+        # parameters:
+        #   - $ref: '#/parameters/offsetParam'
+        #   - $ref: '#/parameters/limitParam'
+        #   - $ref: '#/parameters/queryParam'
+        #   - $ref: '#/parameters/sortParam'
+        responses:
+          "200":
+            description: "Orders retrieved successfully"
+            schema:
+              type: array
+              items:
+                $ref: "#/definitions/OrderDetailedResponse"
+          "400":
+            description: "Invalid order information"
+            # schema:
+            #   $ref: "#/definitions/Error"
+          "401":
+            description: "Unauthorized access"
+            # schema:
+            #   $ref: "#/definitions/Error"
+
   definitions:
     RegisterUser:
       type: "object"
@@ -716,6 +746,37 @@
         status:
           type: "string"
 
+    OrderDetailedResponse:
+      type: "object"
+      properties:
+        id:
+          type: "string"
+          format: "uuid"
+        cartId:
+          type: "string"
+          format: "uuid"
+        status:
+          type: "string"
+        items:
+          type: "array"
+          items:
+            $ref: "#/definitions/OrderItemDetailedResponse"
+        total:
+          type: "number"
+    
+    OrderItemDetailedResponse:
+      type: "object"
+      properties:
+        id:
+          type: "string"
+          format: "uuid"
+        product:
+          type: "string"
+          $ref: "#/definitions/ProductBasicResponse"
+        quantity:
+          type: "integer"
+        Price:
+          type: "number"
 
   parameters:
     offsetParam:

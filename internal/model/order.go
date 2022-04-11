@@ -20,7 +20,9 @@ type Order struct {
 	CartID strfmt.UUID `json:"cart_id"`
 	Cart   Cart        `json:"cart"`
 
-	TotalPrice int `json:"total_price"`
+	TotalPrice float64 `json:"total_price"`
+
+	Items []OrderItem `json:"items"`
 }
 
 type OrderItem struct {

@@ -19,6 +19,7 @@ func NewOrderHandler(r *gin.RouterGroup, cfg *config.Config, orderService *Order
 
 	r.Use(mw.AuthenticationMiddleware(cfg.JWTConfig.SecretKey))
 	r.POST("", handler.completeOrder)
+	r.GET("/", handler.listOrders)
 	//
 }
 
@@ -39,4 +40,18 @@ func (r *orderHandler) completeOrder(c *gin.Context) {
 	}
 
 	c.JSON(200, order)
+}
+
+// listOrders lists all orders
+func (r *orderHandler) listOrders(c *gin.Context) {
+	user := c.MustGet("user").(*model.User)
+
+	orders, err := r.orderService.GetOrdersByUser(user)
+
+	if err != nil {
+		c.JSON(500, gin.H{"error": err.Error()})
+		return
+	}
+
+	c.JSON(200, OrdersToOrderDetaledResponse(orders))
 }

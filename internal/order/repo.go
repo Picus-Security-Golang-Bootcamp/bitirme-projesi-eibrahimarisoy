@@ -61,3 +61,13 @@ func (r *OrderRepository) CompleteOrder(cart *model.Cart) (*model.Order, error) 
 	tx.Commit()
 	return order, nil
 }
+
+// GetOrdersByUser returns all orders of a user
+func (r *OrderRepository) GetOrdersByUser(user *model.User) ([]*model.Order, error) {
+	var orders []*model.Order
+	if err := r.db.Preload("Items.Product").Where("user_id = ?", user.ID).Find(&orders).Error; err != nil {
+		return nil, err
+	}
+
+	return orders, nil
+}
