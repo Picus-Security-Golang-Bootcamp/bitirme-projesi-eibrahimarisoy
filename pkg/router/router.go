@@ -17,6 +17,7 @@ import (
 
 // InitializeRoutes
 func InitializeRoutes(rootRouter *gin.RouterGroup, db *gorm.DB, cfg *config.Config) {
+	// Initialize the router groups
 	authGroup := rootRouter.Group("/")
 	roleGroup := rootRouter.Group("/roles")
 	userGroup := rootRouter.Group("/users")

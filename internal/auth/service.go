@@ -39,7 +39,7 @@ func (a *AuthService) RegisterService(user *model.User) (api.TokenResponse, erro
 	if err != nil {
 		return api.TokenResponse{}, err
 	}
-	return a.GetAuthTokenService(*user), nil
+	return a.GetAuthTokenService(user), nil
 }
 
 // LoginService is a service that logs in a user
@@ -53,25 +53,14 @@ func (a *AuthService) LoginService(user *model.User) (api.TokenResponse, error) 
 		return api.TokenResponse{}, fmt.Errorf("invalid password")
 	}
 
-	return a.GetAuthTokenService(*user), nil
+	return a.GetAuthTokenService(user), nil
 }
 
 //AuthTokenService is a service that generates a new JWT token
-func (a *AuthService) GetAuthTokenService(user model.User) api.TokenResponse {
-	jwtClaimsForAccessToken := jwt.NewWithClaims(jwt.SigningMethodHS256, jwt.MapClaims{
-		"CreatedAt": time.Now().Unix(),
-		"ExpiresAt": time.Now().Add(time.Duration(a.cfg.JWTConfig.AccessTokenLifeTime) * time.Hour).Unix(),
-		"Roles":     user.Roles,
-		"UserId":    user.ID,
-		"Email":     user.Email,
-		"IsAdmin":   user.IsAdmin,
-	})
+func (a *AuthService) GetAuthTokenService(user *model.User) api.TokenResponse {
+	jwtClaimsForAccessToken := jwtHelper.NewJwtClaimsForAccessToken(user, a.cfg.JWTConfig.AccessTokenLifeTime)
 
-	jwtClaimsForRefreshToken := jwt.NewWithClaims(jwt.SigningMethodHS256, jwt.MapClaims{
-		"CreatedAt": time.Now().Unix(),
-		"ExpiresAt": time.Now().Add(time.Duration(a.cfg.JWTConfig.RefrehTokenLifeTime) * time.Hour).Unix(),
-		"UserId":    user.ID,
-	})
+	jwtClaimsForRefreshToken := jwtHelper.NewJwtClaimsForRefreshToken(user, a.cfg.JWTConfig.RefreshTokenLifeTime)
 
 	accesToken := jwtHelper.GenerateToken(jwtClaimsForAccessToken, a.cfg.JWTConfig.SecretKey)
 	refreshToken := jwtHelper.GenerateToken(jwtClaimsForRefreshToken, a.cfg.JWTConfig.SecretKey)
@@ -104,14 +93,7 @@ func (a *AuthService) RefreshTokenService(refreshToken string) (api.TokenRespons
 		return api.TokenResponse{}, err
 	}
 
-	jwtClaimsForAccessToken := jwt.NewWithClaims(jwt.SigningMethodHS256, jwt.MapClaims{
-		"CreatedAt": time.Now().Unix(),
-		"ExpiresAt": time.Now().Add(time.Duration(a.cfg.JWTConfig.AccessTokenLifeTime) * time.Hour).Unix(),
-		"Roles":     user.Roles,
-		"UserId":    user.ID,
-		"Email":     user.Email,
-		"IsAdmin":   user.IsAdmin,
-	})
+	jwtClaimsForAccessToken := jwtHelper.NewJwtClaimsForAccessToken(user, a.cfg.JWTConfig.AccessTokenLifeTime)
 
 	accesToken := jwtHelper.GenerateToken(jwtClaimsForAccessToken, a.cfg.JWTConfig.SecretKey)
 
