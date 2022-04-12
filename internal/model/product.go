@@ -22,14 +22,9 @@ type Product struct {
 }
 
 func (p *Product) BeforeCreate(tx *gorm.DB) error {
-	p.Slug = slug.Make(*p.Name)
+	p.Slug = slug.Make(*p.Name + "-" + *p.SKU)
 	return nil
 }
-
-// // AfterDelete hook defined for cascade delete
-// func (p *Product) AfterDelete(tx *gorm.DB) error {
-// 	return tx.Model("product_categories").Where("product_id = ?", p.ID).Unscoped().Delete(&p).Error
-// }
 
 // ToString converts the product to string
 func (p *Product) ToString() string {

@@ -10,6 +10,8 @@ import (
 
 	mw "patika-ecommerce/pkg/middleware"
 
+	httpErr "patika-ecommerce/internal/httpErrors"
+
 	"github.com/gin-gonic/gin"
 	"github.com/go-openapi/strfmt"
 	"gorm.io/gorm"
@@ -19,12 +21,13 @@ type productHandler struct {
 	productRepo *ProductRepository
 }
 
-func NewProductHandler(r *gin.RouterGroup, productRepo *ProductRepository, cfg *config.Config) {
+func NewProductHandler(r *gin.RouterGroup, cfg *config.Config, productRepo *ProductRepository) {
 	handler := &productHandler{productRepo: productRepo}
-
+	// Public endpoints
 	r.GET("", handler.getProducts)
 	r.GET("/:id", handler.getProduct)
 
+	// Private endpoints
 	r.Use(mw.AuthenticationMiddleware(cfg.JWTConfig.SecretKey))
 	r.Use(mw.AdminMiddleware())
 	r.POST("", handler.createProduct)
@@ -34,15 +37,22 @@ func NewProductHandler(r *gin.RouterGroup, productRepo *ProductRepository, cfg *
 
 // createProduct creates a new product
 func (r *productHandler) createProduct(c *gin.Context) {
-	productReq := api.ProductRequest{}
-	if err := c.ShouldBindJSON(&productReq); err != nil {
-		c.JSON(400, gin.H{"error": err.Error()})
+	reqBody := &api.ProductRequest{}
+
+	if err := c.ShouldBindJSON(&reqBody); err != nil {
+		c.JSON(httpErr.ErrorResponse(err))
 		return
 	}
-	fmt.Println("product: ", &productReq)
-	product := ProductRequestToProduct(&productReq)
+
+	if err := reqBody.Validate(strfmt.NewFormats()); err != nil {
+		c.JSON(httpErr.ErrorResponse(err))
+		return
+	}
+
+	product := ProductRequestToProduct(reqBody)
+
 	if err := r.productRepo.InsertProduct(product); err != nil {
-		c.JSON(400, gin.H{"error": err.Error()})
+		c.JSON(httpErr.ErrorResponse(err))
 		return
 	}
 	c.JSON(201, ProductToResponse(product))
@@ -96,21 +106,18 @@ func (r *productHandler) getProducts(c *gin.Context) {
 func (r *productHandler) getProduct(c *gin.Context) {
 	product := &model.Product{}
 
-	if err := c.ShouldBindUri(&product); err != nil {
-		c.JSON(400, gin.H{"msg": err.Error()})
+	if err := c.ShouldBindUri(product); err != nil {
+		c.JSON(httpErr.ErrorResponse(err)) // TODO payload error basiyor kontrol
 		return
 	}
-	id := c.Param("id")
 
-	product, err := r.productRepo.GetProduct(id)
+	product, err := r.productRepo.GetProduct(strfmt.UUID(c.Param("id")))
+
 	if err != nil {
-		if errors.Is(err, gorm.ErrRecordNotFound) {
-			c.JSON(404, gin.H{"msg": "product not found"})
-			return
-		}
-		c.JSON(400, gin.H{"error": err.Error()})
+		c.JSON(httpErr.ErrorResponse(err))
 		return
 	}
+
 	c.JSON(200, ProductToResponse(product))
 }
 
@@ -118,28 +125,19 @@ func (r *productHandler) getProduct(c *gin.Context) {
 func (r *productHandler) deleteProduct(c *gin.Context) {
 	product := &model.Product{}
 
-	if err := c.ShouldBindUri(&product); err != nil {
-		c.JSON(400, gin.H{"msg": err.Error()})
+	if err := c.ShouldBindUri(product); err != nil {
+		c.JSON(httpErr.ErrorResponse(err)) // TODO payload error basiyor kontrol
 		return
 	}
-	id := c.Param("id")
 
-	product, err := r.productRepo.GetProduct(id)
-	if err != nil {
-		if errors.Is(err, gorm.ErrRecordNotFound) {
-			c.JSON(404, gin.H{"msg": "product not found"})
-			return
-		}
-		c.JSON(400, gin.H{"error": err.Error()})
-		return
-	}
+	product.ID = strfmt.UUID(c.Param("id"))
 
 	if err := r.productRepo.DeleteProduct(product); err != nil {
 		if errors.Is(err, gorm.ErrRecordNotFound) {
-			c.JSON(404, gin.H{"msg": "product not found"})
+			c.JSON(httpErr.ErrorResponse(err))
 			return
 		}
-		c.JSON(400, gin.H{"error": err.Error()})
+		c.JSON(httpErr.ErrorResponse(err))
 		return
 	}
 	c.JSON(204, nil)
@@ -147,33 +145,41 @@ func (r *productHandler) deleteProduct(c *gin.Context) {
 
 // updateProduct updates a single product
 func (r *productHandler) updateProduct(c *gin.Context) {
-	productReq := &api.ProductRequest{}
+	reqBody := &api.ProductRequest{}
 
-	if err := c.ShouldBindUri(&productReq); err != nil {
-		c.JSON(400, gin.H{"msg": err.Error()})
-		return
-	}
-	if err := c.ShouldBindJSON(&productReq); err != nil {
-		c.JSON(400, gin.H{"msg": err.Error()})
+	if err := c.ShouldBindJSON(&reqBody); err != nil {
+		c.JSON(httpErr.ErrorResponse(err))
 		return
 	}
 
-	product := ProductRequestToProduct(productReq)
-	fmt.Println("************product: ", product)
+	if err := reqBody.Validate(strfmt.NewFormats()); err != nil {
+		c.JSON(httpErr.ErrorResponse(err))
+		return
+	}
+
+	product := ProductRequestToProduct(reqBody)
 	product.ID = strfmt.UUID(c.Param("id"))
 
 	err := r.productRepo.UpdateProduct(product)
-	// fmt.Println("-----------product: ", product.ToString())
 
 	if err != nil {
 		if errors.Is(err, gorm.ErrRecordNotFound) {
-			c.JSON(404, gin.H{"msg": "product not found"})
+			c.JSON(httpErr.ErrorResponse(err))
 			return
 		}
-		c.JSON(400, gin.H{"error": err.Error()})
+		c.JSON(httpErr.ErrorResponse(err))
 		return
 	}
-	fmt.Println("******************")
-	fmt.Println("product: ", product.ToString())
+
 	c.JSON(200, ProductToResponse(product))
 }
+
+// FIXME
+// ida := strfmt.UUID(c.Param("id"))
+
+// 	id := c.Param("id")
+// 	idx, a := uuid.Parse(ida.String())
+// 	if !a {
+// 		c.JSON(httpErr.ErrorResponse(errors.New("invalid product id")))
+// 		return
+// 	}

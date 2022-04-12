@@ -1,7 +1,6 @@
 package product
 
 import (
-	"errors"
 	"fmt"
 	"math"
 	"patika-ecommerce/internal/model"
@@ -26,11 +25,10 @@ func NewProductRepository(db *gorm.DB) *ProductRepository {
 
 // InsertProduct insert product
 func (r *ProductRepository) InsertProduct(product *model.Product) error {
-	result := r.db.Where("sku = ?", product.SKU).Create(product)
+	result := r.db.Create(&product)
+
 	if result.Error != nil {
-		if errors.Is(result.Error, gorm.ErrRecordNotFound) {
-			return fmt.Errorf("product with sku %s already exists", *product.SKU)
-		}
+		return result.Error
 	}
 
 	return nil
@@ -48,7 +46,7 @@ func (r *ProductRepository) GetProducts(pagination *model.Pagination) (*model.Pa
 	search := pagination.Q
 
 	find := r.db
-	find = find.Limit(pagination.Limit).Offset(offset).Order(pagination.Sort)
+	find = find.Limit(pagination.Limit).Offset(offset).Order(pagination.Sort).Preload("Categories")
 	if search != "" {
 		find := find.Scopes(Search(search))
 		fmt.Println("search: ", find)
@@ -73,7 +71,7 @@ func (r *ProductRepository) GetProducts(pagination *model.Pagination) (*model.Pa
 }
 
 // GetProduct get a single product
-func (r *ProductRepository) GetProduct(id string) (*model.Product, error) {
+func (r *ProductRepository) GetProduct(id strfmt.UUID) (*model.Product, error) {
 	product := new(model.Product)
 	result := r.db.Preload("Categories").Where("id = ?", id).First(&product)
 	if result.Error != nil {
@@ -96,8 +94,11 @@ func (r *ProductRepository) GetProductWithoutCategories(id strfmt.UUID) (*model.
 
 // DeleteProduct delete a single product
 func (r *ProductRepository) DeleteProduct(product *model.Product) error {
+	// r.db.Model(&product).Association("Categories").Delete(&product)
+	// r.db.Model(&product).Association("Categories").Delete(&product)
 
 	result := r.db.Select(clause.Associations).Delete(&product)
+	// result := r.db.Where(model.Product{}).Delete(&product)
 
 	if result.Error != nil {
 		return result.Error
