@@ -13,13 +13,14 @@ import (
 )
 
 var (
-	InternalServerError = errors.New("Internal Server Error")
-	NotFound            = errors.New("Not Found")
-	RequestTimeoutError = errors.New("Request Timeout")
-	CannotBindGivenData = errors.New("Could not bind given data")
-	ValidationError     = errors.New("Validation failed for given payload")
-	UniqueError         = errors.New("Item should be unique on database")
-	Unauthorized        = errors.New("Unauthorized")
+	InternalServerError   = errors.New("Internal Server Error")
+	NotFound              = errors.New("Not Found")
+	RequestTimeoutError   = errors.New("Request Timeout")
+	CannotBindGivenData   = errors.New("Could not bind given data")
+	ValidationError       = errors.New("Validation failed for given payload")
+	UniqueError           = errors.New("Item should be unique on database")
+	Unauthorized          = errors.New("Unauthorized")
+	MediaTypeNotSupported = errors.New("Media type not supported")
 )
 
 type RestError api.APIErrorResponse
@@ -75,6 +76,8 @@ func ParseErrors(err error) RestErr {
 		return NewRestError(http.StatusNotFound, gorm.ErrRecordNotFound.Error(), err)
 	case strings.Contains(err.Error(), "validation"): //validator.ValidationErrorsKey:
 		return NewRestError(http.StatusBadRequest, ValidationError.Error(), err)
+	case strings.Contains(err.Error(), "extension"):
+		return NewRestError(http.StatusBadRequest, MediaTypeNotSupported.Error(), err)
 	case strings.Contains(err.Error(), "23505"):
 		return NewRestError(http.StatusBadRequest, UniqueError.Error(), err)
 	case strings.Contains(err.Error(), "cannot unmarshal"): //*json.UnmarshalTypeError

@@ -1,7 +1,6 @@
 package category
 
 import (
-	"fmt"
 	"patika-ecommerce/internal/api"
 	httpErr "patika-ecommerce/internal/httpErrors"
 	"patika-ecommerce/internal/model"
@@ -121,28 +120,21 @@ func (r *categoryHandler) createBulkCategories(c *gin.Context) {
 	file, err := c.FormFile("file")
 
 	if err != nil {
-		c.JSON(400, gin.H{
-			"message": "No file is received",
-		})
+		c.JSON(httpErr.ErrorResponse(err))
 		return
 	}
 
 	if err := file_helper.CheckFileIsValid(file); err != nil {
-		c.JSON(400, gin.H{
-			"message": err.Error(),
-		})
+		c.JSON(httpErr.ErrorResponse(err))
 		return
 	}
 
 	categories, err := r.categoryService.CreateBulkCategories(file)
 
 	if err != nil {
-		c.JSON(400, gin.H{
-			"message": err.Error(),
-		})
+		c.JSON(httpErr.ErrorResponse(err))
 		return
 	}
-	fmt.Println(categories)
-	fmt.Println(len(categories))
+
 	c.JSON(200, CategoriesToCategoryResponse(&categories))
 }

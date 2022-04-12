@@ -1,10 +1,9 @@
 package category
 
 import (
-	"encoding/csv"
-	"fmt"
 	"mime/multipart"
 	"patika-ecommerce/internal/model"
+	"patika-ecommerce/pkg/utils"
 
 	"github.com/go-openapi/strfmt"
 )
@@ -37,20 +36,9 @@ func (c *CategoryService) UpdateCategory(category *model.Category) error {
 	return c.categoryRepo.UpdateCategory(category)
 }
 
+// CreateBulkCategories creates multiple categories in bulk operation with the specified file
 func (c *CategoryService) CreateBulkCategories(filename *multipart.FileHeader) ([]model.Category, error) {
-	file, err := filename.Open()
-	if err != nil {
-		return nil, err
-	}
-	defer file.Close()
-
-	reader := csv.NewReader(file)
-	reader.Comma = ','
-	reader.LazyQuotes = true
-	reader.FieldsPerRecord = -1
-	reader.TrimLeadingSpace = true
-
-	records, err := reader.ReadAll()
+	records, err := utils.ReadFile(filename)
 	if err != nil {
 		return nil, err
 	}
@@ -60,16 +48,12 @@ func (c *CategoryService) CreateBulkCategories(filename *multipart.FileHeader) (
 		category := model.Category{
 			Name:        &record[0],
 			Description: record[1],
-			// ParentId:    record[2],
 		}
 		categories = append(categories, category)
 	}
-	fmt.Println(c.categoryRepo)
-	for _, category := range categories {
 
-		if err := c.categoryRepo.InsertCategory(&category); err != nil {
-			return nil, err
-		}
+	if err := c.categoryRepo.InsertBulkCategory(&categories); err != nil {
+		return nil, err
 	}
 	return categories, nil
 

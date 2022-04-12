@@ -55,3 +55,18 @@ func (r *CategoryRepository) UpdateCategory(category *model.Category) error {
 	}
 	return nil
 }
+
+// InsertBulkCategory inserts bulk categories
+func (r *CategoryRepository) InsertBulkCategory(categories *[]model.Category) error {
+	tx := r.db.Begin()
+
+	for _, category := range *categories {
+		if err := tx.Create(&category).Error; err != nil {
+			tx.Rollback()
+			return err
+		}
+	}
+
+	tx.Commit()
+	return nil
+}
