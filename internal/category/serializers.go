@@ -8,7 +8,7 @@ import (
 // CategoryRequestToCategory converts a CategoryRequest to a Category
 func CategoryRequestToCategory(categoryRequest *api.CategoryRequest) *model.Category {
 	return &model.Category{
-		Name:        *categoryRequest.Name,
+		Name:        categoryRequest.Name,
 		Description: categoryRequest.Description,
 	}
 }
@@ -17,17 +17,17 @@ func CategoryRequestToCategory(categoryRequest *api.CategoryRequest) *model.Cate
 func CategoryToCategoryResponse(category *model.Category) *api.CategoryResponse {
 	return &api.CategoryResponse{
 		ID:          category.ID,
-		Name:        category.Name,
+		Name:        *category.Name,
 		Slug:        category.Slug,
 		Description: category.Description,
 	}
 }
 
 // CategoriesToCategoryResponse converts a list of Categories to a list of CategoryResponse
-func CategoriesToCategoryResponse(categories []*model.Category) []*api.CategoryResponse {
+func CategoriesToCategoryResponse(categories *[]model.Category) []*api.CategoryResponse {
 	var categoryResponses []*api.CategoryResponse
-	for _, category := range categories {
-		categoryResponses = append(categoryResponses, CategoryToCategoryResponse(category))
+	for _, category := range *categories {
+		categoryResponses = append(categoryResponses, CategoryToCategoryResponse(&category))
 	}
 	return categoryResponses
 }

@@ -73,10 +73,9 @@ func ParseErrors(err error) RestErr {
 		return NewRestError(http.StatusBadRequest, CannotBindGivenData.Error(), err)
 	case errors.Is(err, gorm.ErrRecordNotFound):
 		return NewRestError(http.StatusNotFound, gorm.ErrRecordNotFound.Error(), err)
-	case strings.Contains(err.Error(), "validation"):
+	case strings.Contains(err.Error(), "validation"): //validator.ValidationErrorsKey:
 		return NewRestError(http.StatusBadRequest, ValidationError.Error(), err)
 	case strings.Contains(err.Error(), "23505"):
-		fmt.Println(err)
 		return NewRestError(http.StatusBadRequest, UniqueError.Error(), err)
 	case strings.Contains(err.Error(), "cannot unmarshal"): //*json.UnmarshalTypeError
 		return NewRestError(http.StatusBadRequest, CannotBindGivenData.Error(), err)

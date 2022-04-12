@@ -190,6 +190,77 @@ paths:
           schema:
             $ref: "#/definitions/ApiErrorResponse"
 
+  /categories/{id}:
+    get:
+      tags:
+        - "category"
+      summary: "Get a category by ID"
+      description: "Get a category by ID"
+      operationId: "getCategoryById"
+      security:
+        - Bearer: []
+      produces:
+        - "application/json"
+      parameters:
+        - in: "path"
+          name: "id"
+          description: "ID of category to return"
+          required: true
+          type: "string"
+          format: "uuid"
+      responses:
+        "200":
+          description: "Category retrieved successfully"
+          schema:
+            $ref: "#/definitions/CategoryResponse"
+        "400":
+          description: "Invalid category information"
+          schema:
+            $ref: "#/definitions/ApiErrorResponse"
+        "401":
+          description: "Unauthorized access"
+          schema:
+            $ref: "#/definitions/ApiErrorResponse"
+    put:
+      tags:
+        - "category"
+      summary: "Update a category by ID"
+      description: "Update a category by ID"
+      operationId: "updateCategoryById"
+      security:
+        - Bearer: []
+      consumes:
+        - "application/json"
+      produces:
+        - "application/json"
+      parameters:
+        - in: "path"
+          name: "id"
+          description: "ID of category to return"
+          required: true
+          type: "string"
+          format: "uuid"
+        - in: "body"
+          name: "body"
+          description: "Category object that needs to be added to the store"
+          required: true
+          schema:
+            $ref: "#/definitions/CategoryRequest"
+      responses:
+        "200":
+          description: "Category updated successfully"
+          schema:
+            $ref: "#/definitions/CategoryResponse"
+        "400":
+          description: "Invalid category information"
+          schema:
+            $ref: "#/definitions/ApiErrorResponse"
+        "401":
+          description: "Unauthorized access"
+          schema:
+            $ref: "#"
+
+
   /categories/bulk-upload:
     post:
       tags:
