@@ -17,8 +17,9 @@ func NewUserRepository(db *gorm.DB) *UserRepository {
 	return &UserRepository{db: db}
 }
 
+// InsertUser insert user to database
 func (u *UserRepository) InsertUser(user *model.User) (*model.User, error) {
-	result := u.db.Where(model.User{Email: user.Email, Username: user.Username}).FirstOrCreate(user)
+	result := u.db.Create(user)
 
 	if result.Error != nil {
 		return nil, result.Error

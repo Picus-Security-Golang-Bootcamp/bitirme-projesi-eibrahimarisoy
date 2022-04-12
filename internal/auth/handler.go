@@ -31,6 +31,7 @@ func (u *authHandler) register(c *gin.Context) {
 	var userBody api.RegisterUser
 
 	if err := c.ShouldBindJSON(&userBody); err != nil {
+		print(err)
 		c.JSON(httpErr.ErrorResponse(err))
 		return
 	}
@@ -43,7 +44,7 @@ func (u *authHandler) register(c *gin.Context) {
 	resp, err := u.authService.RegisterService(RegisterToUser(&userBody))
 
 	if err != nil {
-		c.JSON(400, gin.H{"error": err.Error()})
+		c.JSON(httpErr.ErrorResponse(err))
 		return
 	}
 
@@ -56,6 +57,11 @@ func (u *authHandler) login(c *gin.Context) {
 
 	if err := c.ShouldBindJSON(&reqBody); err != nil {
 		c.JSON(400, gin.H{"msg": err.Error()})
+		return
+	}
+
+	if err := reqBody.Validate(strfmt.NewFormats()); err != nil {
+		c.JSON(httpErr.ErrorResponse(err))
 		return
 	}
 

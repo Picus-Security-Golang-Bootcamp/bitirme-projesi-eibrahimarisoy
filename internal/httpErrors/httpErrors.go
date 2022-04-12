@@ -26,7 +26,7 @@ type RestError api.APIErrorResponse
 type RestErr interface {
 	Status() int
 	Error() string
-	Causes() interface{}
+	// Causes() interface{}
 }
 
 // Error  Error() interface method
@@ -61,6 +61,7 @@ func NewInternalServerError(causes interface{}) RestErr {
 
 // ParseErrors Parser of error string messages returns RestError
 func ParseErrors(err error) RestErr {
+	fmt.Println(err)
 	switch {
 	case errors.Is(err, sql.ErrNoRows):
 		return NewRestError(http.StatusNotFound, NotFound.Error(), err)
@@ -73,7 +74,10 @@ func ParseErrors(err error) RestErr {
 	case strings.Contains(err.Error(), "validation"):
 		return NewRestError(http.StatusBadRequest, ValidationError.Error(), err)
 	case strings.Contains(err.Error(), "23505"):
+		fmt.Println(err)
 		return NewRestError(http.StatusBadRequest, UniqueError.Error(), err)
+	case strings.Contains(err.Error(), "cannot unmarshal"):
+		return NewRestError(http.StatusBadRequest, CannotBindGivenData.Error(), err)
 
 	default:
 		if restErr, ok := err.(RestErr); ok {
