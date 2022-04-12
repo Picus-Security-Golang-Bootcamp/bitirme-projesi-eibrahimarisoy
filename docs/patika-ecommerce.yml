@@ -1,865 +1,880 @@
-  swagger: "2.0"
-  info:
-    description: "This is a Patika Ecommerce API server."
-    version: "1.0.0"
-    title: "Swagger PatikaStore"
-    termsOfService: "http://swagger.io/terms/"
-    contact:
-      email: "eibrahimarisoy@gmail.com"
-    license:
-      name: "Apache 2.0"
-      url: "http://www.apache.org/licenses/LICENSE-2.0.html"
-  basePath: "/api/v1"
-  tags:
-    - name: "auth"
-      description: "Authentication operations"
-    - name: "user"
-      description: "Everything about User"
-    - name: "category"
-      description: "Everything about category"
-    - name: "product"
-      description: "Everything about product"
+swagger: "2.0"
+info:
+  description: "This is a Patika Ecommerce API server."
+  version: "1.0.0"
+  title: "Swagger PatikaStore"
+  termsOfService: "http://swagger.io/terms/"
+  contact:
+    email: "eibrahimarisoy@gmail.com"
+  license:
+    name: "Apache 2.0"
+    url: "http://www.apache.org/licenses/LICENSE-2.0.html"
+basePath: "/api/v1"
 
-  schemes:
-    - "https"
-    - "http"
-  paths:
-    /register:
-      post:
-        tags:
-          - "auth"
-        summary: "Register a new user"
-        description: "Register a new user"
-        operationId: "register"
-        consumes:
-          - "application/json"
-        produces:
-          - "application/json"
-        parameters:
-          - in: "body"
-            name: "body"
-            description: "User object that needs to be added to the store"
-            required: true
-            schema:
-              $ref: "#/definitions/RegisterUser"
-        responses:
-          "200":
-            description: "User registered successfully"
-            schema:
-              $ref: "#/definitions/TokenResponse"
-          "400":
-            description: "Invalid user information"
-            schema:
-              $ref: "#/definitions/ApiErrorResponse"
-          "409":
-            description: "User already exists"
-            schema:
-              $ref: "#/definitions/ApiErrorResponse"
-    /login:
-     post:
-        tags:
-          - "auth"
-        summary: "Login a user"
-        description: "Login a user"
-        operationId: "login"
-        consumes:
-          - "application/json"
-        produces:
-          - "application/json"
-        parameters:
-          - in: "body"
-            name: "body"
-            description: "User object that needs to be added to the store"
-            required: true
-            schema:
-              $ref: "#/definitions/LoginUser"
-        responses:
-          "200":
-            description: "User logged in successfully"
-            schema:
-              $ref: "#/definitions/TokenResponse"
-          "400":
-            description: "Invalid user information"
-            schema:
-              $ref: "#/definitions/ApiErrorResponse"
-          "401":
-            description: "Invalid username or password"
-            schema:
-              $ref: "#/definitions/ApiErrorResponse"
+securityDefinitions:  
+  Bearer:    
+    type: apiKey    
+    name: Authorization    
+    in: header
 
-    /refresh:
-      post:
-        tags:
-          - "auth"
-        summary: "Refresh a user token"
-        description: "Refresh a user token"
-        operationId: "refresh"
-        consumes:
-          - "application/json"
-        produces:
-          - "application/json"
-        parameters:
-          - in: "body"
-            name: "body"
-            description: "User object that needs to be added to the store"
-            required: true
-            schema:
-              $ref: "#/definitions/RefreshToken"
-        responses:
-          "200":
-            description: "User logged in successfully"
-            schema:
-              $ref: "#/definitions/TokenResponse"
-          "400":
-            description: "Invalid user information"
-            schema:
-              $ref: "#/definitions/ApiErrorResponse"
-          "401":
-            description: "Invalid username or password"
-            schema:
-              $ref: "#/definitions/ApiErrorResponse"
+tags:
+  - name: "auth"
+    description: "Authentication operations"
+  - name: "user"
+    description: "Everything about User"
+  - name: "category"
+    description: "Everything about category"
+  - name: "product"
+    description: "Everything about product"
+  - name: "order"
+    description: "Everything about order"
+  - name: "cart"
+    description: "Everything about cart"
+
+schemes:
+  - "https"
+  - "http"
+paths:
+  /register:
+    post:
+      tags:
+        - "auth"
+      summary: "Register a new user"
+      description: "Register a new user"
+      operationId: "register"
+      consumes:
+        - "application/json"
+      produces:
+        - "application/json"
+      parameters:
+        - in: "body"
+          name: "body"
+          description: "User object that needs to be added to the store"
+          required: true
+          schema:
+            $ref: "#/definitions/RegisterUser"
+      responses:
+        "200":
+          description: "User registered successfully"
+          schema:
+            $ref: "#/definitions/TokenResponse"
+        "400":
+          description: "Invalid user information"
+          schema:
+            $ref: "#/definitions/ApiErrorResponse"
+        "409":
+          description: "User already exists"
+          schema:
+            $ref: "#/definitions/ApiErrorResponse"
+  /login:
+    post:
+      tags:
+        - "auth"
+      summary: "Login a user"
+      description: "Returns token for authorized User"
+      operationId: "login"
+      consumes:
+        - "application/json"
+      produces:
+        - "application/json"
+      parameters:
+        - in: "body"
+          name: "body"
+          required: true
+          description: "Login Payload"
+          schema:
+            $ref: "#/definitions/LoginUser"
+      responses:
+        "200":
+          description: "User logged in successfully"
+          schema:
+            $ref: "#/definitions/TokenResponse"
+        "400":
+          description: "Invalid user information"
+          schema:
+            $ref: "#/definitions/ApiErrorResponse"
+        "401":
+          description: "Invalid username or password"
+          schema:
+            $ref: "#/definitions/ApiErrorResponse"
+
+  /refresh:
+    post:
+      tags:
+        - "auth"
+      summary: "Refresh a user token"
+      description: "Refresh a user token"
+      operationId: "refresh"
+      consumes:
+        - "application/json"
+      produces:
+        - "application/json"
+      parameters:
+        - in: "body"
+          name: "body"
+          description: "User object that needs to be added to the store"
+          required: true
+          schema:
+            $ref: "#/definitions/RefreshToken"
+      responses:
+        "200":
+          description: "User logged in successfully"
+          schema:
+            $ref: "#/definitions/TokenResponse"
+        "400":
+          description: "Invalid user information"
+          schema:
+            $ref: "#/definitions/ApiErrorResponse"
+        "401":
+          description: "Invalid username or password"
+          schema:
+            $ref: "#/definitions/ApiErrorResponse"
 
 
-    /categories:
-      get:
-        tags:
-          - "category"
-        summary: "Get all categories"
-        description: "Get all categories"
-        operationId: "getCategories"
-        produces:
-          - "application/json"
-        responses:
-          "200":
-            description: "Categories retrieved successfully"
-            schema:
-              type: array
-              items:
-                $ref: "#/definitions/CategoryResponse"
-
-          "400":
-            description: "Invalid category information"
-            schema:
-              $ref: "#/definitions/ApiErrorResponse"
-          "401":
-            description: "Unauthorized access"
-            schema:
-              $ref: "#/definitions/ApiErrorResponse"
-
-      post:
-        tags:
-          - "category"
-        summary: "Add a new category"
-        description: "Add a new category"
-        operationId: "addCategory"
-        consumes:
-          - "application/json"
-        produces:
-          - "application/json"
-        parameters:
-          - in: "body"
-            name: "body"
-            description: "Category object that needs to be added to the store"
-            required: true
-            schema:
-              $ref: "#/definitions/CategoryRequest"
-        responses:
-          "200":
-            description: "Category added successfully"
-            schema:
+  /categories:
+    get:
+      tags:
+        - "category"
+      summary: "Get all categories"
+      description: "Get all categories"
+      operationId: "getCategories"
+      produces:
+        - "application/json"
+      responses:
+        "200":
+          description: "Categories retrieved successfully"
+          schema:
+            type: array
+            items:
               $ref: "#/definitions/CategoryResponse"
-          "400":
-            description: "Invalid category information"
-            schema:
-              $ref: "#/definitions/ApiErrorResponse"
-          "401":
-            description: "Unauthorized access"
-            schema:
-              $ref: "#/definitions/ApiErrorResponse"
 
-    /categories/bulk-upload:
-      post:
-        tags:
-          - "category"
-        summary: "Bulk upload categories"
-        description: "Bulk upload categories"
-        operationId: "bulkUploadCategories"
-        consumes:
-          - "multipart/form-data"
-        produces:
-          - "application/json"
-        parameters:
-          - in: "formData"
-            name: "file"
-            description: "CSV file"
-            required: true
-            type: "file"
-          - in: "formData"
-            name: "delimiter"
-            description: "CSV delimiter"
-            required: true
-            type: "string"
+        "400":
+          description: "Invalid category information"
+          schema:
+            $ref: "#/definitions/ApiErrorResponse"
+        "401":
+          description: "Unauthorized access"
+          schema:
+            $ref: "#/definitions/ApiErrorResponse"
 
-        responses:
-          "200":
-            description: "Categories uploaded successfully"
-            schema:
-              $ref: "#/definitions/CategoryResponse"
-          "400":
-            description: "Invalid category information"
-            schema:
-              $ref: "#/definitions/ApiErrorResponse"
-          "401":
-            description: "Unauthorized access"
-            schema:
-              $ref: "#/definitions/ApiErrorResponse"
+    post:
+      tags:
+        - "category"
+      summary: "Add a new category"
+      description: "Add a new category"
+      operationId: "addCategory"
+      security:
+        - Bearer: []
+      consumes:
+        - "application/json"
+      produces:
+        - "application/json"
+      parameters:
+        - in: "body"
+          name: "body"
+          description: "Category object that needs to be added to the store"
+          required: true
+          schema:
+            $ref: "#/definitions/CategoryRequest"
+      responses:
+        "200":
+          description: "Category added successfully"
+          schema:
+            $ref: "#/definitions/CategoryResponse"
+        "400":
+          description: "Invalid category information"
+          schema:
+            $ref: "#/definitions/ApiErrorResponse"
+        "401":
+          description: "Unauthorized access"
+          schema:
+            $ref: "#/definitions/ApiErrorResponse"
 
-    /products:
-      get:
-        tags:
-          - "product"
-        summary: "Get all products"
-        description: "Get all products"
-        operationId: "getProducts"
-        consumes:
-          - "application/json"
-        produces:
-          - "application/json"
-        parameters:
-          - $ref: '#/parameters/offsetParam'
-          - $ref: '#/parameters/limitParam'
-          - $ref: '#/parameters/queryParam'
-          - $ref: '#/parameters/sortParam'
+  /categories/bulk-upload:
+    post:
+      tags:
+        - "category"
+      summary: "Bulk upload categories"
+      description: "Bulk upload categories"
+      operationId: "bulkUploadCategories"
+      security:
+        - Bearer: []
+      consumes:
+        - "multipart/form-data"
+      produces:
+        - "application/json"
+      parameters:
+        - in: "formData"
+          name: "file"
+          description: "CSV file"
+          required: true
+          type: "file"
+        - in: "formData"
+          name: "delimiter"
+          description: "CSV delimiter"
+          required: true
+          type: "string"
 
-        responses:
-          "200":
-            description: "Products retrieved successfully"
-            schema:
-              type: array
-              items:
-                $ref: "#/definitions/ProductResponse"
-      post:
-        tags:
-          - "product"
-        summary: "Add a new product"
-        description: "Add a new product"
-        operationId: "addProduct"
-        consumes:
-          - "application/json"
-        produces:
-          - "application/json"
-        parameters:
-          - in: "body"
-            name: "body"
-            description: "Product object that needs to be added to the store"
-            required: true
-            schema:
-              $ref: "#/definitions/ProductRequest"
-        responses:
-          "201":
-            description: "Product added successfully"
-            schema:
+      responses:
+        "200":
+          description: "Categories uploaded successfully"
+          schema:
+            $ref: "#/definitions/CategoryResponse"
+        "400":
+          description: "Invalid category information"
+          schema:
+            $ref: "#/definitions/ApiErrorResponse"
+        "401":
+          description: "Unauthorized access"
+          schema:
+            $ref: "#/definitions/ApiErrorResponse"
+
+  /products:
+    get:
+      tags:
+        - "product"
+      summary: "Get all products"
+      description: "Get all products"
+      operationId: "getProducts"
+      consumes:
+        - "application/json"
+      produces:
+        - "application/json"
+      parameters:
+        - $ref: '#/parameters/offsetParam'
+        - $ref: '#/parameters/limitParam'
+        - $ref: '#/parameters/queryParam'
+        - $ref: '#/parameters/sortParam'
+
+      responses:
+        "200":
+          description: "Products retrieved successfully"
+          schema:
+            type: array
+            items:
               $ref: "#/definitions/ProductResponse"
-          "400":
-            description: "Invalid product information"
-            schema:
-              $ref: "#/definitions/ApiErrorResponse"
-          "401":
-            description: "Unauthorized access"
-            schema:
-              $ref: "#/definitions/ApiErrorResponse"
+    post:
+      tags:
+        - "product"
+      summary: "Add a new product"
+      description: "Add a new product"
+      operationId: "addProduct"
+      consumes:
+        - "application/json"
+      produces:
+        - "application/json"
+      parameters:
+        - in: "body"
+          name: "body"
+          description: "Product object that needs to be added to the store"
+          required: true
+          schema:
+            $ref: "#/definitions/ProductRequest"
+      responses:
+        "201":
+          description: "Product added successfully"
+          schema:
+            $ref: "#/definitions/ProductResponse"
+        "400":
+          description: "Invalid product information"
+          schema:
+            $ref: "#/definitions/ApiErrorResponse"
+        "401":
+          description: "Unauthorized access"
+          schema:
+            $ref: "#/definitions/ApiErrorResponse"
 
-    /products/{id}:
-      get:
-        tags:
-          - "product"
-        summary: "Get a product by ID"
-        description: "Get a product by ID"
-        operationId: "getProductById"
-        consumes:
-          - "application/json"
-        produces:
-          - "application/json"
-        parameters:
-          - in: "path"
-            name: "id"
-            description: "ID of the product to return"
-            required: true
-            type: "string"
-            format: "uuid"
-        responses:
-          "200":
-            description: "Product retrieved successfully"
-            schema:
-              $ref: "#/definitions/ProductResponse"
-          "400":
-            description: "Invalid product information"
-            schema:
-              $ref: "#/definitions/ApiErrorResponse"
-          "401":
-            description: "Unauthorized access"
-            schema:
-              $ref: "#/definitions/ApiErrorResponse"
-      put:
-        tags:
-          - "product"
-        summary: "Update a product by ID"
-        description: "Update a product by ID"
-        operationId: "updateProductById"
-        consumes:
-          - "application/json"
-        produces:
-          - "application/json"
-        parameters:
-          - in: "path"
-            name: "id"
-            description: "ID of the product to return"
-            required: true
-            type: "string"
-            format: "uuid"
-          - in: "body"
-            name: "body"
-            description: "Product object that needs to be added to the store"
-            required: true
-            schema:
-              $ref: "#/definitions/ProductUpdateRequest"
-        responses:
-          "200":
-            description: "Product updated successfully"
-            schema:
-              $ref: "#/definitions/ProductResponse"
-          "400":
-            description: "Invalid product information"
-            schema:
-              $ref: "#/definitions/ApiErrorResponse"
-          "401":
-            description: "Unauthorized access"
-            schema:
-            #   $ref: "#/definitions/Error
-      delete:
-        tags:
-          - "product"
-        summary: "Delete a product by ID"
-        description: "Delete a product by ID"
-        operationId: "deleteProductById"
-        consumes:
-          - "application/json"
-        produces:
-          - "application/json"
-        parameters:
-          - in: "path"
-            name: "id"
-            description: "ID of the product to return"
-            required: true
-            type: "string"
-            format: "uuid"
-        responses:
-          "204":
-            description: "Product deleted successfully"
-          "400":
-            description: "Invalid product information"
-            schema:
-              $ref: "#/definitions/ApiErrorResponse"
-          "401":
-            description: "Unauthorized access"
-            schema:
-              $ref: "#/definitions/ApiErrorResponse"
+  /products/{id}:
+    get:
+      tags:
+        - "product"
+      summary: "Get a product by ID"
+      description: "Get a product by ID"
+      operationId: "getProductById"
+      consumes:
+        - "application/json"
+      produces:
+        - "application/json"
+      parameters:
+        - in: "path"
+          name: "id"
+          description: "ID of the product to return"
+          required: true
+          type: "string"
+          format: "uuid"
+      responses:
+        "200":
+          description: "Product retrieved successfully"
+          schema:
+            $ref: "#/definitions/ProductResponse"
+        "400":
+          description: "Invalid product information"
+          schema:
+            $ref: "#/definitions/ApiErrorResponse"
+        "401":
+          description: "Unauthorized access"
+          schema:
+            $ref: "#/definitions/ApiErrorResponse"
+    put:
+      tags:
+        - "product"
+      summary: "Update a product by ID"
+      description: "Update a product by ID"
+      operationId: "updateProductById"
+      consumes:
+        - "application/json"
+      produces:
+        - "application/json"
+      parameters:
+        - in: "path"
+          name: "id"
+          description: "ID of the product to return"
+          required: true
+          type: "string"
+          format: "uuid"
+        - in: "body"
+          name: "body"
+          description: "Product object that needs to be added to the store"
+          required: true
+          schema:
+            $ref: "#/definitions/ProductUpdateRequest"
+      responses:
+        "200":
+          description: "Product updated successfully"
+          schema:
+            $ref: "#/definitions/ProductResponse"
+        "400":
+          description: "Invalid product information"
+          schema:
+            $ref: "#/definitions/ApiErrorResponse"
+        "401":
+          description: "Unauthorized access"
+          schema:
+          #   $ref: "#/definitions/Error
+    delete:
+      tags:
+        - "product"
+      summary: "Delete a product by ID"
+      description: "Delete a product by ID"
+      operationId: "deleteProductById"
+      consumes:
+        - "application/json"
+      produces:
+        - "application/json"
+      parameters:
+        - in: "path"
+          name: "id"
+          description: "ID of the product to return"
+          required: true
+          type: "string"
+          format: "uuid"
+      responses:
+        "204":
+          description: "Product deleted successfully"
+        "400":
+          description: "Invalid product information"
+          schema:
+            $ref: "#/definitions/ApiErrorResponse"
+        "401":
+          description: "Unauthorized access"
+          schema:
+            $ref: "#/definitions/ApiErrorResponse"
 
-    /cart:
-      post:
-        tags:
-          - "cart"
-        summary: "Get or create a cart"
-        description: "Get or create a cart"
-        operationId: "getOrCreateCart"
-        produces:
-          - "application/json"
-        responses:
-          "201":
-            description: "Cart created/retrieved successfully"
-            schema:
-              $ref: "#/definitions/CartResponse"
-          "400":
-            description: "Invalid cart information"
-            schema:
-              $ref: "#/definitions/ApiErrorResponse"
-          "401":
-            description: "Unauthorized access"
-            schema:
-              $ref: "#/definitions/ApiErrorResponse"
-    /cart/add:
-      post:
-        tags:
-          - "cart"
-        summary: "Add a product to cart"
-        description: "Add a product to cart"
-        operationId: "addProductToCart"
-        consumes:
-          - "application/json"
-        produces:
-          - "application/json"
-        parameters:
-          - in: "body"
-            name: "body"
-            description: "Product object that needs to be added to the cart"
-            required: true
-            schema:
-              $ref: "#/definitions/CartAddRequest"
-        responses:
-          "201":
-            description: "Product added to cart successfully"
-            schema:
-              $ref: "#/definitions/CartResponse"
-          "400":
-            description: "Invalid cart information"
-            schema:
-              $ref: "#/definitions/ApiErrorResponse"
-          "401":
-            description: "Unauthorized access"
-            schema:
-              $ref: "#/definitions/ApiErrorResponse"
-    /cart/items:
-      get:
-        tags:
-          - "cart"
-        summary: "Get all products in cart"
-        description: "Get all products in cart"
-        operationId: "getProductsInCart"
-        consumes:
-          - "application/json"
-        produces:
-          - "application/json"
-        # parameters:
-        #   - $ref: '#/parameters/offsetParam'
-        #   - $ref: '#/parameters/limitParam'
-        #   - $ref: '#/parameters/queryParam'
-        #   - $ref: '#/parameters/sortParam'
-        responses:
-          "200":
-            description: "Products retrieved successfully"
-            schema:
-              type: array
-              items:
-                $ref: "#/definitions/CartItemDetailResponse"
-          "400":
-            description: "Invalid cart information"
-            schema:
-              $ref: "#/definitions/ApiErrorResponse"
-          "401":
-            description: "Unauthorized access"
-            schema:
-              $ref: "#/definitions/ApiErrorResponse"
-    /cart/items/{id}:
-      put:
-        tags:
-          - "cart"
-        summary: "Update a cart item in cart by ID"
-        description: "Update a cart item in cart by ID"
-        operationId: "updateCartItemInCartById"
-        consumes:
-          - "application/json"
-        produces:
-          - "application/json"
-        parameters:
-          - in: "path"
-            name: "id"
-            description: "ID of the Cart Item in cart to return"
-            required: true
-            type: "string"
-            format: "uuid"
-          - in: "body"
-            name: "body"
-            description: "Update Cart Item object that needs to be added to the cart"
-            required: true
-            schema:
-              $ref: "#/definitions/CartItemUpdateRequest"
-        responses:
-          "200":
-            description: "Product in cart updated successfully"
-            schema:
-              $ref: "#/definitions/CartResponse"
-          "400":
-            description: "Invalid cart information"
-            schema:
-              $ref: "#/definitions/ApiErrorResponse"
-          "401":
-            description: "Unauthorized access"
-    # TODO add delete
-    /orders:
-      post:
-        tags:
-          - "orders"
-        summary: "Create an order"
-        description: "Create an order"
-        operationId: "createOrder"
-        consumes:
-          - "application/json"
-        produces:
-          - "application/json"
-        parameters:
-          - in: "body"
-            name: "body"
-            description: "Order object that needs to be added to the store"
-            required: true
-            schema:
-              $ref: "#/definitions/OrderRequest"
-        responses:
-          "201":
-            description: "Order created successfully"
-            schema:
-              $ref: "#/definitions/OrderResponse"
-          "400":
-            description: "Invalid order information"
-            schema:
-              $ref: "#/definitions/ApiErrorResponse"
-          "401":
-            description: "Unauthorized access"
-            schema:
-              $ref: "#/definitions/ApiErrorResponse"
-      get:
-        tags:
-          - "orders"
-        summary: "Get all orders"
-        description: "Get all orders"
-        operationId: "getAllOrders"
-        consumes:
-          - "application/json"
-        produces:
-          - "application/json"
-        # parameters:
-        #   - $ref: '#/parameters/offsetParam'
-        #   - $ref: '#/parameters/limitParam'
-        #   - $ref: '#/parameters/queryParam'
-        #   - $ref: '#/parameters/sortParam'
-        responses:
-          "200":
-            description: "Orders retrieved successfully"
-            schema:
-              type: array
-              items:
-                $ref: "#/definitions/OrderDetailedResponse"
-          "400":
-            description: "Invalid order information"
-            schema:
-              $ref: "#/definitions/ApiErrorResponse"
-          "401":
-            description: "Unauthorized access"
-            schema:
-              $ref: "#/definitions/ApiErrorResponse"
+  /cart:
+    post:
+      tags:
+        - "cart"
+      summary: "Get or create a cart"
+      description: "Get or create a cart"
+      operationId: "getOrCreateCart"
+      produces:
+        - "application/json"
+      responses:
+        "201":
+          description: "Cart created/retrieved successfully"
+          schema:
+            $ref: "#/definitions/CartResponse"
+        "400":
+          description: "Invalid cart information"
+          schema:
+            $ref: "#/definitions/ApiErrorResponse"
+        "401":
+          description: "Unauthorized access"
+          schema:
+            $ref: "#/definitions/ApiErrorResponse"
+  /cart/add:
+    post:
+      tags:
+        - "cart"
+      summary: "Add a product to cart"
+      description: "Add a product to cart"
+      operationId: "addProductToCart"
+      consumes:
+        - "application/json"
+      produces:
+        - "application/json"
+      parameters:
+        - in: "body"
+          name: "body"
+          description: "Product object that needs to be added to the cart"
+          required: true
+          schema:
+            $ref: "#/definitions/CartAddRequest"
+      responses:
+        "201":
+          description: "Product added to cart successfully"
+          schema:
+            $ref: "#/definitions/CartResponse"
+        "400":
+          description: "Invalid cart information"
+          schema:
+            $ref: "#/definitions/ApiErrorResponse"
+        "401":
+          description: "Unauthorized access"
+          schema:
+            $ref: "#/definitions/ApiErrorResponse"
+  /cart/items:
+    get:
+      tags:
+        - "cart"
+      summary: "Get all products in cart"
+      description: "Get all products in cart"
+      operationId: "getProductsInCart"
+      consumes:
+        - "application/json"
+      produces:
+        - "application/json"
+      # parameters:
+      #   - $ref: '#/parameters/offsetParam'
+      #   - $ref: '#/parameters/limitParam'
+      #   - $ref: '#/parameters/queryParam'
+      #   - $ref: '#/parameters/sortParam'
+      responses:
+        "200":
+          description: "Products retrieved successfully"
+          schema:
+            type: array
+            items:
+              $ref: "#/definitions/CartItemDetailResponse"
+        "400":
+          description: "Invalid cart information"
+          schema:
+            $ref: "#/definitions/ApiErrorResponse"
+        "401":
+          description: "Unauthorized access"
+          schema:
+            $ref: "#/definitions/ApiErrorResponse"
+  /cart/items/{id}:
+    put:
+      tags:
+        - "cart"
+      summary: "Update a cart item in cart by ID"
+      description: "Update a cart item in cart by ID"
+      operationId: "updateCartItemInCartById"
+      consumes:
+        - "application/json"
+      produces:
+        - "application/json"
+      parameters:
+        - in: "path"
+          name: "id"
+          description: "ID of the Cart Item in cart to return"
+          required: true
+          type: "string"
+          format: "uuid"
+        - in: "body"
+          name: "body"
+          description: "Update Cart Item object that needs to be added to the cart"
+          required: true
+          schema:
+            $ref: "#/definitions/CartItemUpdateRequest"
+      responses:
+        "200":
+          description: "Product in cart updated successfully"
+          schema:
+            $ref: "#/definitions/CartResponse"
+        "400":
+          description: "Invalid cart information"
+          schema:
+            $ref: "#/definitions/ApiErrorResponse"
+        "401":
+          description: "Unauthorized access"
+  # TODO add delete
+  /orders:
+    post:
+      tags:
+        - "orders"
+      summary: "Create an order"
+      description: "Create an order"
+      operationId: "createOrder"
+      consumes:
+        - "application/json"
+      produces:
+        - "application/json"
+      parameters:
+        - in: "body"
+          name: "body"
+          description: "Order object that needs to be added to the store"
+          required: true
+          schema:
+            $ref: "#/definitions/OrderRequest"
+      responses:
+        "201":
+          description: "Order created successfully"
+          schema:
+            $ref: "#/definitions/OrderResponse"
+        "400":
+          description: "Invalid order information"
+          schema:
+            $ref: "#/definitions/ApiErrorResponse"
+        "401":
+          description: "Unauthorized access"
+          schema:
+            $ref: "#/definitions/ApiErrorResponse"
+    get:
+      tags:
+        - "orders"
+      summary: "Get all orders"
+      description: "Get all orders"
+      operationId: "getAllOrders"
+      consumes:
+        - "application/json"
+      produces:
+        - "application/json"
+      # parameters:
+      #   - $ref: '#/parameters/offsetParam'
+      #   - $ref: '#/parameters/limitParam'
+      #   - $ref: '#/parameters/queryParam'
+      #   - $ref: '#/parameters/sortParam'
+      responses:
+        "200":
+          description: "Orders retrieved successfully"
+          schema:
+            type: array
+            items:
+              $ref: "#/definitions/OrderDetailedResponse"
+        "400":
+          description: "Invalid order information"
+          schema:
+            $ref: "#/definitions/ApiErrorResponse"
+        "401":
+          description: "Unauthorized access"
+          schema:
+            $ref: "#/definitions/ApiErrorResponse"
 
-  definitions:
-    RegisterUser:
-      type: "object"
-      required:
-        - "username"
-        - "password"
-        - "email"
-        - "firstName"
-        - "lastName"
-      properties:
-        username:
-          type: "string"
-        firstName:
-          type: "string"
-        lastName:
-          type: "string"
-        email:
-          type: "string"
-          format: "email"
-        password:
-          type: "string"
+definitions:
+  RegisterUser:
+    type: "object"
+    required:
+      - "username"
+      - "password"
+      - "email"
+      - "firstName"
+      - "lastName"
+    properties:
+      username:
+        type: "string"
+      firstName:
+        type: "string"
+      lastName:
+        type: "string"
+      email:
+        type: "string"
+        format: "email"
+      password:
+        type: "string"
 
-    LoginUser:
-      type: "object"
-      required:
-        - email
-        - password
-      properties:
-        email:
-          type: "string"
-          format: "email"
-        password:
-          type: "string"
+  LoginUser:
+    type: "object"
+    required:
+      - email
+      - password
+    properties:
+      email:
+        type: "string"
+        format: "email"
+      password:
+        type: "string"
+
+  TokenResponse:
+    type: "object"
+    properties:
+      accessToken:
+        type: "string"
+      refreshToken:
+        type: "string"
+
+  RefreshToken:
+    type: "object"
+    required:
+      - refreshToken
+    properties:
+      refreshToken:
+        type: "string"
+
+  CategoryResponse:
+    type: "object"
+    properties:
+      id:
+        type: "string"
+        format: "uuid"
+      name:
+        type: "string"
+      slug:
+        type: "string"
+      description:
+        type: "string"
+
+  CategoryRequest:
+    type: "object"
+    required:
+      - name
+    properties:
+      name:
+        type: "string"
+      description:
+        type: "string"
   
-    TokenResponse:
-      type: "object"
-      properties:
-        accessToken:
-          type: "string"
-        refreshToken:
-          type: "string"
-
-    RefreshToken:
-      type: "object"
-      required:
-        - refreshToken
-      properties:
-        refreshToken:
-          type: "string"
-
-    CategoryResponse:
-      type: "object"
-      properties:
-        id:
-          type: "string"
-          format: "uuid"
-        name:
-          type: "string"
-        slug:
-          type: "string"
-        description:
-          type: "string"
-
-    CategoryRequest:
-      type: "object"
-      required:
-        - name
-      properties:
-        name:
-          type: "string"
-        description:
-          type: "string"
-    
-    ProductRequest:
-      type: "object"
-      required:
-        - name
-        - description
-        - price
-        - stock
-        - sku
-        - categories
-      properties:
-        name:
-          type: "string"
-        description:
-          type: "string"
-        price:
-          type: "number"
-        stock:
-          type: "integer"
-        sku:
-          type: "string"
-        categories:
-          type: "array"
-          items:
-            $ref: "#/definitions/ProductRequestCategory" 
-
-    ProductResponse:
-      type: "object"
-      properties:
-        id:
-          type: "string"
-          format: "uuid"
-        slug:
-          type: "string"
-        name:
-          type: "string"
-        description:
-          type: "string"
-        price:
-          type: "number"
-        stock:
-          type: "integer"
-        sku:
-          type: "string"
-          uniqueItems: true
-        categories:
-          type: "array"
-          items:
-            type: "string"
-            format: "uuid"
-    
-    ProductBasicResponse:
-      type: "object"
-      properties:
-        id:
-          type: "string"
-          format: "uuid"
-        slug:
-          type: "string"
-        name:
-          type: "string"
-        description:
-          type: "string"
-        price:
-          type: "number"
-        stock:
-          type: "integer"
-
-    ProductRequestCategory:
-      type: "object"
-      properties:
-        id:
-          type: "string"
-          format: "uuid"
-
-    ProductUpdateRequest:
-      type: "object"
-      properties:
-        name:
-          type: "string"
-        description:
-          type: "string"
-        price:
-          type: "number"
-        stock:
-          type: "integer"
-        categories:
-          type: "array"
-          items:
-            $ref: "#/definitions/ProductRequestCategory"
-
-    CartResponse:
-      type: "object"
-      properties:
-        id:
-          type: "string"
-          format: "uuid"
-        status:
-          type: "string"
+  ProductRequest:
+    type: "object"
+    required:
+      - name
+      - description
+      - price
+      - stock
+      - sku
+      - categories
+    properties:
+      name:
+        type: "string"
+      description:
+        type: "string"
+      price:
+        type: "number"
+      stock:
+        type: "integer"
+      sku:
+        type: "string"
+      categories:
+        type: "array"
         items:
-          type: "array"
-          items:
-            $ref: "#/definitions/CartItemResponse"
+          $ref: "#/definitions/ProductRequestCategory" 
 
-    CartItemResponse:
-      type: "object"
-      properties:
-        id:
-          type: "string"
-          format: "uuid"
-        product:
-          type: "string"
-          format: "uuid"
-        quantity:
-          type: "integer"
-        Price:
-          type: "number"
-
-    CartAddRequest:
-      type: "object"
-      properties:
-        productId:
-          type: "string"
-          format: "uuid"
-        quantity:
-          type: "integer"
-
-    CartItemDetailResponse:
-      type: "object"
-      properties:
-        id:
-          type: "string"
-          format: "uuid"
-        product:
-          type: "string"
-          $ref: "#/definitions/ProductBasicResponse"
-        quantity:
-          type: "integer"
-        Price:
-          type: "number"
-
-    CartItemUpdateRequest:
-      type: "object"
-      properties:
-        quantity:
-          type: "integer"
-
-    OrderRequest:
-      type: "object"
-      required:
-        - cartId
-      properties:
-        cartId:
-          type: "string"
-          format: "uuid"
-
-    OrderResponse:
-      type: "object"
-      properties:
-        id:
-          type: "string"
-          format: "uuid"
-        cartId:
-          type: "string"
-          format: "uuid"
-        status:
-          type: "string"
-
-    OrderDetailedResponse:
-      type: "object"
-      properties:
-        id:
-          type: "string"
-          format: "uuid"
-        cartId:
-          type: "string"
-          format: "uuid"
-        status:
-          type: "string"
+  ProductResponse:
+    type: "object"
+    properties:
+      id:
+        type: "string"
+        format: "uuid"
+      slug:
+        type: "string"
+      name:
+        type: "string"
+      description:
+        type: "string"
+      price:
+        type: "number"
+      stock:
+        type: "integer"
+      sku:
+        type: "string"
+        uniqueItems: true
+      categories:
+        type: "array"
         items:
-          type: "array"
-          items:
-            $ref: "#/definitions/OrderItemDetailedResponse"
-        total:
-          type: "number"
-    
-    OrderItemDetailedResponse:
-      type: "object"
-      properties:
-        id:
           type: "string"
           format: "uuid"
-        product:
-          type: "string"
-          $ref: "#/definitions/ProductBasicResponse"
-        quantity:
-          type: "integer"
-        Price:
-          type: "number"
+  
+  ProductBasicResponse:
+    type: "object"
+    properties:
+      id:
+        type: "string"
+        format: "uuid"
+      slug:
+        type: "string"
+      name:
+        type: "string"
+      description:
+        type: "string"
+      price:
+        type: "number"
+      stock:
+        type: "integer"
 
-    ApiErrorResponse:
-      type: "object"
-      properties:
-        code:
-          type: "integer"
-        message:
-          type: "string"
-        details:
-          description: a (key, value) map.
-          type: "object"
+  ProductRequestCategory:
+    type: "object"
+    properties:
+      id:
+        type: "string"
+        format: "uuid"
 
-  parameters:
-    offsetParam:
-      in: query
-      name: offset
-      required: false
-      type: integer
-      minimum: 0
-      description: The number of items to skip before starting to collect the result set.
-    limitParam:
-      in: query
-      name: limit
-      required: false
-      type: integer
-      minimum: 1
-      maximum: 50
-      default: 20
-      description: The numbers of items to return.
-    queryParam:
-      in: query
-      name: q
-      required: false
-      type: string
-      description: Query Parameters
-    sortParam:
-      in: query
-      name: sort
-      required: false
-      type: string
-      description: Sort Parameters
-    
-    
-    
-    
+  ProductUpdateRequest:
+    type: "object"
+    properties:
+      name:
+        type: "string"
+      description:
+        type: "string"
+      price:
+        type: "number"
+      stock:
+        type: "integer"
+      categories:
+        type: "array"
+        items:
+          $ref: "#/definitions/ProductRequestCategory"
+
+  CartResponse:
+    type: "object"
+    properties:
+      id:
+        type: "string"
+        format: "uuid"
+      status:
+        type: "string"
+      items:
+        type: "array"
+        items:
+          $ref: "#/definitions/CartItemResponse"
+
+  CartItemResponse:
+    type: "object"
+    properties:
+      id:
+        type: "string"
+        format: "uuid"
+      product:
+        type: "string"
+        format: "uuid"
+      quantity:
+        type: "integer"
+      Price:
+        type: "number"
+
+  CartAddRequest:
+    type: "object"
+    properties:
+      productId:
+        type: "string"
+        format: "uuid"
+      quantity:
+        type: "integer"
+
+  CartItemDetailResponse:
+    type: "object"
+    properties:
+      id:
+        type: "string"
+        format: "uuid"
+      product:
+        type: "string"
+        $ref: "#/definitions/ProductBasicResponse"
+      quantity:
+        type: "integer"
+      Price:
+        type: "number"
+
+  CartItemUpdateRequest:
+    type: "object"
+    properties:
+      quantity:
+        type: "integer"
+
+  OrderRequest:
+    type: "object"
+    required:
+      - cartId
+    properties:
+      cartId:
+        type: "string"
+        format: "uuid"
+
+  OrderResponse:
+    type: "object"
+    properties:
+      id:
+        type: "string"
+        format: "uuid"
+      cartId:
+        type: "string"
+        format: "uuid"
+      status:
+        type: "string"
+
+  OrderDetailedResponse:
+    type: "object"
+    properties:
+      id:
+        type: "string"
+        format: "uuid"
+      cartId:
+        type: "string"
+        format: "uuid"
+      status:
+        type: "string"
+      items:
+        type: "array"
+        items:
+          $ref: "#/definitions/OrderItemDetailedResponse"
+      total:
+        type: "number"
+  
+  OrderItemDetailedResponse:
+    type: "object"
+    properties:
+      id:
+        type: "string"
+        format: "uuid"
+      product:
+        type: "string"
+        $ref: "#/definitions/ProductBasicResponse"
+      quantity:
+        type: "integer"
+      Price:
+        type: "number"
+
+  ApiErrorResponse:
+    type: "object"
+    properties:
+      code:
+        type: "integer"
+      message:
+        type: "string"
+      details:
+        description: a (key, value) map.
+        type: "object"
+
+parameters:
+  offsetParam:
+    in: query
+    name: offset
+    required: false
+    type: integer
+    minimum: 0
+    description: The number of items to skip before starting to collect the result set.
+  limitParam:
+    in: query
+    name: limit
+    required: false
+    type: integer
+    minimum: 1
+    maximum: 50
+    default: 20
+    description: The numbers of items to return.
+  queryParam:
+    in: query
+    name: q
+    required: false
+    type: string
+    description: Query Parameters
+  sortParam:
+    in: query
+    name: sort
+    required: false
+    type: string
+    description: Sort Parameters
+  
+  
+  
+  

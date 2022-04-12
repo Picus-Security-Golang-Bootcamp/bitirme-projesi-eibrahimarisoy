@@ -29,8 +29,9 @@ func NewAuthHandler(r *gin.RouterGroup, authService *AuthService, cfg *config.Co
 // register is used to register a new user
 func (u *authHandler) register(c *gin.Context) {
 	var userBody api.RegisterUser
+
 	if err := c.ShouldBindJSON(&userBody); err != nil {
-		c.JSON(400, gin.H{"error": err.Error()})
+		c.JSON(httpErr.ErrorResponse(err))
 		return
 	}
 
