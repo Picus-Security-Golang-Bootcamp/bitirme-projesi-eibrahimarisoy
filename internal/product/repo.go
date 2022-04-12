@@ -96,11 +96,8 @@ func (r *ProductRepository) GetProductWithoutCategories(id strfmt.UUID) (*model.
 
 // DeleteProduct delete a single product
 func (r *ProductRepository) DeleteProduct(product *model.Product) error {
-	// r.db.Model(&product).Association("Categories").Delete(&product)
-	// r.db.Model(&product).Association("Categories").Delete(&product)
 
 	result := r.db.Select(clause.Associations).Delete(&product)
-	// result := r.db.Where(model.Product{}).Delete(&product)
 
 	if result.Error != nil {
 		return result.Error

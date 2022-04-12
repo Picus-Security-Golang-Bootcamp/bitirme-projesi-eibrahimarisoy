@@ -58,3 +58,12 @@ func (c *CategoryService) CreateBulkCategories(filename *multipart.FileHeader) (
 	return categories, nil
 
 }
+
+// DeleteCategory deletes a category by id
+func (c *CategoryService) DeleteCategory(id strfmt.UUID4) error {
+	category, err := c.categoryRepo.GetCategoryByID(id)
+	if err != nil {
+		return err
+	}
+	return c.categoryRepo.DeleteCategory(category)
+}

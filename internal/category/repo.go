@@ -5,6 +5,7 @@ import (
 
 	"github.com/go-openapi/strfmt"
 	"gorm.io/gorm"
+	"gorm.io/gorm/clause"
 )
 
 type CategoryRepository struct {
@@ -68,5 +69,14 @@ func (r *CategoryRepository) InsertBulkCategory(categories *[]model.Category) er
 	}
 
 	tx.Commit()
+	return nil
+}
+
+// DeleteCategory deletes a category by id
+func (r *CategoryRepository) DeleteCategory(category *model.Category) error {
+	result := r.db.Select(clause.Associations).Delete(category)
+	if result.Error != nil {
+		return result.Error
+	}
 	return nil
 }

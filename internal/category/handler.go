@@ -28,6 +28,7 @@ func NewCategoryHandler(r *gin.RouterGroup, cfg *config.Config, categoryService 
 	r.GET("", handler.getCategories)
 	r.GET("/:id", handler.getCategory)
 	r.PUT("/:id", handler.updateCategory)
+	r.DELETE("/:id", handler.deleteCategory)
 	r.POST("/bulk-upload", handler.createBulkCategories)
 }
 
@@ -137,4 +138,21 @@ func (r *categoryHandler) createBulkCategories(c *gin.Context) {
 	}
 
 	c.JSON(200, CategoriesToCategoryResponse(&categories))
+}
+
+// deleteCategory deletes a category
+func (r *categoryHandler) deleteCategory(c *gin.Context) {
+	category := &model.Category{}
+
+	if err := c.ShouldBindUri(category); err != nil {
+		c.JSON(httpErr.ErrorResponse(err))
+		return
+	}
+
+	if err := r.categoryService.DeleteCategory(strfmt.UUID4(c.Param("id"))); err != nil {
+		c.JSON(httpErr.ErrorResponse(err))
+		return
+	}
+
+	c.JSON(204, nil)
 }
