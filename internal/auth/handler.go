@@ -15,10 +15,10 @@ type authHandler struct {
 }
 
 // NewAuthHandler creates a new auth handler
-func NewAuthHandler(r *gin.RouterGroup, authService *AuthService, cfg *config.Config) {
+func NewAuthHandler(r *gin.RouterGroup, cfg *config.Config, authService *AuthService) {
 	handler := &authHandler{
-		authService: authService,
 		cfg:         cfg,
+		authService: authService,
 	}
 
 	r.POST("/register", handler.register)

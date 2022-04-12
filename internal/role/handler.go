@@ -1,10 +1,9 @@
 package role
 
+// TODO swagger implementation
 import (
-	"fmt"
 	"patika-ecommerce/internal/model"
 	"patika-ecommerce/pkg/config"
-	jwt_helper "patika-ecommerce/pkg/jwt"
 
 	mw "patika-ecommerce/pkg/middleware"
 
@@ -16,8 +15,11 @@ type roleHandler struct {
 	roleRepo *RoleRepository
 }
 
-func NewRoleHandler(r *gin.RouterGroup, roleRepo *RoleRepository, cfg *config.Config) {
-	handler := &roleHandler{roleRepo: roleRepo}
+func NewRoleHandler(r *gin.RouterGroup, cfg *config.Config, roleRepo *RoleRepository) {
+	handler := &roleHandler{
+		roleRepo: roleRepo,
+	}
+
 	r.Use(mw.AuthenticationMiddleware(cfg.JWTConfig.SecretKey))
 	r.Use(mw.AdminMiddleware())
 	r.POST("", handler.createRole)
@@ -44,15 +46,6 @@ func (r *roleHandler) createRole(c *gin.Context) {
 
 // getRoles returns all roles
 func (r *roleHandler) getRoles(c *gin.Context) {
-	user, exists := c.Get("user")
-	if !exists {
-		c.JSON(401, gin.H{"error": "Authentication required"})
-		return
-	}
-
-	userId := user.(*jwt_helper.JWTToken).UserId
-	fmt.Println(userId)
-
 	roles, err := r.roleRepo.GetRoles()
 	if err != nil {
 		c.JSON(400, gin.H{"error": err.Error()})

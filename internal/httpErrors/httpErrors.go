@@ -19,6 +19,7 @@ var (
 	CannotBindGivenData = errors.New("Could not bind given data")
 	ValidationError     = errors.New("Validation failed for given payload")
 	UniqueError         = errors.New("Item should be unique on database")
+	Unauthorized        = errors.New("Unauthorized")
 )
 
 type RestError api.APIErrorResponse
@@ -26,7 +27,7 @@ type RestError api.APIErrorResponse
 type RestErr interface {
 	Status() int
 	Error() string
-	// Causes() interface{}
+	Causes() interface{}
 }
 
 // Error  Error() interface method
@@ -62,6 +63,7 @@ func NewInternalServerError(causes interface{}) RestErr {
 // ParseErrors Parser of error string messages returns RestError
 func ParseErrors(err error) RestErr {
 	fmt.Println(err)
+	fmt.Printf("%T", err)
 	switch {
 	case errors.Is(err, sql.ErrNoRows):
 		return NewRestError(http.StatusNotFound, NotFound.Error(), err)
@@ -76,8 +78,10 @@ func ParseErrors(err error) RestErr {
 	case strings.Contains(err.Error(), "23505"):
 		fmt.Println(err)
 		return NewRestError(http.StatusBadRequest, UniqueError.Error(), err)
-	case strings.Contains(err.Error(), "cannot unmarshal"):
+	case strings.Contains(err.Error(), "cannot unmarshal"): //*json.UnmarshalTypeError
 		return NewRestError(http.StatusBadRequest, CannotBindGivenData.Error(), err)
+	case strings.Contains(err.Error(), "Unauthorized"):
+		return NewRestError(http.StatusUnauthorized, err.Error(), err)
 
 	default:
 		if restErr, ok := err.(RestErr); ok {

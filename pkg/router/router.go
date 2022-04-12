@@ -29,7 +29,7 @@ func InitializeRoutes(rootRouter *gin.RouterGroup, db *gorm.DB, cfg *config.Conf
 	// Role repository
 	roleRepo := role.NewRoleRepository(db)
 	roleRepo.Migration()
-	role.NewRoleHandler(roleGroup, roleRepo, cfg)
+	role.NewRoleHandler(roleGroup, cfg, roleRepo)
 
 	// // User repository
 	userRepo := user.NewUserRepository(db)
@@ -38,13 +38,13 @@ func InitializeRoutes(rootRouter *gin.RouterGroup, db *gorm.DB, cfg *config.Conf
 
 	// Auth service
 	authService := auth.NewAuthService(cfg, userRepo, roleRepo)
-	auth.NewAuthHandler(authGroup, authService, cfg)
+	auth.NewAuthHandler(authGroup, cfg, authService)
 
 	// Category repository
 	categoryRepo := category.NewCategoryrRepository(db)
 	categoryRepo.Migration()
 	categoryService := category.NewCategoryService(categoryRepo)
-	category.NewCategoryHandler(categoryGroup, categoryRepo, categoryService, cfg)
+	category.NewCategoryHandler(categoryGroup, cfg, categoryService)
 
 	// Product repository
 	productRepo := product.NewProductRepository(db)
