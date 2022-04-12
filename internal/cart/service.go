@@ -36,9 +36,9 @@ func (r *CartService) AddToCart(user model.User, req *api.CartAddRequest) (*mode
 	if err != nil {
 		return nil, err
 	}
-	if cart == nil {
-		return nil, fmt.Errorf("cart not found")
-	}
+	// if cart == nil {
+	// 	return nil, fmt.Errorf("cart not found")
+	// }
 
 	product, err := r.productRepo.GetProductWithoutCategories(req.ProductID)
 	if err != nil {
@@ -48,7 +48,7 @@ func (r *CartService) AddToCart(user model.User, req *api.CartAddRequest) (*mode
 	if *product.Stock < req.Quantity {
 		return nil, fmt.Errorf("product stock is not enough")
 	}
-
+	// TODO: check if product is available
 	is_exists := false
 	for _, item := range cart.Items {
 		if item.ProductID == req.ProductID {
@@ -58,6 +58,7 @@ func (r *CartService) AddToCart(user model.User, req *api.CartAddRequest) (*mode
 			break
 		}
 	}
+
 	if !is_exists {
 		product, err := r.productRepo.GetProductWithoutCategories(req.ProductID)
 		if err != nil {

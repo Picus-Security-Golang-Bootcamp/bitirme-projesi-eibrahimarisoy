@@ -23,40 +23,15 @@ func NewAuthHandler(r *gin.RouterGroup, authService *AuthService, cfg *config.Co
 
 	r.POST("/register", handler.register)
 	r.POST("/login", handler.login)
-	r.POST("/refresh", handler.refresh)
+	r.POST("/refresh", handler.refreshToken)
 }
 
 // register is used to register a new user
 func (u *authHandler) register(c *gin.Context) {
-	var userBody api.RegisterUser
-
-	if err := c.ShouldBindJSON(&userBody); err != nil {
-		print(err)
-		c.JSON(httpErr.ErrorResponse(err))
-		return
-	}
-
-	if err := userBody.Validate(strfmt.NewFormats()); err != nil {
-		c.JSON(httpErr.ErrorResponse(err))
-		return
-	}
-
-	resp, err := u.authService.RegisterService(RegisterToUser(&userBody))
-
-	if err != nil {
-		c.JSON(httpErr.ErrorResponse(err))
-		return
-	}
-
-	c.JSON(200, resp)
-}
-
-// login is used to login a user
-func (u *authHandler) login(c *gin.Context) {
-	var reqBody api.LoginUser
+	var reqBody api.RegisterUser
 
 	if err := c.ShouldBindJSON(&reqBody); err != nil {
-		c.JSON(400, gin.H{"msg": err.Error()})
+		c.JSON(httpErr.ErrorResponse(err))
 		return
 	}
 
@@ -65,10 +40,34 @@ func (u *authHandler) login(c *gin.Context) {
 		return
 	}
 
-	resp, err := u.authService.LoginService(LoginToUser(&reqBody))
+	resp, err := u.authService.Register(RegisterToUser(&reqBody))
 
 	if err != nil {
-		c.JSON(400, gin.H{"msg": err.Error()})
+		c.JSON(httpErr.ErrorResponse(err))
+		return
+	}
+
+	c.JSON(201, resp)
+}
+
+// login is used to login a user
+func (u *authHandler) login(c *gin.Context) {
+	var reqBody api.LoginUser
+
+	if err := c.ShouldBindJSON(&reqBody); err != nil {
+		c.JSON(httpErr.ErrorResponse(err))
+		return
+	}
+
+	if err := reqBody.Validate(strfmt.NewFormats()); err != nil {
+		c.JSON(httpErr.ErrorResponse(err))
+		return
+	}
+
+	resp, err := u.authService.Login(LoginToUser(&reqBody))
+
+	if err != nil {
+		c.JSON(httpErr.ErrorResponse(err))
 		return
 	}
 
@@ -76,17 +75,22 @@ func (u *authHandler) login(c *gin.Context) {
 }
 
 // refresh is used to refresh the token
-func (u *authHandler) refresh(c *gin.Context) {
+func (u *authHandler) refreshToken(c *gin.Context) {
 	var reqBody api.RefreshToken
 	if err := c.ShouldBindJSON(&reqBody); err != nil {
-		c.JSON(400, gin.H{"msg": err.Error()})
+		c.JSON(httpErr.ErrorResponse(err))
 		return
 	}
 
-	resp, err := u.authService.RefreshTokenService(*reqBody.RefreshToken)
-	// user, err := u.userRepo.GetUserByEmail((reqBody.Email).String())
+	if err := reqBody.Validate(strfmt.NewFormats()); err != nil {
+		c.JSON(httpErr.ErrorResponse(err))
+		return
+	}
+
+	resp, err := u.authService.RefreshToken(*reqBody.RefreshToken)
+
 	if err != nil {
-		c.JSON(400, gin.H{"msg": err.Error()})
+		c.JSON(httpErr.ErrorResponse(err))
 		return
 	}
 

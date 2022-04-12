@@ -29,16 +29,16 @@ func NewAuthService(cfg *config.Config, userRepo *user.UserRepository, roleRepo 
 }
 
 // RegisterService is a service that registers a new user
-func (a *AuthService) RegisterService(user *model.User) (api.TokenResponse, error) {
+func (a *AuthService) Register(user *model.User) (api.TokenResponse, error) {
 	user, err := a.userRepo.InsertUser(user)
 	if err != nil {
 		return api.TokenResponse{}, err
 	}
-	return a.GetAuthTokenService(user), nil
+	return a.GetAuthToken(user), nil
 }
 
 // LoginService is a service that logs in a user
-func (a *AuthService) LoginService(user *model.User) (api.TokenResponse, error) {
+func (a *AuthService) Login(user *model.User) (api.TokenResponse, error) {
 	user, err := a.userRepo.GetUserByEmail(*user.Email)
 	if err != nil {
 		return api.TokenResponse{}, err
@@ -48,11 +48,11 @@ func (a *AuthService) LoginService(user *model.User) (api.TokenResponse, error) 
 		return api.TokenResponse{}, fmt.Errorf("invalid password")
 	}
 
-	return a.GetAuthTokenService(user), nil
+	return a.GetAuthToken(user), nil
 }
 
 //AuthTokenService is a service that generates a new JWT token
-func (a *AuthService) GetAuthTokenService(user *model.User) api.TokenResponse {
+func (a *AuthService) GetAuthToken(user *model.User) api.TokenResponse {
 	jwtClaimsForAccessToken := jwtHelper.NewJwtClaimsForAccessToken(user, a.cfg.JWTConfig.AccessTokenLifeTime)
 
 	jwtClaimsForRefreshToken := jwtHelper.NewJwtClaimsForRefreshToken(user, a.cfg.JWTConfig.RefreshTokenLifeTime)
@@ -67,11 +67,9 @@ func (a *AuthService) GetAuthTokenService(user *model.User) api.TokenResponse {
 }
 
 // RefreshTokenService is a service that checks if the refresh token is valid and returns a new JWT token
-func (a *AuthService) RefreshTokenService(refreshToken string) (api.TokenResponse, error) {
+func (a *AuthService) RefreshToken(refreshToken string) (api.TokenResponse, error) {
 	token, err := jwtHelper.ParseToken(refreshToken, a.cfg.JWTConfig.SecretKey)
 
-	fmt.Println(token.Claims)
-	// fmt.Printf("%T", claims["ExpiresAt"].(int64))
 	if err != nil {
 		return api.TokenResponse{}, err
 	}

@@ -22,7 +22,6 @@ func AuthenticationMiddleware(secretKey string) gin.HandlerFunc {
 
 				if decodedClaims != nil {
 					c.Set("user", decodedClaims)
-
 					c.Next()
 					return
 				}

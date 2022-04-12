@@ -1,7 +1,6 @@
 package cart
 
 import (
-	"fmt"
 	"patika-ecommerce/internal/api"
 	"patika-ecommerce/internal/model"
 
@@ -30,7 +29,7 @@ func NewCartHandler(r *gin.RouterGroup, cfg *config.Config, cartService *CartSer
 // createCart creates a new cart
 func (r *cartHandler) getOrCreateCart(c *gin.Context) {
 	user := c.MustGet("user").(*model.User)
-	fmt.Println(user)
+
 	cart, err := r.cartService.GetOrCreateCart(*user)
 	if err != nil {
 		c.JSON(400, gin.H{"error": err.Error()})

@@ -45,8 +45,6 @@ func (r *CartRepository) GetOrCreateCart(user model.User) (*model.Cart, error) {
 			return nil, err
 		}
 	}
-	fmt.Println("Created cart", cart)
-
 	return cart, nil
 }
 
