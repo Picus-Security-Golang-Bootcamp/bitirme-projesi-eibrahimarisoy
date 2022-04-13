@@ -109,18 +109,34 @@ func (r *ProductRepository) DeleteProduct(product *model.Product) error {
 
 // UpdateProduct update a single product
 func (r *ProductRepository) UpdateProduct(product *model.Product) error {
-	result := r.db.Model(&product).Updates(
-		map[string]interface{}{
-			"Name":        product.Name,
-			"Description": product.Description,
-			"Price":       product.Price,
-			"Stock":       product.Stock,
-			"Categories":  product.Categories,
-		},
-	)
+	tx := r.db.Begin()
+	exProduct := new(model.Product)
 
-	if result.Error != nil {
-		return result.Error
+	// get product
+	err := tx.Where("id = ?", product.ID).Preload("Categories").First(&exProduct)
+
+	if err.Error != nil {
+		return err.Error
 	}
+
+	// delete all associated categories
+	if err := tx.Model(&exProduct).Association("Categories").Delete(&exProduct.Categories); err != nil {
+		return err
+	}
+
+	if err := tx.Model(&product).Updates(&product); err != nil {
+		tx.Rollback()
+		return err.Error
+
+	}
+	// add new categories
+	for _, category := range product.Categories {
+		if err := tx.Model(&product).Association("Categories").Append(&category); err != nil {
+			tx.Rollback()
+			return err
+		}
+	}
+
+	tx.Commit()
 	return nil
 }

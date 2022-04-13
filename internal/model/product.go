@@ -32,7 +32,8 @@ func (p *Product) ToString() string {
 		"ID: " + p.ID.String() +
 		"Name: " + *p.Name +
 		"Description: " + p.Description +
-		"Price: " + fmt.Sprintf("%f", *p.Price)
+		"Price: " + fmt.Sprintf("%f", *p.Price) +
+		"Categories: " + fmt.Sprintf("%v", p.Categories)
 	// "Stock: " + strconv.Itoa(p.Stock)
 	// "SKU: " + *p.SKU
 }

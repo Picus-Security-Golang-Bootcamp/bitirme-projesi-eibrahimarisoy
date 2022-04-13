@@ -421,7 +421,7 @@ paths:
         "401":
           description: "Unauthorized access"
           schema:
-          #   $ref: "#/definitions/Error
+            $ref: "#/definitions/ApiErrorResponse"
     delete:
       tags:
         - "product"

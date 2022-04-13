@@ -13,8 +13,10 @@ func ProductRequestToProduct(productRequest *api.ProductRequest) *model.Product 
 	stock := int64(*stockAddr)
 
 	categories := []model.Category{}
+	// category_ids := []strfmt.UUID{}
 	for _, c := range productRequest.Categories {
 		categories = append(categories, model.Category{Base: model.Base{ID: c.ID}})
+		// category_ids = append(category_ids, c.ID)
 	}
 
 	return &model.Product{
@@ -24,12 +26,13 @@ func ProductRequestToProduct(productRequest *api.ProductRequest) *model.Product 
 		Stock:       &stock,
 		SKU:         productRequest.Sku,
 		Categories:  categories,
+		// CategoriesID: category_ids,
 	}
 }
 
 func ProductToResponse(product *model.Product) *api.ProductResponse {
 	stock := int64(*product.Stock)
-
+	fmt.Println(len(product.Categories))
 	categories := []strfmt.UUID{}
 	for _, c := range product.Categories {
 		categories = append(categories, c.ID)
