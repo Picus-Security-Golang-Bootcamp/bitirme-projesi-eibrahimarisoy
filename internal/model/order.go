@@ -24,7 +24,7 @@ type Order struct {
 	CartID strfmt.UUID `json:"cart_id"`
 	Cart   Cart        `json:"cart"`
 
-	TotalPrice float64 `json:"total_price"`
+	TotalPrice float64 `json:"total_price" sql:"type:decimal(10,2)"`
 
 	Items []OrderItem `json:"items"`
 }

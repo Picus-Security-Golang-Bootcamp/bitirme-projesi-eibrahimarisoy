@@ -20,7 +20,8 @@ import (
 type OrderResponse struct {
 
 	// cart Id
-	CartID *CartResponse `json:"cartId,omitempty"`
+	// Format: uuid
+	CartID strfmt.UUID `json:"cartId,omitempty"`
 
 	// id
 	// Format: uuid
@@ -53,15 +54,8 @@ func (m *OrderResponse) validateCartID(formats strfmt.Registry) error {
 		return nil
 	}
 
-	if m.CartID != nil {
-		if err := m.CartID.Validate(formats); err != nil {
-			if ve, ok := err.(*errors.Validation); ok {
-				return ve.ValidateName("cartId")
-			} else if ce, ok := err.(*errors.CompositeError); ok {
-				return ce.ValidateName("cartId")
-			}
-			return err
-		}
+	if err := validate.FormatOf("cartId", "body", "uuid", m.CartID.String(), formats); err != nil {
+		return err
 	}
 
 	return nil
@@ -79,33 +73,8 @@ func (m *OrderResponse) validateID(formats strfmt.Registry) error {
 	return nil
 }
 
-// ContextValidate validate this order response based on the context it is used
+// ContextValidate validates this order response based on context it is used
 func (m *OrderResponse) ContextValidate(ctx context.Context, formats strfmt.Registry) error {
-	var res []error
-
-	if err := m.contextValidateCartID(ctx, formats); err != nil {
-		res = append(res, err)
-	}
-
-	if len(res) > 0 {
-		return errors.CompositeValidationError(res...)
-	}
-	return nil
-}
-
-func (m *OrderResponse) contextValidateCartID(ctx context.Context, formats strfmt.Registry) error {
-
-	if m.CartID != nil {
-		if err := m.CartID.ContextValidate(ctx, formats); err != nil {
-			if ve, ok := err.(*errors.Validation); ok {
-				return ve.ValidateName("cartId")
-			} else if ce, ok := err.(*errors.CompositeError); ok {
-				return ce.ValidateName("cartId")
-			}
-			return err
-		}
-	}
-
 	return nil
 }
 

@@ -49,3 +49,11 @@ func (c *Cart) GetCartItemByID(id strfmt.UUID) (*CartItem, error) {
 	}
 	return nil, fmt.Errorf("Cart item not found")
 }
+
+func (c *Cart) GetTotalPrice() float64 {
+	var totalPrice float64
+	for _, item := range c.Items {
+		totalPrice += item.Price * float64(item.Quantity)
+	}
+	return totalPrice
+}

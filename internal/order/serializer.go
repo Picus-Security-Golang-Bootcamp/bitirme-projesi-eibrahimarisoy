@@ -10,7 +10,7 @@ import (
 func OrderToOrderResponse(order *model.Order) *api.OrderResponse {
 	return &api.OrderResponse{
 		ID:     order.ID,
-		CartID: &api.CartResponse{ID: order.CartID},
+		CartID: order.CartID,
 		Status: string(order.Status),
 		// CreatedAt: order.CreatedAt, // TODO add created at
 		// UpdatedAt: order.UpdatedAt,

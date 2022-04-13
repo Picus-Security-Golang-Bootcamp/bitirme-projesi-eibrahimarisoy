@@ -21,9 +21,10 @@ func CartToCartResponse(cart *model.Cart) *api.CartResponse {
 	}
 
 	return &api.CartResponse{
-		ID:     cart.ID,
-		Status: string(cart.Status),
-		Items:  cartItemResponse,
+		ID:         cart.ID,
+		Status:     string(cart.Status),
+		Items:      cartItemResponse,
+		TotalPrice: float64(cart.GetTotalPrice()),
 	}
 }
 

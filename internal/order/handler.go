@@ -49,7 +49,7 @@ func (r *orderHandler) completeOrder(c *gin.Context) {
 		return
 	}
 
-	c.JSON(200, OrderToOrderDetailedResponse(order))
+	c.JSON(200, OrderToOrderResponse(order))
 }
 
 // listOrders lists all orders
