@@ -9,9 +9,10 @@ import (
 // OrderToOrderResponse converts an order to an order response
 func OrderToOrderResponse(order *model.Order) *api.OrderResponse {
 	return &api.OrderResponse{
-		ID:     order.ID,
-		CartID: order.CartID,
-		Status: string(order.Status),
+		ID:         order.ID,
+		CartID:     order.CartID,
+		Status:     string(order.Status),
+		TotalPrice: order.TotalPrice,
 		// CreatedAt: order.CreatedAt, // TODO add created at
 		// UpdatedAt: order.UpdatedAt,
 	}
@@ -26,11 +27,11 @@ func OrderToOrderDetailedResponse(order *model.Order) *api.OrderDetailedResponse
 	}
 
 	return &api.OrderDetailedResponse{
-		ID:     order.ID,
-		CartID: order.CartID,
-		Status: string(order.Status),
-		Total:  order.TotalPrice,
-		Items:  items,
+		ID:         order.ID,
+		CartID:     order.CartID,
+		Status:     string(order.Status),
+		TotalPrice: order.TotalPrice,
+		Items:      items,
 		// CreatedAt: order.CreatedAt, // TODO add created at
 	}
 }

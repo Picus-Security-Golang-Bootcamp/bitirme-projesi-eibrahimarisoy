@@ -59,7 +59,6 @@ func ProductsToResponse(products *[]model.Product) []*api.ProductResponse {
 }
 
 func ProductToProductBasicResponse(product *model.Product) *api.ProductBasicResponse {
-	fmt.Println(product)
 	stock := int64(*product.Stock)
 
 	return &api.ProductBasicResponse{

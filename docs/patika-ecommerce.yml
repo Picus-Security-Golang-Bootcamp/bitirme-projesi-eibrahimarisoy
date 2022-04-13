@@ -874,6 +874,8 @@ definitions:
         format: "uuid"
       status:
         type: "string"
+      totalPrice:
+        type: "number"
 
   OrderDetailedResponse:
     type: "object"
@@ -890,7 +892,7 @@ definitions:
         type: "array"
         items:
           $ref: "#/definitions/OrderItemDetailedResponse"
-      total:
+      totalPrice:
         type: "number"
   
   OrderItemDetailedResponse:

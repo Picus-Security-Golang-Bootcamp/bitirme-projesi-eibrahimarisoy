@@ -38,9 +38,10 @@ func (r *OrderRepository) CompleteOrder(cart *model.Cart) (*model.Order, error) 
 	tx := r.db.Begin() // TODO total price
 
 	order := model.Order{
-		UserID: cart.UserID,
-		CartID: cart.ID,
-		Status: model.OrderStatusCompleted,
+		UserID:     cart.UserID,
+		CartID:     cart.ID,
+		Status:     model.OrderStatusCompleted,
+		TotalPrice: cart.GetTotalPrice(),
 	}
 
 	if err := tx.Create(&order).Error; err != nil {

@@ -34,8 +34,8 @@ type OrderDetailedResponse struct {
 	// status
 	Status string `json:"status,omitempty"`
 
-	// total
-	Total float64 `json:"total,omitempty"`
+	// total price
+	TotalPrice float64 `json:"totalPrice,omitempty"`
 }
 
 // Validate validates this order detailed response

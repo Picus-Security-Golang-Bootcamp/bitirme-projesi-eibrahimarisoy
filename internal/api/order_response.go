@@ -29,6 +29,9 @@ type OrderResponse struct {
 
 	// status
 	Status string `json:"status,omitempty"`
+
+	// total price
+	TotalPrice float64 `json:"totalPrice,omitempty"`
 }
 
 // Validate validates this order response
