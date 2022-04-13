@@ -83,6 +83,12 @@ func (r *CartService) UpdateCartItem(user *model.User, id strfmt.UUID, req *api.
 		return nil, err
 	}
 
+	if req.Quantity == 0 {
+		r.cartItemRepo.DeleteCartItem(cartItem)
+		cartItem.Quantity = 0
+		return cartItem, nil
+	}
+
 	if req.Quantity > *cartItem.Product.Stock {
 		return nil, fmt.Errorf("product stock is not enough")
 	}
@@ -97,12 +103,12 @@ func (r *CartService) UpdateCartItem(user *model.User, id strfmt.UUID, req *api.
 
 // DeleteCartItem deletes a cart item
 func (r *CartService) DeleteCartItem(user *model.User, id strfmt.UUID) error {
-	cart, err := r.cartRepo.GetCreatedCartWithItemsAndProducts(user) // TODO
+	cart, err := r.cartRepo.GetCreatedCartWithItems(user) // TODO
 	if err != nil {
 		return err
 	}
 
-	cartItem, err := r.cartItemRepo.GetCartItemByCartAndIDWithProduct(cart, id)
+	cartItem, err := cart.GetCartItemByID(id)
 	if err != nil {
 		return err
 	}

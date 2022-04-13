@@ -96,26 +96,24 @@ func (r *cartHandler) UpdateCartItem(c *gin.Context) {
 
 	user := c.MustGet("user").(*model.User)
 
-	// TODO eger quantity 0 gelrise cikarma islemi yapilacak
 	cartItem, err := r.cartService.UpdateCartItem(user, strfmt.UUID(c.Param("id")), reqBody)
 	if err != nil {
 		c.JSON(httpErr.ErrorResponse(err))
 		return
 	}
-
 	c.JSON(200, CartItemToCartItemResponse(cartItem))
 }
 
 // DeleteCartItem deletes a cart item
 func (r *cartHandler) DeleteCartItem(c *gin.Context) {
 	user := c.MustGet("user").(*model.User)
-	id := c.Param("id")
 
-	err := r.cartService.DeleteCartItem(user, strfmt.UUID(id))
+	err := r.cartService.DeleteCartItem(user, strfmt.UUID(c.Param("id")))
+
 	if err != nil {
-		c.JSON(400, gin.H{"error": err.Error()})
+		c.JSON(httpErr.ErrorResponse(err))
 		return
 	}
 
-	c.JSON(200, gin.H{"message": "Cart item deleted"})
+	c.JSON(204, nil)
 }

@@ -72,6 +72,18 @@ func (r *CartRepository) GetCreatedCartWithItemsAndProducts(user *model.User) (*
 	return cart, nil
 }
 
+// GetCreatedCartWithItems returns a cart by user id
+func (r *CartRepository) GetCreatedCartWithItems(user *model.User) (*model.Cart, error) {
+	cart := &model.Cart{}
+	if err := r.db.Preload("Items").Where("user_id = ? AND status = ?", user.ID, model.CartStatusCreated).First(cart).Error; err != nil {
+		if err == gorm.ErrRecordNotFound {
+			return nil, errors.New("Cart not found. Please create a cart")
+		}
+		return nil, err
+	}
+	return cart, nil
+}
+
 // GetCreatedCartByUserAndCart returns a cart by user id
 func (r *CartRepository) GetCreatedCartByUserAndCart(user *model.User, cartId strfmt.UUID) (*model.Cart, error) {
 	cart := &model.Cart{}

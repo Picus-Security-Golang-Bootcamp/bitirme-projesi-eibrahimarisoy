@@ -13,7 +13,7 @@ type User struct {
 	FirstName *string `json:"firstName" gorm:"type:varchar(100); not null"`
 	LastName  *string `json:"lastName" gorm:"type:varchar(100); not null"`
 	Username  *string `json:"username" gorm:"unique" gorm:"type:varchar(100); not null"`
-	Email     *string `json:"email" gorm:"unique" gorm:"type:varchar(100); not null" binding:"required,email"`
+	Email     *string `json:"email" gorm:"unique" gorm:"type:varchar(100); not null"`
 	Password  string  `json:"password,omitempty" gorm:"type:varchar(100); not null"`
 	IsAdmin   bool    `json:"isAdmin" default:"false" gorm:"type:boolean"`
 
