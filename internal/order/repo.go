@@ -2,6 +2,7 @@ package order
 
 import (
 	"errors"
+	"fmt"
 	"patika-ecommerce/internal/model"
 
 	"github.com/go-openapi/strfmt"
@@ -36,32 +37,50 @@ func NewOrderItemRepository(db *gorm.DB) *OrderItemRepository {
 func (r *OrderRepository) CompleteOrder(cart *model.Cart) (*model.Order, error) {
 	tx := r.db.Begin() // TODO total price
 
-	order := &model.Order{
+	order := model.Order{
 		UserID: cart.UserID,
 		CartID: cart.ID,
 		Status: model.OrderStatusCompleted,
 	}
 
-	if err := r.db.Create(order).Error; err != nil {
+	if err := tx.Create(&order).Error; err != nil {
 		tx.Rollback()
 		return nil, err
 	}
 
 	for _, item := range cart.Items {
-		orderItem := &model.OrderItem{
-			OrderID:   order.ID,
-			ProductID: item.ProductID,
-			Price:     item.Price,
+		product := item.Product
+		if *product.Stock < item.Quantity {
+			tx.Rollback()
+			return nil, fmt.Errorf("product %s stock is not enough", item.Product.Name)
 		}
 
-		if err := r.db.Create(orderItem).Error; err != nil {
-			tx.Rollback()
-			return nil, err
+		*product.Stock -= item.Quantity
+		tx.Save(&product)
+
+		for i := 0; i < int(item.Quantity); i++ {
+			orderItem := &model.OrderItem{
+				OrderID:   order.ID,
+				ProductID: item.ProductID,
+				Price:     item.Price,
+			}
+			fmt.Println("PRODUCY^", item.Product)
+
+			if err := tx.Create(orderItem).Error; err != nil {
+				tx.Rollback()
+				return nil, err
+			}
 		}
 	}
 
+	cart.Status = model.CartStatusPaid
+	if err := tx.Save(cart).Error; err != nil {
+		tx.Rollback()
+		return nil, err
+	}
+
 	tx.Commit()
-	return order, nil
+	return &order, nil
 }
 
 // GetOrdersByUser returns all orders of a user

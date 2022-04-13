@@ -2,6 +2,7 @@ package cart
 
 import (
 	"errors"
+	"fmt"
 	"patika-ecommerce/internal/model"
 
 	"github.com/go-openapi/strfmt"
@@ -86,11 +87,12 @@ func (r *CartRepository) GetCreatedCartWithItems(user *model.User) (*model.Cart,
 
 // GetCreatedCartByUserAndCart returns a cart by user id
 func (r *CartRepository) GetCreatedCartByUserAndCart(user *model.User, cartId strfmt.UUID) (*model.Cart, error) {
-	cart := &model.Cart{}
-	if err := r.db.Preload("Items").Where("user_id = ? AND status = ? AND id = ?", user.ID, model.CartStatusCreated, cartId).First(cart).Error; err != nil {
+	cart := model.Cart{}
+	if err := r.db.Preload("Items.Product").Where("user_id = ? AND status = ? AND id = ?", user.ID, model.CartStatusCreated, cartId).First(&cart).Error; err != nil {
 		return nil, err
 	}
-	return cart, nil
+	fmt.Println("cart", cart)
+	return &cart, nil
 }
 
 // GetCartByID returns a cart by id

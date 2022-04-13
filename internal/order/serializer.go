@@ -10,7 +10,7 @@ import (
 func OrderToOrderResponse(order *model.Order) *api.OrderResponse {
 	return &api.OrderResponse{
 		ID:     order.ID,
-		CartID: order.CartID,
+		CartID: &api.CartResponse{ID: order.CartID},
 		Status: string(order.Status),
 		// CreatedAt: order.CreatedAt, // TODO add created at
 		// UpdatedAt: order.UpdatedAt,
@@ -36,7 +36,7 @@ func OrderToOrderDetailedResponse(order *model.Order) *api.OrderDetailedResponse
 }
 
 // OrdersToOrderDetaledResponse converts an orders to an orders response
-func OrdersToOrderDetaledResponse(orders []*model.Order) []*api.OrderDetailedResponse {
+func OrdersToOrderDetailedResponse(orders []*model.Order) []*api.OrderDetailedResponse {
 	var orderResponses []*api.OrderDetailedResponse
 	for _, order := range orders {
 		orderResponses = append(orderResponses, OrderToOrderDetailedResponse(order))

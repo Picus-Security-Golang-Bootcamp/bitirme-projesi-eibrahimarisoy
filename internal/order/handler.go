@@ -2,6 +2,7 @@ package order
 
 import (
 	"patika-ecommerce/internal/api"
+	httpErr "patika-ecommerce/internal/httpErrors"
 	"patika-ecommerce/internal/model"
 	"patika-ecommerce/pkg/config"
 
@@ -27,21 +28,28 @@ func NewOrderHandler(r *gin.RouterGroup, cfg *config.Config, orderService *Order
 
 // completeOrder completes an order
 func (r *orderHandler) completeOrder(c *gin.Context) {
-	req := &api.OrderRequest{}
-	if err := c.ShouldBindJSON(req); err != nil {
-		c.JSON(400, gin.H{"error": err.Error()})
+	reqBody := &api.OrderRequest{}
+
+	if err := c.ShouldBindJSON(&reqBody); err != nil {
+		c.JSON(httpErr.ErrorResponse(err))
 		return
 	}
+
+	if err := reqBody.Validate(strfmt.NewFormats()); err != nil {
+		c.JSON(httpErr.ErrorResponse(err))
+		return
+	}
+
 	user := c.MustGet("user").(*model.User)
 
-	order, err := r.orderService.CompleteOrder(user, req)
+	order, err := r.orderService.CompleteOrder(user, reqBody)
 
 	if err != nil {
-		c.JSON(500, gin.H{"error": err.Error()})
+		c.JSON(httpErr.ErrorResponse(err))
 		return
 	}
 
-	c.JSON(200, order)
+	c.JSON(200, OrderToOrderDetailedResponse(order))
 }
 
 // listOrders lists all orders
@@ -51,11 +59,11 @@ func (r *orderHandler) listOrders(c *gin.Context) {
 	orders, err := r.orderService.GetOrdersByUser(user)
 
 	if err != nil {
-		c.JSON(500, gin.H{"error": err.Error()})
+		c.JSON(httpErr.ErrorResponse(err))
 		return
 	}
 
-	c.JSON(200, OrdersToOrderDetaledResponse(orders))
+	c.JSON(200, OrdersToOrderDetailedResponse(orders))
 }
 
 // cancelOrder cancels an order
@@ -67,9 +75,8 @@ func (r *orderHandler) cancelOrder(c *gin.Context) {
 	err := r.orderService.CancelOrder(user, strfmt.UUID(id))
 
 	if err != nil {
-		c.JSON(400, gin.H{"error": err.Error()})
+		c.JSON(httpErr.ErrorResponse(err))
 		return
 	}
-	resp := map[string]string{"message": "order cancelled"}
-	c.JSON(200, resp)
+	c.JSON(200, map[string]string{"message": "order cancelled"})
 }

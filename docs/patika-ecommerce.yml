@@ -26,7 +26,7 @@ tags:
     description: "Everything about category"
   - name: "product"
     description: "Everything about product"
-  - name: "order"
+  - name: "orders"
     description: "Everything about order"
   - name: "cart"
     description: "Everything about cart"
@@ -868,8 +868,8 @@ definitions:
         type: "string"
         format: "uuid"
       cartId:
-        type: "string"
-        format: "uuid"
+        type: "object"
+        $ref: "#/definitions/CartResponse"
       status:
         type: "string"
 

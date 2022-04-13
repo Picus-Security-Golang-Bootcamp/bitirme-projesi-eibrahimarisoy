@@ -1,7 +1,6 @@
 package order
 
 import (
-	"fmt"
 	"patika-ecommerce/internal/api"
 	"patika-ecommerce/internal/cart"
 	"patika-ecommerce/internal/model"
@@ -29,9 +28,6 @@ func NewOrderService(orderRepo *OrderRepository, orderItemRepo *OrderItemReposit
 // CompleteOrder completes an order
 func (r *OrderService) CompleteOrder(user *model.User, req *api.OrderRequest) (*model.Order, error) {
 	// Check given cart is valid
-	fmt.Println(*r.cartRepo)
-	fmt.Println(user)
-	fmt.Println(req)
 	cart, err := r.cartRepo.GetCreatedCartByUserAndCart(user, *req.CartID)
 	if err != nil {
 		return nil, err
