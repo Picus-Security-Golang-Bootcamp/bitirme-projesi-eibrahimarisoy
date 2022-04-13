@@ -876,6 +876,12 @@ definitions:
         type: "string"
       totalPrice:
         type: "number"
+      createdAt:
+        type: "string"
+        format: "date-time"
+      updatedAt:
+        type: "string"
+        format: "date-time"
 
   OrderDetailedResponse:
     type: "object"
@@ -894,7 +900,13 @@ definitions:
           $ref: "#/definitions/OrderItemDetailedResponse"
       totalPrice:
         type: "number"
-  
+      createdAt:
+        type: "string"
+        format: "date-time"
+      updatedAt:
+        type: "string"
+        format: "date-time"
+        
   OrderItemDetailedResponse:
     type: "object"
     properties:
@@ -904,8 +916,6 @@ definitions:
       product:
         type: "string"
         $ref: "#/definitions/ProductBasicResponse"
-      quantity:
-        type: "integer"
       Price:
         type: "number"
 

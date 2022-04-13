@@ -28,9 +28,6 @@ type OrderItemDetailedResponse struct {
 
 	// product
 	Product *ProductBasicResponse `json:"product,omitempty"`
-
-	// quantity
-	Quantity int64 `json:"quantity,omitempty"`
 }
 
 // Validate validates this order item detailed response

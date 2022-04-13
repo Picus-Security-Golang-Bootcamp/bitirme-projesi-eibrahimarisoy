@@ -4,6 +4,8 @@ import (
 	"patika-ecommerce/internal/api"
 	"patika-ecommerce/internal/model"
 	"patika-ecommerce/internal/product"
+
+	"github.com/go-openapi/strfmt"
 )
 
 // OrderToOrderResponse converts an order to an order response
@@ -13,8 +15,8 @@ func OrderToOrderResponse(order *model.Order) *api.OrderResponse {
 		CartID:     order.CartID,
 		Status:     string(order.Status),
 		TotalPrice: order.TotalPrice,
-		// CreatedAt: order.CreatedAt, // TODO add created at
-		// UpdatedAt: order.UpdatedAt,
+		CreatedAt:  strfmt.DateTime(order.CreatedAt),
+		UpdatedAt:  strfmt.DateTime(order.UpdatedAt),
 	}
 }
 
@@ -32,7 +34,8 @@ func OrderToOrderDetailedResponse(order *model.Order) *api.OrderDetailedResponse
 		Status:     string(order.Status),
 		TotalPrice: order.TotalPrice,
 		Items:      items,
-		// CreatedAt: order.CreatedAt, // TODO add created at
+		CreatedAt:  strfmt.DateTime(order.CreatedAt),
+		UpdatedAt:  strfmt.DateTime(order.UpdatedAt),
 	}
 }
 
@@ -48,8 +51,7 @@ func OrdersToOrderDetailedResponse(orders []*model.Order) []*api.OrderDetailedRe
 // OrderItemToOrderItemDetailedResponse converts an order item to an order item response
 func OrderItemToOrderItemDetailedResponse(orderItem *model.OrderItem) *api.OrderItemDetailedResponse {
 	return &api.OrderItemDetailedResponse{
-		ID: orderItem.ID,
-		// Quantity: orderItem.Quantity, // TODO remove quantity
+		ID:      orderItem.ID,
 		Product: product.ProductToProductBasicResponse(&orderItem.Product),
 		Price:   orderItem.Price,
 	}
