@@ -25,63 +25,60 @@ func NewCartService(cartRepo *CartRepository, productRepo *product.ProductReposi
 }
 
 // GetOrCreateCart returns a cart by user id
-func (r *CartService) GetOrCreateCart(user model.User) (*model.Cart, error) {
+func (r *CartService) GetOrCreateCart(user *model.User) (*model.Cart, error) {
 	return r.cartRepo.GetOrCreateCart(user)
 }
 
 // AddToCart adds a product to cart
-func (r *CartService) AddToCart(user model.User, req *api.CartAddRequest) (*model.Cart, error) {
+func (r *CartService) AddToCart(user *model.User, req *api.AddToCartRequest) (*model.Cart, error) {
 	cart, err := r.cartRepo.GetCreatedCart(user)
-
 	if err != nil {
 		return nil, err
 	}
-	// if cart == nil {
-	// 	return nil, fmt.Errorf("cart not found")
-	// }
 
+	// find product by given id
 	product, err := r.productRepo.GetProductWithoutCategories(req.ProductID)
 	if err != nil {
 		return nil, err
 	}
 
-	if *product.Stock < req.Quantity {
-		return nil, fmt.Errorf("product stock is not enough")
-	}
-	// TODO: check if product is available
+	// check if product is available in cart
 	is_exists := false
 	for _, item := range cart.Items {
+		// if product is already in cart then update quantity
 		if item.ProductID == req.ProductID {
-			item.Quantity += int(req.Quantity)
+			if int64(item.Quantity)+req.Quantity > *product.Stock {
+				return nil, fmt.Errorf("Product stock is not enough")
+			}
+			item.Quantity += req.Quantity
 			r.cartItemRepo.UpdateCartItem(&item)
 			is_exists = true
 			break
 		}
 	}
 
+	// if product not exists in cart, create new cart item
 	if !is_exists {
-		product, err := r.productRepo.GetProductWithoutCategories(req.ProductID)
-		if err != nil {
-			return nil, err
+		if *product.Stock < req.Quantity {
+			return nil, fmt.Errorf("Product stock is not enough")
 		}
 
 		if err := r.cartItemRepo.Create(cart, product); err != nil {
 			return nil, err
 		}
 	}
-	cart, err = r.cartRepo.GetCartByID(cart.ID)
 
-	return cart, nil
+	return r.cartRepo.GetCartByID(cart.ID)
 }
 
 // UpdateCartItem updates a cart item
-func (r *CartService) UpdateCartItem(user model.User, id strfmt.UUID, req *api.CartItemUpdateRequest) (*model.CartItem, error) {
+func (r *CartService) UpdateCartItem(user *model.User, id strfmt.UUID, req *api.CartItemUpdateRequest) (*model.CartItem, error) {
 	cart, err := r.cartRepo.GetCreatedCartWithItemsAndProducts(user)
 	if err != nil {
 		return nil, err
 	}
 
-	cartItem, err := r.cartItemRepo.GetCartItemByCartAndIDWithProduct(cart, id)
+	cartItem, err := cart.GetCartItemByID(id)
 	if err != nil {
 		return nil, err
 	}
@@ -90,7 +87,7 @@ func (r *CartService) UpdateCartItem(user model.User, id strfmt.UUID, req *api.C
 		return nil, fmt.Errorf("product stock is not enough")
 	}
 
-	cartItem.Quantity = int(req.Quantity)
+	cartItem.Quantity = req.Quantity
 	if err := r.cartItemRepo.UpdateCartItem(cartItem); err != nil {
 		return nil, err
 	}
@@ -99,7 +96,7 @@ func (r *CartService) UpdateCartItem(user model.User, id strfmt.UUID, req *api.C
 }
 
 // DeleteCartItem deletes a cart item
-func (r *CartService) DeleteCartItem(user model.User, id strfmt.UUID) error {
+func (r *CartService) DeleteCartItem(user *model.User, id strfmt.UUID) error {
 	cart, err := r.cartRepo.GetCreatedCartWithItemsAndProducts(user) // TODO
 	if err != nil {
 		return err

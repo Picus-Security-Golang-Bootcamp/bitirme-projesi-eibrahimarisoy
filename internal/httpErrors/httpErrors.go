@@ -84,6 +84,12 @@ func ParseErrors(err error) RestErr {
 		return NewRestError(http.StatusBadRequest, CannotBindGivenData.Error(), err)
 	case strings.Contains(err.Error(), "Unauthorized"):
 		return NewRestError(http.StatusUnauthorized, err.Error(), err)
+	case strings.Contains(err.Error(), "Cart not found"):
+		return NewRestError(http.StatusBadRequest, err.Error(), err)
+	case strings.Contains(err.Error(), "is not enough"):
+		return NewRestError(http.StatusBadRequest, err.Error(), err)
+	case strings.Contains(err.Error(), "not found"):
+		return NewRestError(http.StatusNotFound, NotFound.Error(), err)
 
 	default:
 		if restErr, ok := err.(RestErr); ok {

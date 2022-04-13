@@ -191,10 +191,3 @@ func (r *productHandler) updateProduct(c *gin.Context) {
 // 		c.JSON(httpErr.ErrorResponse(errors.New("invalid product id")))
 // 		return
 // 	}
-
-// [{{2022-04-10 11:21:50.094983 +0300 +03 2022-04-10 11:21:50.094983 +0300 +03 <nil>
-// 	5183ee6e-6df5-429d-a897-7d4b77ffbdd8} 0xc0001600f0 name3 description3 []}
-// 	{{2022-04-10 11:21:50.096588 +0300 +03 2022-04-10 11:21:50.096588 +0300 +03 <nil>
-// 		267a5cad-35b3-46fa-9e03-619402ab7902} 0xc0001602b0 name4 description4 []}
-// 		{{2022-04-10 11:21:50.093569 +0300 +03 2022-04-10 11:21:50.093569 +0300 +03 <nil>
-// 			87b4e774-e879-4db9-8fd3-0c8bffcd1541} 0xc0001604b0 name2 description2 []}]

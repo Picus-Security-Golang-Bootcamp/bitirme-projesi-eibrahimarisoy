@@ -14,10 +14,10 @@ import (
 	"github.com/go-openapi/validate"
 )
 
-// CartAddRequest cart add request
+// AddToCartRequest add to cart request
 //
-// swagger:model CartAddRequest
-type CartAddRequest struct {
+// swagger:model AddToCartRequest
+type AddToCartRequest struct {
 
 	// product Id
 	// Format: uuid
@@ -27,8 +27,8 @@ type CartAddRequest struct {
 	Quantity int64 `json:"quantity,omitempty"`
 }
 
-// Validate validates this cart add request
-func (m *CartAddRequest) Validate(formats strfmt.Registry) error {
+// Validate validates this add to cart request
+func (m *AddToCartRequest) Validate(formats strfmt.Registry) error {
 	var res []error
 
 	if err := m.validateProductID(formats); err != nil {
@@ -41,7 +41,7 @@ func (m *CartAddRequest) Validate(formats strfmt.Registry) error {
 	return nil
 }
 
-func (m *CartAddRequest) validateProductID(formats strfmt.Registry) error {
+func (m *AddToCartRequest) validateProductID(formats strfmt.Registry) error {
 	if swag.IsZero(m.ProductID) { // not required
 		return nil
 	}
@@ -53,13 +53,13 @@ func (m *CartAddRequest) validateProductID(formats strfmt.Registry) error {
 	return nil
 }
 
-// ContextValidate validates this cart add request based on context it is used
-func (m *CartAddRequest) ContextValidate(ctx context.Context, formats strfmt.Registry) error {
+// ContextValidate validates this add to cart request based on context it is used
+func (m *AddToCartRequest) ContextValidate(ctx context.Context, formats strfmt.Registry) error {
 	return nil
 }
 
 // MarshalBinary interface implementation
-func (m *CartAddRequest) MarshalBinary() ([]byte, error) {
+func (m *AddToCartRequest) MarshalBinary() ([]byte, error) {
 	if m == nil {
 		return nil, nil
 	}
@@ -67,8 +67,8 @@ func (m *CartAddRequest) MarshalBinary() ([]byte, error) {
 }
 
 // UnmarshalBinary interface implementation
-func (m *CartAddRequest) UnmarshalBinary(b []byte) error {
-	var res CartAddRequest
+func (m *AddToCartRequest) UnmarshalBinary(b []byte) error {
+	var res AddToCartRequest
 	if err := swag.ReadJSON(b, &res); err != nil {
 		return err
 	}

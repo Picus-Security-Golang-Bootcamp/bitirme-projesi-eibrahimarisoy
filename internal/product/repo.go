@@ -124,17 +124,11 @@ func (r *ProductRepository) UpdateProduct(product *model.Product) error {
 		return err
 	}
 
-	if err := tx.Model(&product).Updates(&product); err != nil {
-		tx.Rollback()
-		return err.Error
+	result := tx.Model(&product).Updates(&product)
 
-	}
-	// add new categories
-	for _, category := range product.Categories {
-		if err := tx.Model(&product).Association("Categories").Append(&category); err != nil {
-			tx.Rollback()
-			return err
-		}
+	if result.Error != nil {
+		tx.Rollback()
+		return result.Error
 	}
 
 	tx.Commit()

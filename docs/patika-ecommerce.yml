@@ -490,7 +490,7 @@ paths:
           description: "Product object that needs to be added to the cart"
           required: true
           schema:
-            $ref: "#/definitions/CartAddRequest"
+            $ref: "#/definitions/AddToCartRequest"
       responses:
         "201":
           description: "Product added to cart successfully"
@@ -823,7 +823,7 @@ definitions:
       Price:
         type: "number"
 
-  CartAddRequest:
+  AddToCartRequest:
     type: "object"
     properties:
       productId:

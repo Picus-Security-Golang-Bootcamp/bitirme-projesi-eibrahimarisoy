@@ -4,6 +4,7 @@ import (
 	"patika-ecommerce/internal/api"
 	"patika-ecommerce/internal/model"
 
+	httpErr "patika-ecommerce/internal/httpErrors"
 	"patika-ecommerce/pkg/config"
 	mw "patika-ecommerce/pkg/middleware"
 
@@ -15,6 +16,7 @@ type cartHandler struct {
 	cartService *CartService
 }
 
+// NewCartHandler creates a new cart handler
 func NewCartHandler(r *gin.RouterGroup, cfg *config.Config, cartService *CartService) {
 	handler := &cartHandler{cartService: cartService}
 
@@ -26,13 +28,13 @@ func NewCartHandler(r *gin.RouterGroup, cfg *config.Config, cartService *CartSer
 	r.DELETE("/items/:id", handler.DeleteCartItem)
 }
 
-// createCart creates a new cart
+// getOrCreateCart if users cart exists, returns it, otherwise creates a new one
 func (r *cartHandler) getOrCreateCart(c *gin.Context) {
 	user := c.MustGet("user").(*model.User)
 
-	cart, err := r.cartService.GetOrCreateCart(*user)
+	cart, err := r.cartService.GetOrCreateCart(user)
 	if err != nil {
-		c.JSON(400, gin.H{"error": err.Error()})
+		c.JSON(httpErr.ErrorResponse(err))
 		return
 	}
 
@@ -41,17 +43,24 @@ func (r *cartHandler) getOrCreateCart(c *gin.Context) {
 
 // AddToCart adds a product to cart
 func (r *cartHandler) AddToCart(c *gin.Context) {
-	req := &api.CartAddRequest{}
-	if err := c.ShouldBindJSON(&req); err != nil {
-		c.JSON(400, gin.H{"error": err.Error()})
+	reqBody := &api.AddToCartRequest{}
+
+	if err := c.ShouldBindJSON(&reqBody); err != nil {
+		c.JSON(httpErr.ErrorResponse(err))
 		return
 	}
+
+	if err := reqBody.Validate(strfmt.NewFormats()); err != nil {
+		c.JSON(httpErr.ErrorResponse(err))
+		return
+	}
+
 	user := c.MustGet("user").(*model.User)
 
-	cart, err := r.cartService.AddToCart(*user, req)
+	cart, err := r.cartService.AddToCart(user, reqBody)
 
 	if err != nil {
-		c.JSON(500, gin.H{"error": err.Error()})
+		c.JSON(httpErr.ErrorResponse(err))
 		return
 	}
 
@@ -62,9 +71,9 @@ func (r *cartHandler) AddToCart(c *gin.Context) {
 func (r *cartHandler) ListCartItems(c *gin.Context) {
 	user := c.MustGet("user").(*model.User)
 
-	cart, err := r.cartService.GetOrCreateCart(*user)
+	cart, err := r.cartService.GetOrCreateCart(user)
 	if err != nil {
-		c.JSON(400, gin.H{"error": err.Error()})
+		c.JSON(httpErr.ErrorResponse(err))
 		return
 	}
 
@@ -73,18 +82,24 @@ func (r *cartHandler) ListCartItems(c *gin.Context) {
 
 // UpdateCartItem updates a cart item
 func (r *cartHandler) UpdateCartItem(c *gin.Context) {
-	user := c.MustGet("user").(*model.User)
-	// TODO eger quantity 0 gelrise cikarma islemi yapilacak
-	id := c.Param("id")
-	req := &api.CartItemUpdateRequest{}
-	if err := c.ShouldBindJSON(&req); err != nil {
-		c.JSON(400, gin.H{"error": err.Error()})
+	reqBody := &api.CartItemUpdateRequest{}
+
+	if err := c.ShouldBindJSON(&reqBody); err != nil {
+		c.JSON(httpErr.ErrorResponse(err))
 		return
 	}
 
-	cartItem, err := r.cartService.UpdateCartItem(*user, strfmt.UUID(id), req)
+	if err := reqBody.Validate(strfmt.NewFormats()); err != nil {
+		c.JSON(httpErr.ErrorResponse(err))
+		return
+	}
+
+	user := c.MustGet("user").(*model.User)
+
+	// TODO eger quantity 0 gelrise cikarma islemi yapilacak
+	cartItem, err := r.cartService.UpdateCartItem(user, strfmt.UUID(c.Param("id")), reqBody)
 	if err != nil {
-		c.JSON(500, gin.H{"error": err.Error()})
+		c.JSON(httpErr.ErrorResponse(err))
 		return
 	}
 
@@ -96,7 +111,7 @@ func (r *cartHandler) DeleteCartItem(c *gin.Context) {
 	user := c.MustGet("user").(*model.User)
 	id := c.Param("id")
 
-	err := r.cartService.DeleteCartItem(*user, strfmt.UUID(id))
+	err := r.cartService.DeleteCartItem(user, strfmt.UUID(id))
 	if err != nil {
 		c.JSON(400, gin.H{"error": err.Error()})
 		return

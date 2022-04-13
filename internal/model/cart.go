@@ -1,6 +1,8 @@
 package model
 
 import (
+	"fmt"
+
 	"github.com/go-openapi/strfmt"
 	"gorm.io/gorm"
 )
@@ -15,7 +17,7 @@ const (
 
 type Cart struct {
 	Base
-	Status CartStatus `json:"status"`
+	Status CartStatus `json:"status" gorm:"type:varchar(10);not null"`
 
 	UserID strfmt.UUID `json:"user_id"`
 	User   User        `json:"user"`
@@ -30,8 +32,8 @@ type CartItem struct {
 	ProductID strfmt.UUID `json:"product_id"`
 	Product   Product     `json:"product"`
 
-	Quantity int     `json:"quantity"`
-	Price    float64 `json:"price"`
+	Quantity int64   `json:"quantity" gorm:"not null"`
+	Price    float64 `json:"price" gorm:"not null"`
 }
 
 func (c *Cart) BeforeCreate(tx *gorm.DB) error {
@@ -39,14 +41,11 @@ func (c *Cart) BeforeCreate(tx *gorm.DB) error {
 	return nil
 }
 
-func (c *Cart) CanAddProduct(id strfmt.UUID, quantity int) error {
-	// TODO
-	item := CartItem{
-		CartID:    c.ID,
-		ProductID: id,
-		Quantity:  quantity,
+func (c *Cart) GetCartItemByID(id strfmt.UUID) (*CartItem, error) {
+	for _, item := range c.Items {
+		if item.ID == id {
+			return &item, nil
+		}
 	}
-	c.Items = append(c.Items, item)
-
-	return nil
+	return nil, fmt.Errorf("Cart item not found")
 }

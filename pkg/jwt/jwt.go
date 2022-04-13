@@ -79,9 +79,9 @@ func NewJwtClaimsForAccessToken(user *model.User, accessTokenLifeTime int) *jwt.
 		"CreatedAt": time.Now().Unix(),
 		"ExpiresAt": time.Now().Add(time.Duration(accessTokenLifeTime) * time.Hour).Unix(),
 		"UserId":    user.ID,
-		"Email":     user.Email,
-		"IsAdmin":   user.IsAdmin,
-		"Roles":     user.Roles,
+		// "Email":     user.Email,
+		"IsAdmin": user.IsAdmin,
+		"Roles":   user.Roles,
 	})
 }
 

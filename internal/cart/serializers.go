@@ -27,10 +27,10 @@ func CartToCartResponse(cart *model.Cart) *api.CartResponse {
 	}
 }
 
-func CartAddRequestToCartItem(req *api.CartAddRequest) *model.CartItem {
+func CartAddRequestToCartItem(req *api.AddToCartRequest) *model.CartItem {
 	return &model.CartItem{
 		ProductID: req.ProductID,
-		Quantity:  int(req.Quantity),
+		Quantity:  req.Quantity,
 	}
 }
 
