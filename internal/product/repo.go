@@ -37,45 +37,15 @@ func (r *ProductRepository) InsertProduct(product *model.Product) error {
 // GetProducts get all products
 func (r *ProductRepository) GetProducts(pagination *paginationHelper.Pagination) (*paginationHelper.Pagination, error) {
 	fmt.Println("GetProducts: ", pagination)
-	var products []*model.Product
+	var products []model.Product
+	var totalRows int64
 
-	r.db.Scopes(paginationHelper.Paginate(products, pagination, r.db)).Find(&products)
-	pagination.Rows = products
+	query := r.db.Model(&model.Product{}).Scopes(Search(pagination.Q)).Count(&totalRows).Preload("Categories")
+	query.Scopes(paginationHelper.Paginate(totalRows, pagination, r.db)).Find(&products)
+
+	pagination.Rows = ProductsToResponse(&products)
 
 	return pagination, nil
-
-	// products := new([]model.Product)
-
-	// totalRows, totalPages := int64(0), 0
-
-	// offset := (pagination.Page - 1) * pagination.Limit
-
-	// // generate where query
-	// search := pagination.Q
-
-	// find := r.db
-	// find = find.Limit(pagination.Limit).Offset(offset).Order(pagination.Sort).Preload("Categories")
-	// if search != "" {
-	// 	find := find.Scopes(Search(search))
-	// 	fmt.Println("search: ", find)
-	// }
-
-	// find = find.Find(products)
-	// fmt.Println("find: ", products)
-
-	// pagination.Rows = products
-	// err := find.Count(&totalRows).Error
-
-	// if err != nil {
-	// 	return nil, 0, err
-	// }
-
-	// pagination.TotalRows = totalRows
-
-	// // calculate total pages
-	// totalPages = int(math.Ceil(float64(totalRows) / float64(pagination.Limit)))
-
-	// return pagination, totalPages, nil
 }
 
 // GetProduct get a single product

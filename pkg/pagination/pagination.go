@@ -1,7 +1,6 @@
 package pagination
 
 import (
-	"fmt"
 	"math"
 
 	"gorm.io/gorm"
@@ -42,13 +41,9 @@ func (p *Pagination) GetSort() string {
 	return p.Sort
 }
 
-func Paginate(value interface{}, pagination *Pagination, db *gorm.DB) func(db *gorm.DB) *gorm.DB {
-	var totalRows int64
-	db.Model(value).Count(&totalRows)
-
+func Paginate(totalRows int64, pagination *Pagination, db *gorm.DB) func(db *gorm.DB) *gorm.DB {
 	pagination.TotalRows = totalRows
-	fmt.Println("totalRows: ", totalRows)
-	fmt.Println("totalRows: ", pagination.Limit)
+
 	totalPages := int(math.Ceil(float64(totalRows) / float64(pagination.Limit)))
 	pagination.TotalPages = totalPages
 
