@@ -1,6 +1,7 @@
 package order
 
 import (
+	"errors"
 	"fmt"
 	"patika-ecommerce/internal/model"
 	paginationHelper "patika-ecommerce/pkg/pagination"
@@ -35,8 +36,18 @@ func NewOrderItemRepository(db *gorm.DB) *OrderItemRepository {
 }
 
 // CompleteOrder
-func (r *OrderRepository) CompleteOrder(cart *model.Cart) (*model.Order, error) {
+func (r *OrderRepository) CompleteOrder(user *model.User, cartId uuid.UUID) (*model.Order, error) {
 	tx := r.db.Begin() // TODO total price
+	cart := model.Cart{}
+
+	if err := tx.Model(model.Cart{}).
+		Clauses(clause.Locking{Strength: "UPDATE"}).
+		Preload("Items.Product").
+		Where("id = ? AND user_id = ? AND status = ?", cartId, user.ID, model.CartStatusCreated).
+		Find(&cart).Error; err != nil {
+		tx.Rollback()
+		return nil, err
+	}
 
 	order := model.Order{
 		UserID:     cart.UserID,
@@ -66,7 +77,6 @@ func (r *OrderRepository) CompleteOrder(cart *model.Cart) (*model.Order, error) 
 				ProductID: item.ProductID,
 				Price:     item.Price,
 			}
-			fmt.Println("PRODUCY^", item.Product)
 
 			if err := tx.Create(orderItem).Error; err != nil {
 				tx.Rollback()
@@ -123,13 +133,18 @@ func (r *OrderRepository) CancelOrder(id uuid.UUID, user *model.User) error {
 		tx.Rollback()
 		return err
 	}
-	fmt.Println("cancel order", order)
+	if !order.IsCancelable() {
+		// return model.ErrOrderCannotBeCanceled
+		return errors.New("order cannot be canceled")
+	}
 
-	// TODO product stock update
 	for _, item := range order.Items {
 		product := item.Product
 		*product.Stock += 1
-		tx.Save(&product)
+		if err := tx.Save(&product).Error; err != nil {
+			tx.Rollback()
+			return err
+		}
 	}
 
 	order.Status = model.OrderStatusCanceled

@@ -1,10 +1,11 @@
 package model
 
 import (
+	"fmt"
 	"time"
 
 	"github.com/google/uuid"
-	"github.com/shopspring/decimal"
+	"gorm.io/gorm"
 )
 
 type OrderStatus string
@@ -25,7 +26,7 @@ type Order struct {
 	CartID uuid.UUID `json:"cart_id"`
 	Cart   Cart      `json:"cart"`
 
-	TotalPrice decimal.Decimal `json:"total_price" sql:"type:decimal(10,2)"`
+	TotalPrice float64 `json:"total_price" gorm:"type:numeric(10,2)"`
 
 	Items []OrderItem `json:"items"`
 }
@@ -38,7 +39,13 @@ type OrderItem struct {
 	ProductID uuid.UUID `json:"product_id"`
 	Product   Product   `json:"product"`
 
-	Price decimal.Decimal `json:"price"`
+	Price float64 `json:"price" gorm:"type:numeric(10,2)"`
+}
+
+func (i *OrderItem) BeforeCreate(tx *gorm.DB) error {
+	fmt.Println(i.Price)
+	fmt.Printf("%T\n", i.Price)
+	return nil
 }
 
 func (o *Order) IsCancelable() bool {

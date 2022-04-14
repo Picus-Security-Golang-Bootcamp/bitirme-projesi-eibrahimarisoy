@@ -4,7 +4,6 @@ import (
 	"fmt"
 
 	"github.com/google/uuid"
-	"github.com/shopspring/decimal"
 	"gorm.io/gorm"
 )
 
@@ -33,8 +32,8 @@ type CartItem struct {
 	ProductID uuid.UUID `json:"product_id"`
 	Product   Product   `json:"product"`
 
-	Quantity int64           `json:"quantity" gorm:"not null"`
-	Price    decimal.Decimal `json:"price" gorm:"not null"`
+	Quantity int64   `json:"quantity" gorm:"not null"`
+	Price    float64 `json:"price" gorm:"not null"`
 }
 
 func (c *Cart) BeforeCreate(tx *gorm.DB) error {
@@ -51,10 +50,10 @@ func (c *Cart) GetCartItemByID(id uuid.UUID) (*CartItem, error) {
 	return nil, fmt.Errorf("Cart item not found")
 }
 
-func (c *Cart) GetTotalPrice() decimal.Decimal {
-	var totalPrice decimal.Decimal
+func (c *Cart) GetTotalPrice() float64 {
+	var totalPrice float64
 	for _, item := range c.Items {
-		totalPrice.Add(item.Price.Mul(decimal.NewFromInt(item.Quantity)))
+		totalPrice += item.Price * float64(item.Quantity)
 	}
 	return totalPrice
 }

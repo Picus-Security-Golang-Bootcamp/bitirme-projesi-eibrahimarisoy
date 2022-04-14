@@ -25,12 +25,23 @@ func NewProductRepository(db *gorm.DB) *ProductRepository {
 
 // InsertProduct insert product
 func (r *ProductRepository) InsertProduct(product *model.Product) error {
-	result := r.db.Create(&product)
+	fmt.Println("InsertProduct: ", product)
+	tx := r.db.Begin()
 
-	if result.Error != nil {
-		return result.Error
+	result := tx.Omit("Categories").Create(product)
+	if err := result.Error; err != nil {
+		tx.Rollback()
+		return err
+	}
+	// insert categories
+	for _, category := range product.Categories {
+		if err := tx.Model(&category).Association("Products").Append(product); err != nil {
+			tx.Rollback()
+			return err
+		}
 	}
 
+	tx.Commit()
 	return nil
 }
 

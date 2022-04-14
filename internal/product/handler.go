@@ -79,10 +79,6 @@ func (r *productHandler) getProducts(c *gin.Context) {
 func (r *productHandler) getProduct(c *gin.Context) {
 	product := &model.Product{}
 
-	if err := c.ShouldBindUri(product); err != nil {
-		c.JSON(httpErr.ErrorResponse(err)) // TODO payload error basiyor kontrol
-		return
-	}
 	id, err := uuid.Parse(c.Param("id"))
 	if err != nil {
 		c.JSON(httpErr.ErrorResponse(err))
@@ -102,11 +98,6 @@ func (r *productHandler) getProduct(c *gin.Context) {
 // deleteProduct deletes a single product
 func (r *productHandler) deleteProduct(c *gin.Context) {
 	product := &model.Product{}
-
-	if err := c.ShouldBindUri(product); err != nil {
-		c.JSON(httpErr.ErrorResponse(err)) // TODO payload error basiyor kontrol
-		return
-	}
 
 	id, err := uuid.Parse(c.Param("id"))
 	if err != nil {

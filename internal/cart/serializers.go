@@ -5,31 +5,26 @@ import (
 	"patika-ecommerce/internal/model"
 	"patika-ecommerce/internal/product"
 	common "patika-ecommerce/pkg/utils"
-	"strconv"
 )
 
 func CartToCartResponse(cart *model.Cart) *api.CartResponse {
 	cartItemResponse := []*api.CartItemResponse{}
 
 	for _, v := range cart.Items {
-		price, _ := strconv.ParseFloat(v.Price.String(), 64)
-
 		item := &api.CartItemResponse{
 			ID:       common.UUIDToStrfmt(v.ID),
 			Product:  common.UUIDToStrfmt(v.ProductID),
 			Quantity: int64(v.Quantity),
-			Price:    price,
+			Price:    v.Price,
 		}
 		cartItemResponse = append(cartItemResponse, item)
 	}
-
-	totalPrice, _ := strconv.ParseFloat(cart.GetTotalPrice().String(), 64)
 
 	return &api.CartResponse{
 		ID:         common.UUIDToStrfmt(cart.ID),
 		Status:     string(cart.Status),
 		Items:      cartItemResponse,
-		TotalPrice: totalPrice,
+		TotalPrice: cart.GetTotalPrice(),
 	}
 }
 
@@ -44,13 +39,12 @@ func CartAddRequestToCartItem(req *api.AddToCartRequest) *model.CartItem {
 
 // CartItemToCartItemResponse converts a cart item to a cart item response
 func CartItemToCartItemResponse(item *model.CartItem) *api.CartItemDetailResponse {
-	price, _ := strconv.ParseFloat(item.Price.String(), 64)
 
 	return &api.CartItemDetailResponse{
 		ID:       common.UUIDToStrfmt(item.ID),
 		Product:  product.ProductToProductBasicResponse(&item.Product),
 		Quantity: int64(item.Quantity),
-		Price:    price,
+		Price:    item.Price,
 	}
 }
 

@@ -5,6 +5,7 @@ import (
 	"patika-ecommerce/internal/cart"
 	"patika-ecommerce/internal/model"
 	paginationHelper "patika-ecommerce/pkg/pagination"
+	common "patika-ecommerce/pkg/utils"
 
 	"github.com/google/uuid"
 )
@@ -29,12 +30,16 @@ func NewOrderService(orderRepo *OrderRepository, orderItemRepo *OrderItemReposit
 // CompleteOrder completes an order
 func (r *OrderService) CompleteOrder(user *model.User, req *api.OrderRequest) (*model.Order, error) {
 	// Check given cart is valid
-	cart, err := r.cartRepo.GetCreatedCartByUserAndCart(user, *req.CartID)
+	// cart, err := r.cartRepo.GetCreatedCartByUserAndCart(user, *req.CartID)
+	// if err != nil {
+	// 	return nil, err
+	// }
+	cartId, err := common.StrfmtToUUID(*req.CartID)
 	if err != nil {
 		return nil, err
 	}
 
-	order, err := r.orderRepo.CompleteOrder(cart)
+	order, err := r.orderRepo.CompleteOrder(user, cartId)
 	if err != nil {
 		return nil, err
 	}
@@ -49,14 +54,5 @@ func (r *OrderService) GetOrdersByUser(user *model.User, pagination *paginationH
 
 // CancelOrder cancels an order
 func (r *OrderService) CancelOrder(user *model.User, id uuid.UUID) error {
-	// order, err := r.orderRepo.GetOrderByIdAndUser(user, id)
-	// if err != nil {
-	// 	return err
-	// }
-	// if !order.IsCancelable() {
-	// 	// return model.ErrOrderCannotBeCanceled
-	// 	return errors.New("order cannot be canceled")
-	// }
-
 	return r.orderRepo.CancelOrder(id, user)
 }
