@@ -2,8 +2,8 @@ package product
 
 import (
 	"fmt"
-	"math"
 	"patika-ecommerce/internal/model"
+	paginationHelper "patika-ecommerce/pkg/pagination"
 
 	"github.com/go-openapi/strfmt"
 	"gorm.io/gorm"
@@ -35,39 +35,47 @@ func (r *ProductRepository) InsertProduct(product *model.Product) error {
 }
 
 // GetProducts get all products
-func (r *ProductRepository) GetProducts(pagination *model.Pagination) (*model.Pagination, int, error) {
-	products := new([]model.Product)
+func (r *ProductRepository) GetProducts(pagination *paginationHelper.Pagination) (*paginationHelper.Pagination, error) {
+	fmt.Println("GetProducts: ", pagination)
+	var products []*model.Product
 
-	totalRows, totalPages := int64(0), 0
-
-	offset := (pagination.Page - 1) * pagination.Limit
-
-	// generate where query
-	search := pagination.Q
-
-	find := r.db
-	find = find.Limit(pagination.Limit).Offset(offset).Order(pagination.Sort).Preload("Categories")
-	if search != "" {
-		find := find.Scopes(Search(search))
-		fmt.Println("search: ", find)
-	}
-
-	find = find.Find(products)
-	fmt.Println("find: ", products)
-
+	r.db.Scopes(paginationHelper.Paginate(products, pagination, r.db)).Find(&products)
 	pagination.Rows = products
-	err := find.Count(&totalRows).Error
 
-	if err != nil {
-		return nil, 0, err
-	}
+	return pagination, nil
 
-	pagination.TotalRows = totalRows
+	// products := new([]model.Product)
 
-	// calculate total pages
-	totalPages = int(math.Ceil(float64(totalRows) / float64(pagination.Limit)))
+	// totalRows, totalPages := int64(0), 0
 
-	return pagination, totalPages, nil
+	// offset := (pagination.Page - 1) * pagination.Limit
+
+	// // generate where query
+	// search := pagination.Q
+
+	// find := r.db
+	// find = find.Limit(pagination.Limit).Offset(offset).Order(pagination.Sort).Preload("Categories")
+	// if search != "" {
+	// 	find := find.Scopes(Search(search))
+	// 	fmt.Println("search: ", find)
+	// }
+
+	// find = find.Find(products)
+	// fmt.Println("find: ", products)
+
+	// pagination.Rows = products
+	// err := find.Count(&totalRows).Error
+
+	// if err != nil {
+	// 	return nil, 0, err
+	// }
+
+	// pagination.TotalRows = totalRows
+
+	// // calculate total pages
+	// totalPages = int(math.Ceil(float64(totalRows) / float64(pagination.Limit)))
+
+	// return pagination, totalPages, nil
 }
 
 // GetProduct get a single product

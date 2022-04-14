@@ -7,9 +7,9 @@ import (
 	"patika-ecommerce/internal/category"
 	"patika-ecommerce/internal/model"
 	"patika-ecommerce/pkg/config"
-	"patika-ecommerce/pkg/utils"
 
 	mw "patika-ecommerce/pkg/middleware"
+	paginationHelper "patika-ecommerce/pkg/pagination"
 
 	httpErr "patika-ecommerce/internal/httpErrors"
 
@@ -26,7 +26,7 @@ type productHandler struct {
 func NewProductHandler(r *gin.RouterGroup, cfg *config.Config, productRepo *ProductRepository, categoryRepo *category.CategoryRepository) {
 	handler := &productHandler{productRepo: productRepo, categoryRepo: categoryRepo}
 	// Public endpoints
-	r.GET("", handler.getProducts)
+	r.GET("", mw.PaginationMiddleware(), handler.getProducts)
 	r.GET("/:id", handler.getProduct)
 
 	// Private endpoints
@@ -62,46 +62,56 @@ func (r *productHandler) createProduct(c *gin.Context) {
 
 // getProducts gets all products
 func (r *productHandler) getProducts(c *gin.Context) {
-	pagination := utils.GeneratePaginationFromRequest(c)
-	data, totalPages, err := r.productRepo.GetProducts(&pagination)
+	pagination := c.MustGet("pagination").(*paginationHelper.Pagination)
+
+	if err := c.ShouldBindUri(&pagination); err != nil {
+		c.JSON(httpErr.ErrorResponse(err))
+		return
+	}
+	fmt.Println(pagination)
+
+	// pagination := utils.GeneratePaginationFromRequest(c)
+	data, err := r.productRepo.GetProducts(pagination)
 
 	if err != nil {
-		c.JSON(400, gin.H{"error": err.Error()})
+		c.JSON(httpErr.ErrorResponse(err))
 		return
 	}
 
-	// get current url path
-	urlPath := c.Request.URL.Path
+	c.JSON(200, data)
 
-	// search query params
-	searchQueryParams := pagination.Q
+	// // get current url path
+	// urlPath := c.Request.URL.Path
 
-	// set first & last page pagination response
-	data.FirstPage = fmt.Sprintf("%s?limit=%d&page=%d&sort=%s&q=%s", urlPath, pagination.Limit, 0, pagination.Sort, searchQueryParams)
-	data.LastPage = fmt.Sprintf("%s?limit=%d&page=%d&sort=%s&q=%s", urlPath, pagination.Limit, totalPages, pagination.Sort, searchQueryParams)
+	// // search query params
+	// searchQueryParams := pagination.Q
 
-	fmt.Println("data: ", data.Page)
-	if data.Page > 1 {
-		// set previous page pagination response
-		data.PreviousPage = fmt.Sprintf("%s?limit=%d&page=%d&sort=%s&q=%s", urlPath, pagination.Limit, data.Page-1, pagination.Sort, searchQueryParams)
-	}
+	// // set first & last page pagination response
+	// data.FirstPage = fmt.Sprintf("%s?limit=%d&page=%d&sort=%s&q=%s", urlPath, pagination.Limit, 0, pagination.Sort, searchQueryParams)
+	// data.LastPage = fmt.Sprintf("%s?limit=%d&page=%d&sort=%s&q=%s", urlPath, pagination.Limit, totalPages, pagination.Sort, searchQueryParams)
 
-	if data.Page < totalPages {
-		// set next page pagination response
-		data.NextPage = fmt.Sprintf("%s?limit=%d&page=%d&sort=%s&q=%s", urlPath, pagination.Limit, data.Page+1, pagination.Sort, searchQueryParams)
-	}
-
-	if data.Page > totalPages {
-		// reset previous page
-		data.PreviousPage = ""
-	}
-
-	// if data.Page == totalPages {
-	// 	// reset next page
-	// 	data.NextPage = ""
+	// fmt.Println("data: ", data.Page)
+	// if data.Page > 1 {
+	// 	// set previous page pagination response
+	// 	data.PreviousPage = fmt.Sprintf("%s?limit=%d&page=%d&sort=%s&q=%s", urlPath, pagination.Limit, data.Page-1, pagination.Sort, searchQueryParams)
 	// }
 
-	c.JSON(200, data)
+	// if data.Page < totalPages {
+	// 	// set next page pagination response
+	// 	data.NextPage = fmt.Sprintf("%s?limit=%d&page=%d&sort=%s&q=%s", urlPath, pagination.Limit, data.Page+1, pagination.Sort, searchQueryParams)
+	// }
+
+	// if data.Page > totalPages {
+	// 	// reset previous page
+	// 	data.PreviousPage = ""
+	// }
+
+	// // if data.Page == totalPages {
+	// // 	// reset next page
+	// // 	data.NextPage = ""
+	// // }
+
+	// c.JSON(200, data)
 }
 
 // getProduct gets a single product
