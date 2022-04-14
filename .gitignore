@@ -19,3 +19,6 @@ tmp/main
 
 assets
 /assets/*
+
+
+/.idea
