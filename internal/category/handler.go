@@ -10,6 +10,7 @@ import (
 
 	"github.com/gin-gonic/gin"
 	"github.com/go-openapi/strfmt"
+	"github.com/google/uuid"
 )
 
 type categoryHandler struct {
@@ -75,8 +76,13 @@ func (r *categoryHandler) getCategory(c *gin.Context) {
 		c.JSON(httpErr.ErrorResponse(err))
 		return
 	}
+	id, err := uuid.Parse(c.Param("id"))
+	if err != nil {
+		c.JSON(httpErr.ErrorResponse(err))
+		return
+	}
 
-	category, err := r.categoryService.GetCategoryByID(strfmt.UUID4(c.Param("id")))
+	category, err = r.categoryService.GetCategoryByID(id)
 	if err != nil {
 		c.JSON(httpErr.ErrorResponse(err))
 		return
@@ -106,7 +112,12 @@ func (r *categoryHandler) updateCategory(c *gin.Context) {
 	}
 
 	category = CategoryRequestToCategory(reqBody)
-	category.ID = strfmt.UUID(c.Param("id"))
+	categoryID, err := uuid.Parse(c.Param("id"))
+	if err != nil {
+		c.JSON(httpErr.ErrorResponse(err))
+		return
+	}
+	category.ID = categoryID
 
 	if err := r.categoryService.UpdateCategory(category); err != nil {
 		c.JSON(httpErr.ErrorResponse(err))
@@ -148,8 +159,13 @@ func (r *categoryHandler) deleteCategory(c *gin.Context) {
 		c.JSON(httpErr.ErrorResponse(err))
 		return
 	}
+	categoryID, err := uuid.Parse(c.Param("id"))
+	if err != nil {
+		c.JSON(httpErr.ErrorResponse(err))
+		return
+	}
 
-	if err := r.categoryService.DeleteCategory(strfmt.UUID4(c.Param("id"))); err != nil {
+	if err := r.categoryService.DeleteCategory(categoryID); err != nil {
 		c.JSON(httpErr.ErrorResponse(err))
 		return
 	}

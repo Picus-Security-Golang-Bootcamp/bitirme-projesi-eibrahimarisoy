@@ -4,6 +4,7 @@ import (
 	"patika-ecommerce/internal/api"
 	"patika-ecommerce/internal/model"
 	"patika-ecommerce/internal/product"
+	common "patika-ecommerce/pkg/utils"
 )
 
 func CartToCartResponse(cart *model.Cart) *api.CartResponse {
@@ -12,8 +13,8 @@ func CartToCartResponse(cart *model.Cart) *api.CartResponse {
 	for _, v := range cart.Items {
 
 		item := &api.CartItemResponse{
-			ID:       v.ID,
-			Product:  v.ProductID,
+			ID:       common.UUIDToStrfmt(v.ID),
+			Product:  common.UUIDToStrfmt(v.ProductID),
 			Quantity: int64(v.Quantity),
 			Price:    float64(v.Price),
 		}
@@ -21,7 +22,7 @@ func CartToCartResponse(cart *model.Cart) *api.CartResponse {
 	}
 
 	return &api.CartResponse{
-		ID:         cart.ID,
+		ID:         common.UUIDToStrfmt(cart.ID),
 		Status:     string(cart.Status),
 		Items:      cartItemResponse,
 		TotalPrice: float64(cart.GetTotalPrice()),
@@ -29,8 +30,10 @@ func CartToCartResponse(cart *model.Cart) *api.CartResponse {
 }
 
 func CartAddRequestToCartItem(req *api.AddToCartRequest) *model.CartItem {
+	id, _ := common.StrfmtToUUID(req.ProductID)
+
 	return &model.CartItem{
-		ProductID: req.ProductID,
+		ProductID: id,
 		Quantity:  req.Quantity,
 	}
 }
@@ -38,7 +41,7 @@ func CartAddRequestToCartItem(req *api.AddToCartRequest) *model.CartItem {
 // CartItemToCartItemResponse converts a cart item to a cart item response
 func CartItemToCartItemResponse(item *model.CartItem) *api.CartItemDetailResponse {
 	return &api.CartItemDetailResponse{
-		ID:       item.ID,
+		ID:       common.UUIDToStrfmt(item.ID),
 		Product:  product.ProductToProductBasicResponse(&item.Product),
 		Quantity: int64(item.Quantity),
 		Price:    float64(item.Price),

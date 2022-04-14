@@ -14,6 +14,7 @@ import (
 
 	"github.com/gin-gonic/gin"
 	"github.com/go-openapi/strfmt"
+	"github.com/google/uuid"
 	"gorm.io/gorm"
 )
 
@@ -82,8 +83,13 @@ func (r *productHandler) getProduct(c *gin.Context) {
 		c.JSON(httpErr.ErrorResponse(err)) // TODO payload error basiyor kontrol
 		return
 	}
+	id, err := uuid.Parse(c.Param("id"))
+	if err != nil {
+		c.JSON(httpErr.ErrorResponse(err))
+		return
+	}
 
-	product, err := r.productRepo.GetProduct(strfmt.UUID(c.Param("id")))
+	product, err = r.productRepo.GetProduct(id)
 
 	if err != nil {
 		c.JSON(httpErr.ErrorResponse(err))
@@ -102,7 +108,13 @@ func (r *productHandler) deleteProduct(c *gin.Context) {
 		return
 	}
 
-	product.ID = strfmt.UUID(c.Param("id"))
+	id, err := uuid.Parse(c.Param("id"))
+	if err != nil {
+		c.JSON(httpErr.ErrorResponse(err))
+		return
+	}
+
+	product.ID = id
 
 	if err := r.productRepo.DeleteProduct(product); err != nil {
 		if errors.Is(err, gorm.ErrRecordNotFound) {
@@ -130,10 +142,17 @@ func (r *productHandler) updateProduct(c *gin.Context) {
 	}
 
 	product := ProductRequestToProduct(reqBody)
-	product.ID = strfmt.UUID(c.Param("id"))
+
+	id, err := uuid.Parse(c.Param("id"))
+	if err != nil {
+		c.JSON(400, gin.H{"msg": err.Error()})
+		return
+	}
+
+	product.ID = id
 
 	for index, item := range product.Categories {
-		category, err := r.categoryRepo.GetCategoryByID(strfmt.UUID4(item.ID))
+		category, err := r.categoryRepo.GetCategoryByID(item.ID)
 
 		if err != nil {
 			c.JSON(httpErr.ErrorResponse(err))
@@ -142,22 +161,10 @@ func (r *productHandler) updateProduct(c *gin.Context) {
 		product.Categories[index] = *category
 	}
 
-	err := r.productRepo.UpdateProduct(product)
-
-	if err != nil {
+	if err = r.productRepo.UpdateProduct(product); err != nil {
 		c.JSON(httpErr.ErrorResponse(err))
 		return
 	}
 
 	c.JSON(200, ProductToResponse(product))
 }
-
-// FIXME
-// ida := strfmt.UUID(c.Param("id"))
-
-// 	id := c.Param("id")
-// 	idx, a := uuid.Parse(ida.String())
-// 	if !a {
-// 		c.JSON(httpErr.ErrorResponse(errors.New("invalid product id")))
-// 		return
-// 	}

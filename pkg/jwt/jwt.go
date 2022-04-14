@@ -5,8 +5,8 @@ import (
 	"patika-ecommerce/internal/model"
 	"time"
 
-	"github.com/go-openapi/strfmt"
 	"github.com/golang-jwt/jwt/v4"
+	"github.com/google/uuid"
 )
 
 type JWTToken struct {
@@ -51,9 +51,13 @@ func VerifyToken(token string, secret string) *model.User {
 	json.Unmarshal(jsonString, &decodedToken)
 
 	// decode the claims into a model.user struct and return it
+	id, err := uuid.Parse(decodedToken.UserId)
+	if err != nil {
+		return nil
+	}
 	user := model.User{
 		Base: model.Base{
-			ID: strfmt.UUID(decodedToken.UserId),
+			ID: id,
 		},
 		Email:   &decodedToken.Email,
 		IsAdmin: decodedToken.IsAdmin,

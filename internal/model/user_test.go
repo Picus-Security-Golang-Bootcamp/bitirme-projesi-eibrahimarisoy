@@ -4,6 +4,7 @@ import (
 	"testing"
 
 	"github.com/DATA-DOG/go-sqlmock"
+	"github.com/google/uuid"
 	"golang.org/x/crypto/bcrypt"
 	"gorm.io/driver/postgres"
 	"gorm.io/gorm"
@@ -40,7 +41,7 @@ func TestUser_CheckPassword(t *testing.T) {
 		{
 			"passwordMatchedSuccessfully",
 			fields{
-				Base:      Base{ID: "123"},
+				Base:      Base{ID: uuid.New()},
 				FirstName: &FirstName,
 				LastName:  &LastName,
 				Username:  &Username,
@@ -54,7 +55,7 @@ func TestUser_CheckPassword(t *testing.T) {
 		{
 			"passwordMatchedFailed",
 			fields{
-				Base:      Base{ID: "123"},
+				Base:      Base{ID: uuid.New()},
 				FirstName: &FirstName,
 				LastName:  &LastName,
 				Username:  &Username,
@@ -130,7 +131,7 @@ func TestUser_BeforeCreate(t *testing.T) {
 		{
 			"passwordGeneratedSuccessfully",
 			fields{
-				Base:      Base{ID: "123"},
+				Base:      Base{ID: uuid.New()},
 				FirstName: &FirstName,
 				LastName:  &LastName,
 				Username:  &Username,

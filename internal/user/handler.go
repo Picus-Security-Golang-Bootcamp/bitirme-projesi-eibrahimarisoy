@@ -5,7 +5,7 @@ import (
 	"patika-ecommerce/internal/model"
 
 	"github.com/gin-gonic/gin"
-	"github.com/go-openapi/strfmt"
+	"github.com/google/uuid"
 )
 
 type userHandler struct {
@@ -73,8 +73,14 @@ func (u *userHandler) updateUser(c *gin.Context) {
 	}
 
 	id := c.Param("id")
+	idx, err := uuid.Parse(id)
+	if err != nil {
+		c.JSON(400, gin.H{"msg": err.Error()})
+		return
+	}
+
 	userBody := model.User{
-		Base: model.Base{ID: strfmt.UUID(id)},
+		Base: model.Base{ID: idx},
 	}
 	if err := c.ShouldBindJSON(&userBody); err != nil {
 		c.JSON(400, gin.H{"error": err.Error()})

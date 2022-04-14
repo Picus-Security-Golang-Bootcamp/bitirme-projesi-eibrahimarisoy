@@ -5,7 +5,7 @@ import (
 	"patika-ecommerce/internal/model"
 	paginationHelper "patika-ecommerce/pkg/pagination"
 
-	"github.com/go-openapi/strfmt"
+	"github.com/google/uuid"
 	"gorm.io/gorm"
 	"gorm.io/gorm/clause"
 )
@@ -48,7 +48,7 @@ func (r *ProductRepository) GetProducts(pagination *paginationHelper.Pagination)
 }
 
 // GetProduct get a single product
-func (r *ProductRepository) GetProduct(id strfmt.UUID) (*model.Product, error) {
+func (r *ProductRepository) GetProduct(id uuid.UUID) (*model.Product, error) {
 	product := new(model.Product)
 	result := r.db.Preload("Categories").Where("id = ?", id).First(&product)
 	if result.Error != nil {
@@ -59,7 +59,7 @@ func (r *ProductRepository) GetProduct(id strfmt.UUID) (*model.Product, error) {
 }
 
 // GetProductWithoutCategories get a single product
-func (r *ProductRepository) GetProductWithoutCategories(id strfmt.UUID) (*model.Product, error) {
+func (r *ProductRepository) GetProductWithoutCategories(id uuid.UUID) (*model.Product, error) {
 	product := new(model.Product)
 	result := r.db.Where("id = ?", id).First(&product)
 	if result.Error != nil {

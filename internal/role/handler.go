@@ -8,7 +8,7 @@ import (
 	mw "patika-ecommerce/pkg/middleware"
 
 	"github.com/gin-gonic/gin"
-	"github.com/go-openapi/strfmt"
+	"github.com/google/uuid"
 )
 
 type roleHandler struct {
@@ -67,9 +67,13 @@ func (r *roleHandler) deleteRole(c *gin.Context) {
 
 // updateRole updates a role
 func (r *roleHandler) updateRole(c *gin.Context) {
-	id := c.Param("id")
+	id, err := uuid.Parse(c.Param("id"))
+	if err != nil {
+		c.JSON(400, gin.H{"msg": err.Error()})
+		return
+	}
 	role := &model.Role{
-		Base: model.Base{ID: strfmt.UUID(id)},
+		Base: model.Base{ID: id},
 	}
 
 	if err := c.ShouldBindJSON(&role); err != nil {

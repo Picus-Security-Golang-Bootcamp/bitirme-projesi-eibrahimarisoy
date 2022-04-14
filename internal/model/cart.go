@@ -3,7 +3,7 @@ package model
 import (
 	"fmt"
 
-	"github.com/go-openapi/strfmt"
+	"github.com/google/uuid"
 	"gorm.io/gorm"
 )
 
@@ -19,18 +19,18 @@ type Cart struct {
 	Base
 	Status CartStatus `json:"status" gorm:"type:varchar(10);not null"`
 
-	UserID strfmt.UUID `json:"user_id"`
-	User   User        `json:"user"`
+	UserID uuid.UUID `json:"user_id"`
+	User   User      `json:"user"`
 
 	Items []CartItem `json:"items"`
 }
 type CartItem struct {
 	Base
-	CartID strfmt.UUID `json:"cart_id"`
-	Cart   Cart        `json:"cart"`
+	CartID uuid.UUID `json:"cart_id"`
+	Cart   Cart      `json:"cart"`
 
-	ProductID strfmt.UUID `json:"product_id"`
-	Product   Product     `json:"product"`
+	ProductID uuid.UUID `json:"product_id"`
+	Product   Product   `json:"product"`
 
 	Quantity int64   `json:"quantity" gorm:"not null"`
 	Price    float64 `json:"price" gorm:"not null"`
@@ -41,7 +41,7 @@ func (c *Cart) BeforeCreate(tx *gorm.DB) error {
 	return nil
 }
 
-func (c *Cart) GetCartItemByID(id strfmt.UUID) (*CartItem, error) {
+func (c *Cart) GetCartItemByID(id uuid.UUID) (*CartItem, error) {
 	for _, item := range c.Items {
 		if item.ID == id {
 			return &item, nil

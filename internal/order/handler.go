@@ -11,6 +11,7 @@ import (
 
 	"github.com/gin-gonic/gin"
 	"github.com/go-openapi/strfmt"
+	"github.com/google/uuid"
 )
 
 type orderHandler struct {
@@ -69,13 +70,15 @@ func (r *orderHandler) listOrders(c *gin.Context) {
 
 // cancelOrder cancels an order
 func (r *orderHandler) cancelOrder(c *gin.Context) {
-	id := c.Param("id")
-
 	user := c.MustGet("user").(*model.User)
 
-	err := r.orderService.CancelOrder(user, strfmt.UUID(id))
-
+	id, err := uuid.Parse(c.Param("id"))
 	if err != nil {
+		c.JSON(httpErr.ErrorResponse(err))
+		return
+	}
+
+	if err := r.orderService.CancelOrder(user, id); err != nil {
 		c.JSON(httpErr.ErrorResponse(err))
 		return
 	}

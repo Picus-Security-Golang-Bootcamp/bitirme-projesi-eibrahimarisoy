@@ -19,6 +19,13 @@ type AuthService struct {
 	roleRepo *role.RoleRepository
 }
 
+type AuthServiceInterface interface {
+	Register(user *model.User) (api.TokenResponse, error)
+	Login(user *model.User) (api.TokenResponse, error)
+	GetAuthToken(user *model.User) api.TokenResponse
+	RefreshToken(refreshToken string) (api.TokenResponse, error)
+}
+
 // NewAuthService creates a new AuthService
 func NewAuthService(cfg *config.Config, userRepo *user.UserRepository, roleRepo *role.RoleRepository) *AuthService {
 	return &AuthService{
@@ -28,7 +35,7 @@ func NewAuthService(cfg *config.Config, userRepo *user.UserRepository, roleRepo 
 	}
 }
 
-// RegisterService is a service that registers a new user
+// Register is a service that registers a new user
 func (a *AuthService) Register(user *model.User) (api.TokenResponse, error) {
 	user, err := a.userRepo.InsertUser(user)
 	if err != nil {
@@ -37,7 +44,7 @@ func (a *AuthService) Register(user *model.User) (api.TokenResponse, error) {
 	return a.GetAuthToken(user), nil
 }
 
-// LoginService is a service that logs in a user
+// Login is a service that logs in a user
 func (a *AuthService) Login(user *model.User) (api.TokenResponse, error) {
 	user, err := a.userRepo.GetUserByEmail(*user.Email)
 	if err != nil {
@@ -51,7 +58,7 @@ func (a *AuthService) Login(user *model.User) (api.TokenResponse, error) {
 	return a.GetAuthToken(user), nil
 }
 
-//AuthTokenService is a service that generates a new JWT token
+// GetAuthToken is a service that generates a new JWT token
 func (a *AuthService) GetAuthToken(user *model.User) api.TokenResponse {
 	jwtClaimsForAccessToken := jwtHelper.NewJwtClaimsForAccessToken(user, a.cfg.JWTConfig.AccessTokenLifeTime)
 
@@ -66,7 +73,7 @@ func (a *AuthService) GetAuthToken(user *model.User) api.TokenResponse {
 	}
 }
 
-// RefreshTokenService is a service that checks if the refresh token is valid and returns a new JWT token
+// RefreshToken is a service that checks if the refresh token is valid and returns a new JWT token
 func (a *AuthService) RefreshToken(refreshToken string) (api.TokenResponse, error) {
 	token, err := jwtHelper.ParseToken(refreshToken, a.cfg.JWTConfig.SecretKey)
 

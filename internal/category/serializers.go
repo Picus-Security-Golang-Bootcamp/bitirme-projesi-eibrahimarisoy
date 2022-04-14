@@ -3,6 +3,7 @@ package category
 import (
 	"patika-ecommerce/internal/api"
 	"patika-ecommerce/internal/model"
+	common "patika-ecommerce/pkg/utils"
 )
 
 // CategoryRequestToCategory converts a CategoryRequest to a Category
@@ -16,7 +17,7 @@ func CategoryRequestToCategory(categoryRequest *api.CategoryRequest) *model.Cate
 // CategoryToCategoryResponse converts a Category to a CategoryResponse
 func CategoryToCategoryResponse(category *model.Category) *api.CategoryResponse {
 	return &api.CategoryResponse{
-		ID:          category.ID,
+		ID:          common.UUIDToStrfmt(category.ID),
 		Name:        *category.Name,
 		Slug:        category.Slug,
 		Description: category.Description,

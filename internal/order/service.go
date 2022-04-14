@@ -6,7 +6,7 @@ import (
 	"patika-ecommerce/internal/model"
 	paginationHelper "patika-ecommerce/pkg/pagination"
 
-	"github.com/go-openapi/strfmt"
+	"github.com/google/uuid"
 )
 
 type OrderService struct {
@@ -48,7 +48,7 @@ func (r *OrderService) GetOrdersByUser(user *model.User, pagination *paginationH
 }
 
 // CancelOrder cancels an order
-func (r *OrderService) CancelOrder(user *model.User, id strfmt.UUID) error {
+func (r *OrderService) CancelOrder(user *model.User, id uuid.UUID) error {
 	order, err := r.orderRepo.GetOrderByIdAndUser(user, id)
 	if err != nil {
 		return err

@@ -3,7 +3,7 @@ package category
 import (
 	"patika-ecommerce/internal/model"
 
-	"github.com/go-openapi/strfmt"
+	"github.com/google/uuid"
 	"gorm.io/gorm"
 	"gorm.io/gorm/clause"
 )
@@ -40,7 +40,7 @@ func (r *CategoryRepository) GetCategories() (*[]model.Category, error) {
 }
 
 // GetCategoryByID returns a category by id
-func (r *CategoryRepository) GetCategoryByID(id strfmt.UUID4) (*model.Category, error) {
+func (r *CategoryRepository) GetCategoryByID(id uuid.UUID) (*model.Category, error) {
 	category := &model.Category{}
 	if err := r.db.Where("id = ?", id).First(category).Error; err != nil {
 		return nil, err

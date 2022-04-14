@@ -6,6 +6,7 @@ import (
 	"patika-ecommerce/internal/model"
 
 	"github.com/go-openapi/strfmt"
+	"github.com/google/uuid"
 	"gorm.io/gorm"
 )
 
@@ -96,7 +97,7 @@ func (r *CartRepository) GetCreatedCartByUserAndCart(user *model.User, cartId st
 }
 
 // GetCartByID returns a cart by id
-func (r *CartRepository) GetCartByID(id strfmt.UUID) (*model.Cart, error) {
+func (r *CartRepository) GetCartByID(id uuid.UUID) (*model.Cart, error) {
 	cart := &model.Cart{}
 	if err := r.db.Preload("Items.Product").Where("id = ?", id).First(cart).Error; err != nil {
 		if err == gorm.ErrRecordNotFound {
@@ -133,7 +134,7 @@ func (r *CartItemRepository) UpdateCartItem(cartItem *model.CartItem) error {
 }
 
 // GetCartItemByID returns a cart item by id
-func (r *CartItemRepository) GetCartItemByCartAndIDWithProduct(cart *model.Cart, id strfmt.UUID) (*model.CartItem, error) {
+func (r *CartItemRepository) GetCartItemByCartAndIDWithProduct(cart *model.Cart, id uuid.UUID) (*model.CartItem, error) {
 	cartItem := &model.CartItem{}
 	if err := r.db.Model(&cartItem).Preload("Product").Where("cart_id = ? AND id = ?", cart.ID, id).First(cartItem).Error; err != nil {
 		if err == gorm.ErrRecordNotFound {

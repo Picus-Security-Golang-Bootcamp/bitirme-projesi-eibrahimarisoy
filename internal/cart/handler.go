@@ -10,6 +10,7 @@ import (
 
 	"github.com/gin-gonic/gin"
 	"github.com/go-openapi/strfmt"
+	"github.com/google/uuid"
 )
 
 type cartHandler struct {
@@ -95,8 +96,13 @@ func (r *cartHandler) UpdateCartItem(c *gin.Context) {
 	}
 
 	user := c.MustGet("user").(*model.User)
+	id, err := uuid.Parse(c.Param("id"))
+	if err != nil {
+		c.JSON(httpErr.ErrorResponse(err))
+		return
+	}
 
-	cartItem, err := r.cartService.UpdateCartItem(user, strfmt.UUID(c.Param("id")), reqBody)
+	cartItem, err := r.cartService.UpdateCartItem(user, id, reqBody)
 	if err != nil {
 		c.JSON(httpErr.ErrorResponse(err))
 		return
@@ -108,9 +114,13 @@ func (r *cartHandler) UpdateCartItem(c *gin.Context) {
 func (r *cartHandler) DeleteCartItem(c *gin.Context) {
 	user := c.MustGet("user").(*model.User)
 
-	err := r.cartService.DeleteCartItem(user, strfmt.UUID(c.Param("id")))
-
+	id, err := uuid.Parse(c.Param("id"))
 	if err != nil {
+		c.JSON(httpErr.ErrorResponse(err))
+		return
+	}
+
+	if err = r.cartService.DeleteCartItem(user, id); err != nil {
 		c.JSON(httpErr.ErrorResponse(err))
 		return
 	}

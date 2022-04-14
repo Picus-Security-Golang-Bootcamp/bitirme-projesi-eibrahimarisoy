@@ -3,7 +3,7 @@ package model
 import (
 	"time"
 
-	"github.com/go-openapi/strfmt"
+	"github.com/google/uuid"
 )
 
 type OrderStatus string
@@ -16,13 +16,13 @@ const (
 type Order struct {
 	Base
 
-	UserID strfmt.UUID `json:"user_id"`
-	User   User        `json:"user"`
+	UserID uuid.UUID `json:"user_id"`
+	User   User      `json:"user"`
 
 	Status OrderStatus `json:"status"`
 
-	CartID strfmt.UUID `json:"cart_id"`
-	Cart   Cart        `json:"cart"`
+	CartID uuid.UUID `json:"cart_id"`
+	Cart   Cart      `json:"cart"`
 
 	TotalPrice float64 `json:"total_price" sql:"type:decimal(10,2)"`
 
@@ -31,11 +31,11 @@ type Order struct {
 
 type OrderItem struct {
 	Base
-	OrderID strfmt.UUID `json:"order_id"`
-	Order   Order       `json:"order"`
+	OrderID uuid.UUID `json:"order_id"`
+	Order   Order     `json:"order"`
 
-	ProductID strfmt.UUID `json:"product_id"`
-	Product   Product     `json:"product"`
+	ProductID uuid.UUID `json:"product_id"`
+	Product   Product   `json:"product"`
 
 	Price float64 `json:"price"`
 }

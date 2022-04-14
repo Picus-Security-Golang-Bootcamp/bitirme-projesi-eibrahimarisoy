@@ -5,7 +5,7 @@ import (
 	"patika-ecommerce/internal/model"
 	"patika-ecommerce/pkg/utils"
 
-	"github.com/go-openapi/strfmt"
+	"github.com/google/uuid"
 )
 
 type CategoryService struct {
@@ -27,7 +27,7 @@ func (c *CategoryService) GetCategories() (*[]model.Category, error) {
 }
 
 // GetCategoryByID returns a category by id
-func (c *CategoryService) GetCategoryByID(id strfmt.UUID4) (*model.Category, error) {
+func (c *CategoryService) GetCategoryByID(id uuid.UUID) (*model.Category, error) {
 	return c.categoryRepo.GetCategoryByID(id)
 }
 
@@ -60,7 +60,7 @@ func (c *CategoryService) CreateBulkCategories(filename *multipart.FileHeader) (
 }
 
 // DeleteCategory deletes a category by id
-func (c *CategoryService) DeleteCategory(id strfmt.UUID4) error {
+func (c *CategoryService) DeleteCategory(id uuid.UUID) error {
 	category, err := c.categoryRepo.GetCategoryByID(id)
 	if err != nil {
 		return err

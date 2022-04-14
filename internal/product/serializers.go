@@ -3,6 +3,7 @@ package product
 import (
 	"patika-ecommerce/internal/api"
 	"patika-ecommerce/internal/model"
+	common "patika-ecommerce/pkg/utils"
 
 	"github.com/go-openapi/strfmt"
 )
@@ -13,8 +14,10 @@ func ProductRequestToProduct(productRequest *api.ProductRequest) *model.Product 
 
 	categories := []model.Category{}
 	// category_ids := []strfmt.UUID{}
+
 	for _, c := range productRequest.Categories {
-		categories = append(categories, model.Category{Base: model.Base{ID: c.ID}})
+		id, _ := common.StrfmtToUUID(c.ID)
+		categories = append(categories, model.Category{Base: model.Base{ID: id}})
 		// category_ids = append(category_ids, c.ID)
 	}
 
@@ -33,11 +36,11 @@ func ProductToResponse(product *model.Product) *api.ProductResponse {
 	stock := int64(*product.Stock)
 	categories := []strfmt.UUID{}
 	for _, c := range product.Categories {
-		categories = append(categories, c.ID)
+		categories = append(categories, common.UUIDToStrfmt(c.ID))
 	}
 
 	return &api.ProductResponse{
-		ID:          product.ID,
+		ID:          common.UUIDToStrfmt(product.ID),
 		Slug:        product.Slug,
 		Name:        *product.Name,
 		Description: product.Description,
@@ -60,7 +63,7 @@ func ProductToProductBasicResponse(product *model.Product) *api.ProductBasicResp
 	stock := int64(*product.Stock)
 
 	return &api.ProductBasicResponse{
-		ID:          product.ID,
+		ID:          common.UUIDToStrfmt(product.ID),
 		Slug:        product.Slug,
 		Name:        *product.Name,
 		Description: product.Description,
