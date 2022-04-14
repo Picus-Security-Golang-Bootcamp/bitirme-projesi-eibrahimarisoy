@@ -49,10 +49,14 @@ func (r *OrderService) GetOrdersByUser(user *model.User, pagination *paginationH
 
 // CancelOrder cancels an order
 func (r *OrderService) CancelOrder(user *model.User, id uuid.UUID) error {
-	order, err := r.orderRepo.GetOrderByIdAndUser(user, id)
-	if err != nil {
-		return err
-	}
+	// order, err := r.orderRepo.GetOrderByIdAndUser(user, id)
+	// if err != nil {
+	// 	return err
+	// }
+	// if !order.IsCancelable() {
+	// 	// return model.ErrOrderCannotBeCanceled
+	// 	return errors.New("order cannot be canceled")
+	// }
 
-	return r.orderRepo.CancelOrder(order)
+	return r.orderRepo.CancelOrder(id, user)
 }

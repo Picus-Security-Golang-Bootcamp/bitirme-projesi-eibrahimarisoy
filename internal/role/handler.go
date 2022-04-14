@@ -2,10 +2,13 @@ package role
 
 // TODO swagger implementation
 import (
+	"net/http"
 	"patika-ecommerce/internal/model"
 	"patika-ecommerce/pkg/config"
 
 	mw "patika-ecommerce/pkg/middleware"
+
+	httpErr "patika-ecommerce/internal/httpErrors"
 
 	"github.com/gin-gonic/gin"
 	"github.com/google/uuid"
@@ -33,43 +36,43 @@ func NewRoleHandler(r *gin.RouterGroup, cfg *config.Config, roleRepo *RoleReposi
 func (r *roleHandler) createRole(c *gin.Context) {
 	role := &model.Role{}
 	if err := c.ShouldBindJSON(&role); err != nil {
-		c.JSON(400, gin.H{"error": err.Error()})
+		c.JSON(httpErr.ErrorResponse(err))
 		return
 	}
 
 	if err := r.roleRepo.InsertRole(role); err != nil {
-		c.JSON(400, gin.H{"error": err.Error()})
+		c.JSON(httpErr.ErrorResponse(err))
 		return
 	}
-	c.JSON(200, role)
+	c.JSON(http.StatusOK, role)
 }
 
 // getRoles returns all roles
 func (r *roleHandler) getRoles(c *gin.Context) {
 	roles, err := r.roleRepo.GetRoles()
 	if err != nil {
-		c.JSON(400, gin.H{"error": err.Error()})
+		c.JSON(httpErr.ErrorResponse(err))
 		return
 	}
-	c.JSON(200, roles)
+	c.JSON(http.StatusOK, roles)
 }
 
 // deleteRole deletes a role
 func (r *roleHandler) deleteRole(c *gin.Context) {
 	id := c.Param("id")
 	if err := r.roleRepo.DeleteRole(id); err != nil {
-		c.JSON(400, gin.H{"error": err.Error()})
+		c.JSON(httpErr.ErrorResponse(err))
 		return
 	}
 
-	c.JSON(204, gin.H{"message": "Role deleted"})
+	c.JSON(http.StatusNoContent, gin.H{"message": "Role deleted"})
 }
 
 // updateRole updates a role
 func (r *roleHandler) updateRole(c *gin.Context) {
 	id, err := uuid.Parse(c.Param("id"))
 	if err != nil {
-		c.JSON(400, gin.H{"msg": err.Error()})
+		c.JSON(httpErr.ErrorResponse(err))
 		return
 	}
 	role := &model.Role{
@@ -77,15 +80,15 @@ func (r *roleHandler) updateRole(c *gin.Context) {
 	}
 
 	if err := c.ShouldBindJSON(&role); err != nil {
-		c.JSON(400, gin.H{"error": err.Error()})
+		c.JSON(httpErr.ErrorResponse(err))
 		return
 	}
 
 	if err := r.roleRepo.UpdateRole(role); err != nil {
-		c.JSON(400, gin.H{"error": err.Error()})
+		c.JSON(httpErr.ErrorResponse(err))
 		return
 	}
-	c.JSON(200, role)
+	c.JSON(http.StatusOK, role)
 }
 
 // getRole returns a role
@@ -93,8 +96,8 @@ func (r *roleHandler) getRole(c *gin.Context) {
 	id := c.Param("id")
 	role, err := r.roleRepo.GetRole(id)
 	if err != nil {
-		c.JSON(400, gin.H{"error": err.Error()})
+		c.JSON(httpErr.ErrorResponse(err))
 		return
 	}
-	c.JSON(200, role)
+	c.JSON(http.StatusOK, role)
 }

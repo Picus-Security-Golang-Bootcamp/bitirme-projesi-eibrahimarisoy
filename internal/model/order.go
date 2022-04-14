@@ -11,7 +11,7 @@ type OrderStatus string
 
 const (
 	OrderStatusCompleted OrderStatus = "completed"
-	OrderStatusCancelled OrderStatus = "cancelled"
+	OrderStatusCanceled  OrderStatus = "cancelled"
 )
 
 type Order struct {
