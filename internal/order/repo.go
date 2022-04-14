@@ -67,9 +67,15 @@ func (r *OrderRepository) CompleteOrder(user *model.User, cartId uuid.UUID) (*mo
 			tx.Rollback()
 			return nil, fmt.Errorf("product %s stock is not enough", item.Product.Name)
 		}
-
-		*product.Stock -= item.Quantity
-		tx.Save(&product)
+		newProd := &model.Product{}
+		if err := tx.Model(&model.Product{}).
+			Clauses(clause.Locking{Strength: "UPDATE"}).
+			Where("id = ?", item.Product.ID).
+			First(&newProd).
+			Update("stock", gorm.Expr("stock - ?", item.Quantity)).Error; err != nil {
+			tx.Rollback()
+			return nil, err
+		}
 
 		for i := 0; i < int(item.Quantity); i++ {
 			orderItem := &model.OrderItem{
@@ -138,10 +144,13 @@ func (r *OrderRepository) CancelOrder(id uuid.UUID, user *model.User) error {
 		return errors.New("order cannot be canceled")
 	}
 
+	newProd := &model.Product{}
 	for _, item := range order.Items {
-		product := item.Product
-		*product.Stock += 1
-		if err := tx.Save(&product).Error; err != nil {
+		if err := tx.Model(&model.Product{}).
+			Clauses(clause.Locking{Strength: "UPDATE"}).
+			Where("id = ?", item.Product.ID).
+			First(&newProd).
+			Update("stock", gorm.Expr("stock + ?", 1)).Error; err != nil {
 			tx.Rollback()
 			return err
 		}
