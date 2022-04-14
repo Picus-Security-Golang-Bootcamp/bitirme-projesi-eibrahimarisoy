@@ -36,7 +36,6 @@ func (r *ProductRepository) InsertProduct(product *model.Product) error {
 
 // GetProducts get all products
 func (r *ProductRepository) GetProducts(pagination *paginationHelper.Pagination) (*paginationHelper.Pagination, error) {
-	fmt.Println("GetProducts: ", pagination)
 	var products []model.Product
 	var totalRows int64
 
@@ -55,7 +54,7 @@ func (r *ProductRepository) GetProduct(id strfmt.UUID) (*model.Product, error) {
 	if result.Error != nil {
 		return nil, result.Error
 	}
-	fmt.Println("product: ", product)
+
 	return product, nil
 }
 
@@ -66,7 +65,7 @@ func (r *ProductRepository) GetProductWithoutCategories(id strfmt.UUID) (*model.
 	if result.Error != nil {
 		return nil, result.Error
 	}
-	fmt.Println("product: ", product)
+
 	return product, nil
 }
 

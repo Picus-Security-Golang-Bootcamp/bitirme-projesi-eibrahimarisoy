@@ -4,6 +4,7 @@ import (
 	"patika-ecommerce/internal/api"
 	"patika-ecommerce/internal/cart"
 	"patika-ecommerce/internal/model"
+	paginationHelper "patika-ecommerce/pkg/pagination"
 
 	"github.com/go-openapi/strfmt"
 )
@@ -42,8 +43,8 @@ func (r *OrderService) CompleteOrder(user *model.User, req *api.OrderRequest) (*
 }
 
 // GetOrdersByUser returns all orders of a user
-func (r *OrderService) GetOrdersByUser(user *model.User) ([]*model.Order, error) {
-	return r.orderRepo.GetOrdersByUser(user)
+func (r *OrderService) GetOrdersByUser(user *model.User, pagination *paginationHelper.Pagination) (*paginationHelper.Pagination, error) {
+	return r.orderRepo.GetOrdersByUser(user, pagination)
 }
 
 // CancelOrder cancels an order

@@ -5,6 +5,7 @@ import (
 	httpErr "patika-ecommerce/internal/httpErrors"
 	"patika-ecommerce/internal/model"
 	"patika-ecommerce/pkg/config"
+	paginationHelper "patika-ecommerce/pkg/pagination"
 
 	mw "patika-ecommerce/pkg/middleware"
 
@@ -21,9 +22,8 @@ func NewOrderHandler(r *gin.RouterGroup, cfg *config.Config, orderService *Order
 
 	r.Use(mw.AuthenticationMiddleware(cfg.JWTConfig.SecretKey))
 	r.POST("", handler.completeOrder)
-	r.GET("/", handler.listOrders)
+	r.GET("", mw.PaginationMiddleware(), handler.listOrders)
 	r.PUT("/:id", handler.cancelOrder)
-	//
 }
 
 // completeOrder completes an order
@@ -55,15 +55,16 @@ func (r *orderHandler) completeOrder(c *gin.Context) {
 // listOrders lists all orders
 func (r *orderHandler) listOrders(c *gin.Context) {
 	user := c.MustGet("user").(*model.User)
+	pagination := c.MustGet("pagination").(*paginationHelper.Pagination)
 
-	orders, err := r.orderService.GetOrdersByUser(user)
+	data, err := r.orderService.GetOrdersByUser(user, pagination)
 
 	if err != nil {
 		c.JSON(httpErr.ErrorResponse(err))
 		return
 	}
 
-	c.JSON(200, OrdersToOrderDetailedResponse(orders))
+	c.JSON(200, data)
 }
 
 // cancelOrder cancels an order

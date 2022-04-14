@@ -4,6 +4,7 @@ import (
 	"errors"
 	"fmt"
 	"patika-ecommerce/internal/model"
+	paginationHelper "patika-ecommerce/pkg/pagination"
 
 	"github.com/go-openapi/strfmt"
 	"gorm.io/gorm"
@@ -85,13 +86,17 @@ func (r *OrderRepository) CompleteOrder(cart *model.Cart) (*model.Order, error) 
 }
 
 // GetOrdersByUser returns all orders of a user
-func (r *OrderRepository) GetOrdersByUser(user *model.User) ([]*model.Order, error) {
-	var orders []*model.Order
-	if err := r.db.Preload("Items.Product").Where("user_id = ?", user.ID).Find(&orders).Error; err != nil {
-		return nil, err
-	}
+func (r *OrderRepository) GetOrdersByUser(user *model.User, pagination *paginationHelper.Pagination) (*paginationHelper.Pagination, error) {
+	var (
+		orders    []*model.Order
+		totalRows int64
+	)
 
-	return orders, nil
+	query := r.db.Model(&model.Order{}).Where("user_id = ?", user.ID).Count(&totalRows).Preload("Items.Product")
+	query.Scopes(paginationHelper.Paginate(totalRows, pagination, r.db)).Find(&orders)
+	pagination.Rows = OrdersToOrderDetailedResponse(orders)
+
+	return pagination, nil
 }
 
 // GetOrderByIdAndUser returns an order by id and user
