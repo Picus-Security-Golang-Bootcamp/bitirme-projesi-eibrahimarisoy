@@ -12,6 +12,7 @@ require (
 	github.com/golang-jwt/jwt/v4 v4.4.1
 	github.com/google/uuid v1.3.0
 	github.com/gosimple/slug v1.12.0
+	github.com/shopspring/decimal v1.3.1
 	github.com/spf13/viper v1.10.1
 	go.uber.org/zap v1.21.0
 	golang.org/x/crypto v0.0.0-20210921155107-089bfa567519

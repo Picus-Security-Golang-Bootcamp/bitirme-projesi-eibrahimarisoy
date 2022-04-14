@@ -4,6 +4,7 @@ import (
 	"time"
 
 	"github.com/google/uuid"
+	"github.com/shopspring/decimal"
 )
 
 type OrderStatus string
@@ -24,7 +25,7 @@ type Order struct {
 	CartID uuid.UUID `json:"cart_id"`
 	Cart   Cart      `json:"cart"`
 
-	TotalPrice float64 `json:"total_price" sql:"type:decimal(10,2)"`
+	TotalPrice decimal.Decimal `json:"total_price" sql:"type:decimal(10,2)"`
 
 	Items []OrderItem `json:"items"`
 }
@@ -37,7 +38,7 @@ type OrderItem struct {
 	ProductID uuid.UUID `json:"product_id"`
 	Product   Product   `json:"product"`
 
-	Price float64 `json:"price"`
+	Price decimal.Decimal `json:"price"`
 }
 
 func (o *Order) IsCancelable() bool {

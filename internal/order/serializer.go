@@ -5,17 +5,20 @@ import (
 	"patika-ecommerce/internal/model"
 	"patika-ecommerce/internal/product"
 	common "patika-ecommerce/pkg/utils"
+	"strconv"
 
 	"github.com/go-openapi/strfmt"
 )
 
 // OrderToOrderResponse converts an order to an order response
 func OrderToOrderResponse(order *model.Order) *api.OrderResponse {
+	totalPrice, _ := strconv.ParseFloat(order.TotalPrice.String(), 64)
+
 	return &api.OrderResponse{
 		ID:         common.UUIDToStrfmt(order.ID),
 		CartID:     common.UUIDToStrfmt(order.CartID),
 		Status:     string(order.Status),
-		TotalPrice: order.TotalPrice,
+		TotalPrice: totalPrice,
 		CreatedAt:  strfmt.DateTime(order.CreatedAt),
 		UpdatedAt:  strfmt.DateTime(order.UpdatedAt),
 	}
@@ -28,12 +31,13 @@ func OrderToOrderDetailedResponse(order *model.Order) *api.OrderDetailedResponse
 	for _, order := range order.Items {
 		items = append(items, OrderItemToOrderItemDetailedResponse(&order))
 	}
+	totalPrice, _ := strconv.ParseFloat(order.TotalPrice.String(), 64)
 
 	return &api.OrderDetailedResponse{
 		ID:         common.UUIDToStrfmt(order.ID),
 		CartID:     common.UUIDToStrfmt(order.CartID),
 		Status:     string(order.Status),
-		TotalPrice: order.TotalPrice,
+		TotalPrice: totalPrice,
 		Items:      items,
 		CreatedAt:  strfmt.DateTime(order.CreatedAt),
 		UpdatedAt:  strfmt.DateTime(order.UpdatedAt),
@@ -51,9 +55,11 @@ func OrdersToOrderDetailedResponse(orders []*model.Order) []*api.OrderDetailedRe
 
 // OrderItemToOrderItemDetailedResponse converts an order item to an order item response
 func OrderItemToOrderItemDetailedResponse(orderItem *model.OrderItem) *api.OrderItemDetailedResponse {
+	price, _ := strconv.ParseFloat(orderItem.Price.String(), 64)
+
 	return &api.OrderItemDetailedResponse{
 		ID:      common.UUIDToStrfmt(orderItem.ID),
 		Product: product.ProductToProductBasicResponse(&orderItem.Product),
-		Price:   orderItem.Price,
+		Price:   price,
 	}
 }

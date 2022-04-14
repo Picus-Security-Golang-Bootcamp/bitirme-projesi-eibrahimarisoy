@@ -4,8 +4,10 @@ import (
 	"patika-ecommerce/internal/api"
 	"patika-ecommerce/internal/model"
 	common "patika-ecommerce/pkg/utils"
+	"strconv"
 
 	"github.com/go-openapi/strfmt"
+	"github.com/shopspring/decimal"
 )
 
 func ProductRequestToProduct(productRequest *api.ProductRequest) *model.Product {
@@ -24,7 +26,7 @@ func ProductRequestToProduct(productRequest *api.ProductRequest) *model.Product 
 	return &model.Product{
 		Name:        productRequest.Name,
 		Description: *productRequest.Description,
-		Price:       productRequest.Price,
+		Price:       decimal.NewFromFloat(*productRequest.Price),
 		Stock:       &stock,
 		SKU:         productRequest.Sku,
 		Categories:  categories,
@@ -38,13 +40,14 @@ func ProductToResponse(product *model.Product) *api.ProductResponse {
 	for _, c := range product.Categories {
 		categories = append(categories, common.UUIDToStrfmt(c.ID))
 	}
+	price, _ := strconv.ParseFloat(product.Price.String(), 64)
 
 	return &api.ProductResponse{
 		ID:          common.UUIDToStrfmt(product.ID),
 		Slug:        product.Slug,
 		Name:        *product.Name,
 		Description: product.Description,
-		Price:       *product.Price,
+		Price:       price,
 		Stock:       stock,
 		Sku:         *product.SKU,
 		Categories:  categories,
@@ -61,13 +64,14 @@ func ProductsToResponse(products *[]model.Product) []*api.ProductResponse {
 
 func ProductToProductBasicResponse(product *model.Product) *api.ProductBasicResponse {
 	stock := int64(*product.Stock)
+	price, _ := strconv.ParseFloat(product.Price.String(), 64)
 
 	return &api.ProductBasicResponse{
 		ID:          common.UUIDToStrfmt(product.ID),
 		Slug:        product.Slug,
 		Name:        *product.Name,
 		Description: product.Description,
-		Price:       *product.Price,
+		Price:       price,
 		Stock:       stock,
 	}
 }
