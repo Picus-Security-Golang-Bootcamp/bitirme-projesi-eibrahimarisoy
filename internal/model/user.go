@@ -14,8 +14,6 @@ type User struct {
 	Email     *string `json:"email" gorm:"unique" gorm:"type:varchar(100); not null"`
 	Password  string  `json:"password,omitempty" gorm:"type:varchar(100); not null"`
 	IsAdmin   bool    `json:"isAdmin" default:"false" gorm:"type:boolean"`
-
-	Roles []*Role `json:"roles" gorm:"many2many:user_roles"`
 }
 
 func (u *User) BeforeCreate(tx *gorm.DB) (err error) {

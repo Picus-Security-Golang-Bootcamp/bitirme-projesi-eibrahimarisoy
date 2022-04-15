@@ -20,21 +20,9 @@ func NewUserHandler(r *gin.RouterGroup, cfg *config.Config, userRepo *UserReposi
 
 	r.Use(mw.AuthenticationMiddleware(cfg.JWTConfig.SecretKey))
 	r.Use(mw.AdminMiddleware())
-	r.GET("/", handler.getUsers)
 	r.GET("/:id", handler.getUser)
 	r.PUT("/:id", handler.updateUser)
 	r.DELETE("/:id", handler.deleteUser)
-}
-
-func (u *userHandler) getUsers(c *gin.Context) {
-	users, err := u.userRepo.GetAll()
-
-	if err != nil {
-		c.JSON(httpErr.ErrorResponse(err))
-		return
-	}
-
-	c.JSON(http.StatusOK, users)
 }
 
 func (u *userHandler) deleteUser(c *gin.Context) {

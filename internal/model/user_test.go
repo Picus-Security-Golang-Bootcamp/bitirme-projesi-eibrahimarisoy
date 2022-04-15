@@ -19,7 +19,6 @@ func TestUser_CheckPassword(t *testing.T) {
 		Email     *string
 		Password  string
 		IsAdmin   bool
-		Roles     []*Role
 	}
 	type args struct {
 		password string
@@ -77,7 +76,6 @@ func TestUser_CheckPassword(t *testing.T) {
 				Email:     tt.fields.Email,
 				Password:  tt.fields.Password,
 				IsAdmin:   tt.fields.IsAdmin,
-				Roles:     tt.fields.Roles,
 			}
 			if got := u.CheckPassword(tt.args.password); got != tt.want {
 				t.Errorf("User.CheckPassword() = %v, want %v", got, tt.want)
@@ -109,7 +107,6 @@ func TestUser_BeforeCreate(t *testing.T) {
 		Email     *string
 		Password  string
 		IsAdmin   bool
-		Roles     []*Role
 	}
 	type args struct {
 		tx *gorm.DB

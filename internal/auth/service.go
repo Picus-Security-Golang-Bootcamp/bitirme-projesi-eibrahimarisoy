@@ -4,7 +4,6 @@ import (
 	"fmt"
 	"patika-ecommerce/internal/api"
 	"patika-ecommerce/internal/model"
-	"patika-ecommerce/internal/role"
 	user "patika-ecommerce/internal/user"
 	"patika-ecommerce/pkg/config"
 	jwtHelper "patika-ecommerce/pkg/jwt"
@@ -16,7 +15,6 @@ import (
 type AuthService struct {
 	cfg      *config.Config
 	userRepo *user.UserRepository
-	roleRepo *role.RoleRepository
 }
 
 type AuthServiceInterface interface {
@@ -27,11 +25,10 @@ type AuthServiceInterface interface {
 }
 
 // NewAuthService creates a new AuthService
-func NewAuthService(cfg *config.Config, userRepo *user.UserRepository, roleRepo *role.RoleRepository) *AuthService {
+func NewAuthService(cfg *config.Config, userRepo *user.UserRepository) *AuthService {
 	return &AuthService{
 		cfg:      cfg,
 		userRepo: userRepo,
-		roleRepo: roleRepo,
 	}
 }
 

@@ -17,7 +17,6 @@ func RegisterToUser(user *api.RegisterUser) *model.User {
 		Email:     &a,
 		Password:  *user.Password,
 		IsAdmin:   false,
-		Roles:     []*model.Role{},
 	}
 }
 

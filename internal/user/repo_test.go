@@ -69,7 +69,6 @@ func (s *Suite) TestUserRepository_InsertUser() {
 		Email:     &Email,
 		Password:  Password,
 		IsAdmin:   false,
-		Roles:     []*model.Role{},
 	}
 	fmt.Println("id", id)
 	s.mock.ExpectBegin()

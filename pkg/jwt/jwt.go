@@ -61,7 +61,6 @@ func VerifyToken(token string, secret string) *model.User {
 		},
 		Email:   &decodedToken.Email,
 		IsAdmin: decodedToken.IsAdmin,
-		Roles:   []*model.Role{},
 	}
 
 	return &user
@@ -85,7 +84,6 @@ func NewJwtClaimsForAccessToken(user *model.User, accessTokenLifeTime int) *jwt.
 		"UserId":    user.ID,
 		// "Email":     user.Email,
 		"IsAdmin": user.IsAdmin,
-		"Roles":   user.Roles,
 	})
 }
 
