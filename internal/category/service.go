@@ -9,10 +9,10 @@ import (
 )
 
 type CategoryService struct {
-	categoryRepo *CategoryRepository
+	categoryRepo MockCategoryRepository
 }
 
-func NewCategoryService(categoryRepo *CategoryRepository) *CategoryService {
+func NewCategoryService(categoryRepo MockCategoryRepository) *CategoryService {
 	return &CategoryService{categoryRepo: categoryRepo}
 }
 

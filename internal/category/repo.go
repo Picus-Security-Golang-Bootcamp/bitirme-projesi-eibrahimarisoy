@@ -12,6 +12,15 @@ type CategoryRepository struct {
 	db *gorm.DB
 }
 
+type MockCategoryRepository interface {
+	InsertCategory(category *model.Category) error
+	GetCategories() (*[]model.Category, error)
+	GetCategoryByID(id uuid.UUID) (*model.Category, error)
+	UpdateCategory(category *model.Category) error
+	InsertBulkCategory(categories *[]model.Category) error
+	DeleteCategory(category *model.Category) error
+}
+
 func (r *CategoryRepository) Migration() {
 	r.db.AutoMigrate(&model.Category{})
 }
