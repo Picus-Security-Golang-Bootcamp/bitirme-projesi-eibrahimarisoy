@@ -14,18 +14,18 @@ import (
 
 type AuthService struct {
 	cfg      *config.Config
-	userRepo *user.UserRepository
+	userRepo user.UserRepositoryForMock
 }
 
-type AuthServiceInterface interface {
-	Register(user *model.User) (api.TokenResponse, error)
-	Login(user *model.User) (api.TokenResponse, error)
-	GetAuthToken(user *model.User) api.TokenResponse
-	RefreshToken(refreshToken string) (api.TokenResponse, error)
-}
+// type AuthServiceInterface interface {
+// 	Register(user *model.User) (api.TokenResponse, error)
+// 	Login(user *model.User) (api.TokenResponse, error)
+// 	GetAuthToken(user *model.User) api.TokenResponse
+// 	RefreshToken(refreshToken string) (api.TokenResponse, error)
+// }
 
 // NewAuthService creates a new AuthService
-func NewAuthService(cfg *config.Config, userRepo *user.UserRepository) *AuthService {
+func NewAuthService(cfg *config.Config, userRepo user.UserRepositoryForMock) *AuthService {
 	return &AuthService{
 		cfg:      cfg,
 		userRepo: userRepo,
@@ -38,36 +38,21 @@ func (a *AuthService) Register(user *model.User) (api.TokenResponse, error) {
 	if err != nil {
 		return api.TokenResponse{}, err
 	}
-	return a.GetAuthToken(user), nil
+	return jwtHelper.GetAuthToken(user, a.cfg), nil
 }
 
 // Login is a service that logs in a user
-func (a *AuthService) Login(user *model.User) (api.TokenResponse, error) {
-	user, err := a.userRepo.GetUserByEmail(*user.Email)
+func (a *AuthService) Login(u *model.User) (api.TokenResponse, error) {
+	user, err := a.userRepo.GetUserByEmail(*u.Email)
 	if err != nil {
 		return api.TokenResponse{}, err
 	}
 
-	if !user.CheckPassword(user.Password) {
+	if !user.CheckPassword(u.Password) {
 		return api.TokenResponse{}, fmt.Errorf("invalid password")
 	}
 
-	return a.GetAuthToken(user), nil
-}
-
-// GetAuthToken is a service that generates a new JWT token
-func (a *AuthService) GetAuthToken(user *model.User) api.TokenResponse {
-	jwtClaimsForAccessToken := jwtHelper.NewJwtClaimsForAccessToken(user, a.cfg.JWTConfig.AccessTokenLifeTime)
-
-	jwtClaimsForRefreshToken := jwtHelper.NewJwtClaimsForRefreshToken(user, a.cfg.JWTConfig.RefreshTokenLifeTime)
-
-	accesToken := jwtHelper.GenerateToken(jwtClaimsForAccessToken, a.cfg.JWTConfig.SecretKey)
-	refreshToken := jwtHelper.GenerateToken(jwtClaimsForRefreshToken, a.cfg.JWTConfig.SecretKey)
-
-	return api.TokenResponse{
-		AccessToken:  accesToken,
-		RefreshToken: refreshToken,
-	}
+	return jwtHelper.GetAuthToken(user, a.cfg), nil
 }
 
 // RefreshToken is a service that checks if the refresh token is valid and returns a new JWT token
@@ -80,7 +65,7 @@ func (a *AuthService) RefreshToken(refreshToken string) (api.TokenResponse, erro
 
 	claims := token.Claims.(jwt.MapClaims)
 
-	if int64(claims["ExpiresAt"].(float64)) > time.Now().Unix() {
+	if int64(claims["ExpiresAt"].(float64)) < time.Now().Unix() {
 		return api.TokenResponse{}, fmt.Errorf("refresh token expired")
 	}
 

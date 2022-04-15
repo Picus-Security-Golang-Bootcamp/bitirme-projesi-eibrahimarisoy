@@ -2,7 +2,10 @@ package jwt_helper
 
 import (
 	"encoding/json"
+	"fmt"
+	"patika-ecommerce/internal/api"
 	"patika-ecommerce/internal/model"
+	"patika-ecommerce/pkg/config"
 	"time"
 
 	"github.com/golang-jwt/jwt/v4"
@@ -16,6 +19,22 @@ type JWTToken struct {
 	UserId    string   `json:"userId"`
 	Email     string   `json:"email"`
 	IsAdmin   bool     `json:"isAdmin"`
+}
+
+// GetAuthToken is a service that generates a new JWT token
+func GetAuthToken(user *model.User, cfg *config.Config) api.TokenResponse {
+	fmt.Println("user", user)
+	jwtClaimsForAccessToken := NewJwtClaimsForAccessToken(user, cfg.JWTConfig.AccessTokenLifeTime)
+
+	jwtClaimsForRefreshToken := NewJwtClaimsForRefreshToken(user, cfg.JWTConfig.RefreshTokenLifeTime)
+
+	accesToken := GenerateToken(jwtClaimsForAccessToken, cfg.JWTConfig.SecretKey)
+	refreshToken := GenerateToken(jwtClaimsForRefreshToken, cfg.JWTConfig.SecretKey)
+
+	return api.TokenResponse{
+		AccessToken:  accesToken,
+		RefreshToken: refreshToken,
+	}
 }
 
 // GenerateAccessToken generates an access token
