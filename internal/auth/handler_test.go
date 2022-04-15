@@ -11,9 +11,11 @@ import (
 	"patika-ecommerce/pkg/config"
 	jwtHelper "patika-ecommerce/pkg/jwt"
 	"testing"
+	"time"
 
 	"github.com/gin-gonic/gin"
 	"github.com/go-playground/assert/v2"
+	"github.com/golang-jwt/jwt/v4"
 	"github.com/google/uuid"
 )
 
@@ -93,6 +95,43 @@ func Test_authHandler_login(t *testing.T) {
 
 }
 
+func Test_authHandler_refreshToken(t *testing.T) {
+	firstname, lastname, email, username, password := "test", "test", "emre@arisoy.com", "emre", "123456Aa"
+
+	gin.SetMode(gin.TestMode)
+	cfg := &config.Config{
+		JWTConfig: config.JWTConfig{SecretKey: "secret", AccessTokenLifeTime: 30, RefreshTokenLifeTime: 30},
+	}
+	mockAuthService := &mockAuthService{
+		items: []model.User{
+			{
+				Base:      model.Base{ID: uuid.New()},
+				FirstName: &firstname,
+				LastName:  &lastname,
+				Username:  &username,
+				Email:     &email,
+				Password:  password,
+			},
+		},
+		cfg: cfg,
+	}
+	token := jwtHelper.GetAuthToken(&mockAuthService.items[0], cfg).RefreshToken
+	refreshTokenPayload := []byte(`{"refreshToken":"` + token + `"}`)
+
+	w := httptest.NewRecorder()
+	authHandler := &authHandler{authService: mockAuthService, cfg: cfg}
+	c, r := gin.CreateTestContext(w)
+
+	r.POST("/refresh", authHandler.refreshToken)
+	c.Request, _ = http.NewRequest("POST", "/refresh", nil)
+	c.Request.Header.Set("Content-Type", "application/json")
+	c.Request.Body = ioutil.NopCloser(bytes.NewBuffer(refreshTokenPayload))
+	authHandler.refreshToken(c)
+	fmt.Println(w.Body.String())
+	assert.Equal(t, http.StatusOK, w.Code)
+
+}
+
 type mockAuthService struct {
 	items []model.User
 	cfg   *config.Config
@@ -102,10 +141,8 @@ var UsernameAlreadyExists = fmt.Errorf("23505")
 
 // Register is a service that registers a new user
 func (a *mockAuthService) Register(user *model.User) (api.TokenResponse, error) {
-
 	for _, item := range a.items {
 		if *item.Username == *user.Username || *item.Email == *user.Email {
-			fmt.Println("dasdasdasdsa")
 			return api.TokenResponse{}, UsernameAlreadyExists
 		}
 	}
@@ -116,8 +153,7 @@ func (a *mockAuthService) Register(user *model.User) (api.TokenResponse, error) 
 
 // Login is a service that logs in a user
 func (a *mockAuthService) Login(u *model.User) (api.TokenResponse, error) {
-	fmt.Println("login", u)
-	fmt.Println("login", a.items)
+
 	for _, item := range a.items {
 		if *item.Email == *u.Email {
 			if item.Password == u.Password {
@@ -130,91 +166,44 @@ func (a *mockAuthService) Login(u *model.User) (api.TokenResponse, error) {
 
 // RefreshToken is a service that checks if the refresh token is valid and returns a new JWT token
 func (a *mockAuthService) RefreshToken(refreshToken string) (api.TokenResponse, error) {
-	// token, err := jwtHelper.ParseToken(refreshToken, a.cfg.JWTConfig.SecretKey)
+	fmt.Println("rewrewrwerwe")
 
-	// if err != nil {
-	return api.TokenResponse{}, nil
-	// }
+	token, err := jwtHelper.ParseToken(refreshToken, a.cfg.JWTConfig.SecretKey)
 
-	// claims := token.Claims.(jwt.MapClaims)
+	if err != nil {
+		fmt.Println("rewrewrwerwe")
 
-	// if int64(claims["ExpiresAt"].(float64)) < time.Now().Unix() {
-	// 	return api.TokenResponse{}, fmt.Errorf("refresh token expired")
-	// }
+		return api.TokenResponse{}, err
+	}
 
-	// userId := claims["UserId"].(string)
-	// user, err := a.userRepo.GetUser(userId)
-	// if err != nil {
-	// 	return api.TokenResponse{}, err
-	// }
+	claims := token.Claims.(jwt.MapClaims)
 
-	// jwtClaimsForAccessToken := jwtHelper.NewJwtClaimsForAccessToken(user, a.cfg.JWTConfig.AccessTokenLifeTime)
+	if int64(claims["ExpiresAt"].(float64)) < time.Now().Unix() {
+		return api.TokenResponse{}, fmt.Errorf("refresh token expired")
+	}
 
-	// accesToken := jwtHelper.GenerateToken(jwtClaimsForAccessToken, a.cfg.JWTConfig.SecretKey)
+	userId := claims["UserId"].(string)
 
-	// return api.TokenResponse{
-	// 	AccessToken: accesToken,
-	// }, nil
+	id, _ := uuid.Parse(userId)
+	user := &model.User{}
+	for _, item := range a.items {
+		if item.ID == id {
+			user = &item
+			break
+		}
+	}
+
+	if user == nil {
+		fmt.Println("dddddddddddddd")
+		return api.TokenResponse{}, err
+	}
+
+	jwtClaimsForAccessToken := jwtHelper.NewJwtClaimsForAccessToken(user, a.cfg.JWTConfig.AccessTokenLifeTime)
+
+	accesToken := jwtHelper.GenerateToken(jwtClaimsForAccessToken, a.cfg.JWTConfig.SecretKey)
+	fmt.Println("fsdfsdfssssseddddddddddddddddddddddd")
+
+	return api.TokenResponse{
+		AccessToken: accesToken,
+	}, nil
 }
-
-// func Test_authHandler_login(t *testing.T) {
-// 	gin.SetMode(gin.TestMode)
-
-// 	authService := &mockAuthService{
-// 		userRepo: &mockUserRepository{},
-// 		cfg: &config.Config{
-// 			JWTConfig: &config.JWTConfig{
-// 				SecretKey:           "secret",
-// 				AccessTokenLifeTime: time.Hour,
-// 			},
-// 		},
-// 	}
-
-// 	authHandler := NewAuthHandler(authService)
-
-// 	router := gin.New()
-// 	router.POST("/login", authHandler.Login)
-
-// 	w := performRequest(router, "POST", "/login", getRegisterPOSTPayload())
-
-// 	if w.Code != 200 {
-// 		t.Errorf("expected status code 200 but got %d", w.Code)
-// 	}
-// }
-
-// func Test_authHandler_refreshToken(t *testing.T) {
-// 	gin.SetMode(gin.TestMode)
-
-// 	authService := &mockAuthService{
-// 		userRepo: &mockUserRepository{},
-// 		cfg: &config.Config{
-// 			JWTConfig: &config.JWTConfig{
-// 				SecretKey:           "secret",
-// 				AccessTokenLifeTime: time.Hour,
-// 			},
-// 		},
-// 	}
-// 	type fields struct {
-// 		authService *mockAuthService
-// 		cfg         *config.Config
-// 	}
-// 	type args struct {
-// 		c *gin.Context
-// 	}
-// 	tests := []struct {
-// 		name   string
-// 		fields fields
-// 		args   args
-// 	}{
-// 		// TODO: Add test cases.
-// 	}
-// 	for _, tt := range tests {
-// 		t.Run(tt.name, func(t *testing.T) {
-// 			u := &authHandler{
-// 				authService: tt.fields.authService,
-// 				cfg:         tt.fields.cfg,
-// 			}
-// 			u.register(tt.args.c)
-// 		})
-// 	}
-// }

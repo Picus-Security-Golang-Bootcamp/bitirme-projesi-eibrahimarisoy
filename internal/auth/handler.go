@@ -85,16 +85,20 @@ func (u *authHandler) refreshToken(c *gin.Context) {
 	}
 
 	if err := reqBody.Validate(strfmt.NewFormats()); err != nil {
+		fmt.Println(err)
 		c.JSON(httpErr.ErrorResponse(err))
 		return
 	}
 
 	resp, err := u.authService.RefreshToken(*reqBody.RefreshToken)
-
+	fmt.Println(err)
 	if err != nil {
+		fmt.Println(err)
+
 		c.JSON(httpErr.ErrorResponse(err))
 		return
 	}
+	fmt.Println("dasdasdasodk446546465465465")
 
 	c.JSON(200, resp)
 }
