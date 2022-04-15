@@ -3,6 +3,7 @@ package utils
 import (
 	"encoding/csv"
 	"errors"
+	"fmt"
 	"mime/multipart"
 
 	"path/filepath"
@@ -20,8 +21,12 @@ func CheckFileIsValid(file *multipart.FileHeader) error {
 
 // ReadFile reads the file
 func ReadFile(filename *multipart.FileHeader) ([][]string, error) {
+	print("Creating bulk categories 33333333333")
+	fmt.Println("Reading file")
+	fmt.Println("File name: ", filename.Filename)
 	file, err := filename.Open()
 	if err != nil {
+		fmt.Println("Error opening file: ", err)
 		return nil, err
 	}
 	defer file.Close()
