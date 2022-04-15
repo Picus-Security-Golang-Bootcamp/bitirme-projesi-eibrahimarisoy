@@ -1,7 +1,9 @@
 package category
 
 import (
+	"bytes"
 	"errors"
+	"fmt"
 	"patika-ecommerce/internal/model"
 	"reflect"
 	"testing"
@@ -304,109 +306,64 @@ func TestCategoryService_DeleteCategory(t *testing.T) {
 }
 
 func TestCategoryService_CreateBulkCategories(t *testing.T) {
-	// fmt.Println("TestCategoryService_CreateBulkCategories")
-	// fmt.Println(createFilename())
-	// file := multipart.NewFile(
-	// 	"file",
-	// 	createFilename(),
-	// )
+	fmt.Println("TestCategoryService_CreateBulkCategories")
 
-	// type fields struct {
-	// 	categoryRepo MockCategoryRepository
-	// }
-	// type args struct {
-	// 	filename *multipart.FileHeader
-	// }
-	// tests := []struct {
-	// 	name    string
-	// 	fields  fields
-	// 	args    args
-	// 	want    []model.Category
-	// 	wantErr bool
-	// }{
-	// 	// TODO: Add test cases.
-	// 	{
-	// 		name: "categoryService_CreateBulkCategories_Success",
-	// 		fields: fields{
-	// 			categoryRepo: &mockCategoryRepository{
-	// 				items: []model.Category{
-	// 					{
-	// 						Base: model.Base{ID: uuid.New()},
-	// 					},
-	// 				},
-	// 			},
-	// 		},
-	// 		args: args{
-	// 			filename: file,
-	// 		},
-	// 		want: []model.Category{
-	// 			{
-	// 				Base: model.Base{ID: uuid.New()},
-	// 			},
-	// 		},
-	// 		wantErr: false,
-	// 	},
-	// }
-	// for _, tt := range tests {
-	// 	t.Run(tt.name, func(t *testing.T) {
-	// 		c := &CategoryService{
-	// 			categoryRepo: tt.fields.categoryRepo,
-	// 		}
-	// 		got, err := c.CreateBulkCategories(tt.args.filename)
-	// 		if (err != nil) != tt.wantErr {
-	// 			t.Errorf("CategoryService.CreateBulkCategories() error = %v, wantErr %v", err, tt.wantErr)
-	// 			return
-	// 		}
-	// 		if !reflect.DeepEqual(got, tt.want) {
-	// 			t.Errorf("CategoryService.CreateBulkCategories() = %v, want %v", got, tt.want)
-	// 		}
-	// 	})
-	// }
+	type fields struct {
+		categoryRepo MockCategoryRepository
+	}
+	type args struct {
+		filename *bytes.Buffer
+	}
+	tests := []struct {
+		name    string
+		fields  fields
+		args    args
+		want    []model.Category
+		wantErr bool
+	}{
+		// TODO: Add test cases.
+		{
+			name: "categoryService_CreateBulkCategories_Success",
+			fields: fields{
+				categoryRepo: &mockCategoryRepository{
+					items: []model.Category{
+						{
+							Base: model.Base{ID: uuid.New()},
+						},
+					},
+				},
+			},
+			args: args{
+				filename: createFilename(),
+			},
+			want: []model.Category{
+				{
+					Base: model.Base{ID: uuid.New()},
+				},
+			},
+			wantErr: false,
+		},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			c := &CategoryService{
+				categoryRepo: tt.fields.categoryRepo,
+			}
+			_, err := c.CreateBulkCategories(tt.args.filename)
+			if (err != nil) != tt.wantErr {
+				t.Errorf("CategoryService.CreateBulkCategories() error = %v, wantErr %v", err, tt.wantErr)
+				return
+			}
+
+		})
+	}
 }
 
-// func createFilename() *multipart.FileHeader {
-// 	d1 := []byte("category_name,category_description\ncategory name 1,category description 1\n,category name 2,category description 2\n")
-// 	// err := os.WriteFile("./categories.csv", d1, 0644)
-// 	// check(err)
-
-// 	// body := bytes.NewBuffer(d1)
-// 	// writer := multipart.NewWriter(body)
-// 	// part, err := writer.CreateFormFile("file", "categories.csv")
-
-// 	// if err != nil {
-// 	// 	log.Fatal(err)
-// 	// }
-// 	// part.Write([]byte("Hello World!"))
-// 	// writer.Close()
-
-// 	// f := multipart.FileHeader{}
-// 	// f.Filename = "categories.csv"
-// 	// f.Size = int64(len(body.Bytes()))
-// 	// f.Header = make(textproto.MIMEHeader)
-// 	// f.Header.Set("Content-Type", writer.FormDataContentType())
-// 	// f.Open()
-
-// 	fileDir, _ := os.Getwd()
-// 	fileName := "categories.csv"
-// 	filePath := path.Join(fileDir, fileName)
-
-// 	file, _ := os.Open(filePath)
-// 	defer file.Close()
-
-// 	body := &bytes.Buffer{}
-// 	writer := multipart.NewWriter(body)
-// 	part, _ := writer.CreateFormFile("file", filepath.Base(file.Name()))
-// 	io.Copy(part, file)
-// 	writer.Close()
-// 	writer.FormDataContentType()
-// 	mediaPart, _ := writer.CreatePart(textproto.MIMEHeader{})
-// 	mediaPart.Write(body.Bytes())
-
-// 	io.Copy(mediaPart, bytes.NewReader(mediaData))
-
-// 	return &mediaPart
-
-// }
+func createFilename() *bytes.Buffer {
+	d1 := []byte("category_name,category_description\ncategory name 222,category description 1\ncategory name 3332,category description     2")
+	body := bytes.NewBuffer(d1)
+	return body
+}
 
 type mockCategoryRepository struct {
 	items []model.Category
@@ -453,7 +410,7 @@ func (r *mockCategoryRepository) UpdateCategory(category *model.Category) error 
 func (r *mockCategoryRepository) InsertBulkCategory(categories *[]model.Category) error {
 	for _, category := range *categories {
 		for _, item := range r.items {
-			if item.ID == category.ID {
+			if item.Name == category.Name {
 				return errors.New("category already exists")
 			}
 		}

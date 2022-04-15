@@ -1,7 +1,7 @@
 package category
 
 import (
-	"mime/multipart"
+	"bytes"
 	"patika-ecommerce/internal/model"
 	"patika-ecommerce/pkg/utils"
 
@@ -18,7 +18,7 @@ type MockCategoryService interface {
 	GetCategoryByID(id uuid.UUID) (*model.Category, error)
 	UpdateCategory(category *model.Category) error
 	DeleteCategoryService(id uuid.UUID) error
-	CreateBulkCategories(filename *multipart.FileHeader) ([]model.Category, error)
+	CreateBulkCategories(filename *bytes.Buffer) ([]model.Category, error)
 }
 
 func NewCategoryService(categoryRepo MockCategoryRepository) *CategoryService {
@@ -46,8 +46,8 @@ func (c *CategoryService) UpdateCategory(category *model.Category) error {
 }
 
 // CreateBulkCategories creates multiple categories in bulk operation with the specified file
-func (c *CategoryService) CreateBulkCategories(filename *multipart.FileHeader) ([]model.Category, error) {
-	records, err := utils.ReadFile(filename)
+func (c *CategoryService) CreateBulkCategories(buf *bytes.Buffer) ([]model.Category, error) {
+	records, err := utils.ReadFile(buf)
 	if err != nil {
 		return nil, err
 	}

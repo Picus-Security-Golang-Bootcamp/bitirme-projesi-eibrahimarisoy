@@ -1,7 +1,9 @@
 package category
 
 import (
+	"bytes"
 	"fmt"
+	"io"
 	"patika-ecommerce/internal/api"
 	httpErr "patika-ecommerce/internal/httpErrors"
 	"patika-ecommerce/pkg/config"
@@ -122,19 +124,29 @@ func (r *categoryHandler) updateCategory(c *gin.Context) {
 
 // createBulkCategories creates a new categories with file upload
 func (r *categoryHandler) createBulkCategories(c *gin.Context) {
-	file, err := c.FormFile("file")
+	file, header, err := c.Request.FormFile("file")
+	// defer file.Close()
+
+	if err != nil {
+		c.JSON(httpErr.ErrorResponse(err))
+	}
+
+	if err := file_helper.CheckFileIsValid(header); err != nil {
+		c.JSON(httpErr.ErrorResponse(err))
+		return
+	}
+
+	buf := bytes.NewBuffer(nil)
+	if _, err := io.Copy(buf, file); err != nil {
+		c.JSON(httpErr.ErrorResponse(err))
+	}
 
 	if err != nil {
 		c.JSON(httpErr.ErrorResponse(err))
 		return
 	}
 
-	if err := file_helper.CheckFileIsValid(file); err != nil {
-		c.JSON(httpErr.ErrorResponse(err))
-		return
-	}
-
-	categories, err := r.categoryService.CreateBulkCategories(file)
+	categories, err := r.categoryService.CreateBulkCategories(buf)
 
 	if err != nil {
 		c.JSON(httpErr.ErrorResponse(err))

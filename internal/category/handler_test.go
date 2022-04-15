@@ -277,7 +277,7 @@ func (c *mockCategoryService) UpdateCategory(category *model.Category) error {
 }
 
 // CreateBulkCategories creates multiple categories in bulk operation with the specified file
-func (c *mockCategoryService) CreateBulkCategories(filename *multipart.FileHeader) ([]model.Category, error) {
+func (c *mockCategoryService) CreateBulkCategories(filename *bytes.Buffer) ([]model.Category, error) {
 	records, err := utils.ReadFile(filename)
 	if err != nil {
 		return nil, err
