@@ -37,7 +37,7 @@ func NewOrderItemRepository(db *gorm.DB) *OrderItemRepository {
 
 // CompleteOrder
 func (r *OrderRepository) CompleteOrder(user *model.User, cartId uuid.UUID) (*model.Order, error) {
-	tx := r.db.Begin() // TODO total price
+	tx := r.db.Begin()
 	cart := model.Cart{}
 
 	if err := tx.Model(model.Cart{}).

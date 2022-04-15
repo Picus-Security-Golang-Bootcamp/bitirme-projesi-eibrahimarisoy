@@ -5,8 +5,6 @@ import (
 	"github.com/google/uuid"
 )
 
-// FIXME
-
 func StrfmtToUUID(tmp strfmt.UUID) (uuid.UUID, error) {
 	return uuid.Parse(tmp.String())
 }

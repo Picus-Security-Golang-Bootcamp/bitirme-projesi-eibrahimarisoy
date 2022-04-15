@@ -58,7 +58,6 @@ func (r *categoryHandler) createCategory(c *gin.Context) {
 
 // getCategories returns all categories
 func (r *categoryHandler) getCategories(c *gin.Context) {
-	// TODO add pagination
 	categories, err := r.categoryService.GetCategories()
 	if err != nil {
 		c.JSON(httpErr.ErrorResponse(err))

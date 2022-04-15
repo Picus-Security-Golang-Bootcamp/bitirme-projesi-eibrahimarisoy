@@ -49,7 +49,6 @@ func (i *OrderItem) BeforeCreate(tx *gorm.DB) error {
 }
 
 func (o *Order) IsCancelable() bool {
-	// TODO TODO TODO
 	today := time.Now()
 	lastDay := today.AddDate(0, 0, 14)
 	if o.CreatedAt.Before(lastDay) && o.Status == OrderStatusCompleted {

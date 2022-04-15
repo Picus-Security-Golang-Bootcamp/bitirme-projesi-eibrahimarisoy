@@ -6,6 +6,23 @@ import (
 	"patika-ecommerce/internal/model"
 )
 
+type AuthRepository interface {
+	InsertUser(user *model.User) (*model.User, error)
+	GetAll() (*[]model.User, error)
+	GetUser(id string) (*model.User, error)
+	DeleteUser(id string) error
+	UpdateUser(user *model.User) (*model.User, error)
+	GetUserByEmail(email string) (*model.User, error)
+}
+
+type UserRepositoryForMock interface {
+	InsertUser(user *model.User) (*model.User, error)
+	GetAll() (*[]model.User, error)
+	GetUser(id string) (*model.User, error)
+	DeleteUser(id string) error
+	UpdateUser(user *model.User) (*model.User, error)
+	GetUserByEmail(email string) (*model.User, error)
+}
 type UserRepository struct {
 	db *gorm.DB
 }
@@ -51,7 +68,7 @@ func (u *UserRepository) GetUser(id string) (*model.User, error) {
 
 // DeleteUser
 func (u *UserRepository) DeleteUser(id string) error {
-	result := u.db.Delete(&model.User{}, "id = ?", id)
+	result := u.db.Debug().Delete(&model.User{}, "id = ?", id)
 	if result.Error != nil {
 		return result.Error
 	}

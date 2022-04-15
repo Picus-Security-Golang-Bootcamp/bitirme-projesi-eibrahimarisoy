@@ -109,7 +109,7 @@ func (r *CartService) UpdateCartItem(user *model.User, id uuid.UUID, req *api.Ca
 
 // DeleteCartItem deletes a cart item
 func (r *CartService) DeleteCartItem(user *model.User, id uuid.UUID) error {
-	cart, err := r.cartRepo.GetCreatedCartWithItems(user) // TODO
+	cart, err := r.cartRepo.GetCreatedCartWithItems(user)
 	if err != nil {
 		return err
 	}

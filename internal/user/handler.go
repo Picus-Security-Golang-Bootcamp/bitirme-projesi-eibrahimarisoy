@@ -38,13 +38,8 @@ func (u *userHandler) getUsers(c *gin.Context) {
 }
 
 func (u *userHandler) deleteUser(c *gin.Context) {
-	user := &model.User{}
-	if err := c.ShouldBindUri(&user); err != nil {
-		c.JSON(httpErr.ErrorResponse(err))
-		return
-	}
-
 	id := c.Param("id")
+
 	if err := u.userRepo.DeleteUser(id); err != nil {
 		c.JSON(httpErr.ErrorResponse(err))
 		return
@@ -54,11 +49,6 @@ func (u *userHandler) deleteUser(c *gin.Context) {
 }
 
 func (u *userHandler) updateUser(c *gin.Context) {
-	modelUser := &model.User{}
-	if err := c.ShouldBindUri(&modelUser); err != nil {
-		c.JSON(httpErr.ErrorResponse(err))
-		return
-	}
 
 	id := c.Param("id")
 	idx, err := uuid.Parse(id)
