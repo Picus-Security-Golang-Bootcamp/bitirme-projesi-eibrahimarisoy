@@ -1,6 +1,7 @@
 package auth
 
 import (
+	"fmt"
 	"patika-ecommerce/internal/api"
 	httpErr "patika-ecommerce/internal/httpErrors"
 	"patika-ecommerce/pkg/config"
@@ -10,12 +11,12 @@ import (
 )
 
 type authHandler struct {
-	authService *AuthService
+	authService AuthServiceInterface
 	cfg         *config.Config
 }
 
 // NewAuthHandler creates a new auth handler
-func NewAuthHandler(r *gin.RouterGroup, cfg *config.Config, authService *AuthService) {
+func NewAuthHandler(r *gin.RouterGroup, cfg *config.Config, authService AuthServiceInterface) {
 	handler := &authHandler{
 		cfg:         cfg,
 		authService: authService,
@@ -29,6 +30,7 @@ func NewAuthHandler(r *gin.RouterGroup, cfg *config.Config, authService *AuthSer
 // register is used to register a new user
 func (u *authHandler) register(c *gin.Context) {
 	var reqBody api.RegisterUser
+	fmt.Println("Register121212121121")
 
 	if err := c.ShouldBindJSON(&reqBody); err != nil {
 		c.JSON(httpErr.ErrorResponse(err))

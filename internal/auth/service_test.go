@@ -342,8 +342,6 @@ type mockUserRepository struct {
 // InsertUser insert user to database
 func (u *mockUserRepository) InsertUser(user *model.User) (*model.User, error) {
 	for _, item := range u.items {
-		fmt.Println(*item.Username, *user.Username)
-		fmt.Println(*item.Email, *user.Email)
 		if *item.Username == *user.Username || *item.Email == *user.Email {
 			fmt.Println("dasdasdasdsa")
 			return nil, errCRUD

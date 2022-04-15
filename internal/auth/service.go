@@ -17,12 +17,11 @@ type AuthService struct {
 	userRepo user.UserRepositoryForMock
 }
 
-// type AuthServiceInterface interface {
-// 	Register(user *model.User) (api.TokenResponse, error)
-// 	Login(user *model.User) (api.TokenResponse, error)
-// 	GetAuthToken(user *model.User) api.TokenResponse
-// 	RefreshToken(refreshToken string) (api.TokenResponse, error)
-// }
+type AuthServiceInterface interface {
+	Register(user *model.User) (api.TokenResponse, error)
+	Login(user *model.User) (api.TokenResponse, error)
+	RefreshToken(refreshToken string) (api.TokenResponse, error)
+}
 
 // NewAuthService creates a new AuthService
 func NewAuthService(cfg *config.Config, userRepo user.UserRepositoryForMock) *AuthService {
