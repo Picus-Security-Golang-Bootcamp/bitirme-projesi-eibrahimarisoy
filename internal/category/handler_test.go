@@ -195,6 +195,43 @@ func Test_categoryHandler_deleteCategory(t *testing.T) {
 	assert.Equal(t, http.StatusNoContent, w.Code)
 }
 
+func Test_categoryHandler_createBulkCategories(t *testing.T) {
+	body := new(bytes.Buffer)
+	writer := multipart.NewWriter(body)
+	// writer.WriteField("bu", "HFL")
+	// writer.WriteField("wk", "10")
+	part, _ := writer.CreateFormFile("file", "file.csv")
+	part.Write([]byte("category_name,category_description\ncategory name 1,category description 1\ncategory name 2,category description 2"))
+	writer.Close()
+
+	name, description := "test", "test"
+	id := uuid.New()
+
+	gin.SetMode(gin.TestMode)
+
+	mockService := &mockCategoryService{
+		items: []model.Category{
+			{
+				Base:        model.Base{ID: id},
+				Name:        &name,
+				Description: description,
+			},
+		},
+	}
+	w := httptest.NewRecorder()
+	categoryHandler := &categoryHandler{
+		categoryService: mockService,
+	}
+	c, r := gin.CreateTestContext(w)
+
+	r.POST("/categories/bulk-upload", categoryHandler.createBulkCategories)
+	c.Request, _ = http.NewRequest("GET", "/categories/bulk-upload", body)
+	c.Request.Header.Set("Content-Type", writer.FormDataContentType())
+	categoryHandler.createBulkCategories(c)
+
+	assert.Equal(t, http.StatusOK, w.Code)
+}
+
 type mockCategoryService struct {
 	items []model.Category
 }
@@ -252,7 +289,16 @@ func (c *mockCategoryService) CreateBulkCategories(filename *multipart.FileHeade
 			Name:        &record[0],
 			Description: record[1],
 		}
+		for _, item := range c.items {
+			if *item.Name == *category.Name {
+				return nil, fmt.Errorf("category already exists")
+			}
+		}
 		categories = append(categories, category)
+	}
+
+	for _, category := range categories {
+		c.items = append(c.items, category)
 	}
 
 	// if err := c.categoryRepo.InsertBulkCategory(&categories); err != nil {
