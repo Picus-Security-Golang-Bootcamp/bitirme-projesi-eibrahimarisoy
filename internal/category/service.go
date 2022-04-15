@@ -12,6 +12,15 @@ type CategoryService struct {
 	categoryRepo MockCategoryRepository
 }
 
+type MockCategoryService interface {
+	CreateCategory(category *model.Category) error
+	GetCategories() (*[]model.Category, error)
+	GetCategoryByID(id uuid.UUID) (*model.Category, error)
+	UpdateCategory(category *model.Category) error
+	DeleteCategoryService(id uuid.UUID) error
+	CreateBulkCategories(filename *multipart.FileHeader) ([]model.Category, error)
+}
+
 func NewCategoryService(categoryRepo MockCategoryRepository) *CategoryService {
 	return &CategoryService{categoryRepo: categoryRepo}
 }
@@ -60,10 +69,10 @@ func (c *CategoryService) CreateBulkCategories(filename *multipart.FileHeader) (
 }
 
 // DeleteCategory deletes a category by id
-func (c *CategoryService) DeleteCategory(id uuid.UUID) error {
+func (c *CategoryService) DeleteCategoryService(id uuid.UUID) error {
 	category, err := c.categoryRepo.GetCategoryByID(id)
 	if err != nil {
 		return err
 	}
-	return c.categoryRepo.DeleteCategory(category)
+	return c.categoryRepo.Delete(category)
 }

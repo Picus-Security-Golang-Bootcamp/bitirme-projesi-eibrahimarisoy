@@ -1,9 +1,9 @@
 package category
 
 import (
+	"fmt"
 	"patika-ecommerce/internal/api"
 	httpErr "patika-ecommerce/internal/httpErrors"
-	"patika-ecommerce/internal/model"
 	"patika-ecommerce/pkg/config"
 	mw "patika-ecommerce/pkg/middleware"
 	file_helper "patika-ecommerce/pkg/utils"
@@ -14,11 +14,10 @@ import (
 )
 
 type categoryHandler struct {
-	categoryRepo    *CategoryRepository
-	categoryService *CategoryService
+	categoryService MockCategoryService
 }
 
-func NewCategoryHandler(r *gin.RouterGroup, cfg *config.Config, categoryService *CategoryService) {
+func NewCategoryHandler(r *gin.RouterGroup, cfg *config.Config, categoryService MockCategoryService) {
 	handler := &categoryHandler{
 		categoryService: categoryService,
 	}
@@ -69,19 +68,16 @@ func (r *categoryHandler) getCategories(c *gin.Context) {
 
 // getCategory returns a category
 func (r *categoryHandler) getCategory(c *gin.Context) {
-	category := &model.Category{}
+	fmt.Println("category update", c.Param("id"))
 
-	if err := c.ShouldBindUri(category); err != nil {
-		c.JSON(httpErr.ErrorResponse(err))
-		return
-	}
 	id, err := uuid.Parse(c.Param("id"))
 	if err != nil {
 		c.JSON(httpErr.ErrorResponse(err))
 		return
 	}
+	fmt.Println(id)
 
-	category, err = r.categoryService.GetCategoryByID(id)
+	category, err := r.categoryService.GetCategoryByID(id)
 	if err != nil {
 		c.JSON(httpErr.ErrorResponse(err))
 		return
@@ -92,13 +88,15 @@ func (r *categoryHandler) getCategory(c *gin.Context) {
 
 // updateCategory updates a category
 func (r *categoryHandler) updateCategory(c *gin.Context) {
-	category := &model.Category{}
-
-	if err := c.ShouldBindUri(category); err != nil {
+	fmt.Println("category update", c.Param("id"))
+	categoryID, err := uuid.Parse(c.Param("id"))
+	fmt.Println(categoryID)
+	if err != nil {
 		c.JSON(httpErr.ErrorResponse(err))
 		return
 	}
 
+	fmt.Println("category", c.Param("id"))
 	reqBody := &api.CategoryRequest{}
 	if err := c.ShouldBindJSON(&reqBody); err != nil {
 		c.JSON(httpErr.ErrorResponse(err))
@@ -110,12 +108,8 @@ func (r *categoryHandler) updateCategory(c *gin.Context) {
 		return
 	}
 
-	category = CategoryRequestToCategory(reqBody)
-	categoryID, err := uuid.Parse(c.Param("id"))
-	if err != nil {
-		c.JSON(httpErr.ErrorResponse(err))
-		return
-	}
+	category := CategoryRequestToCategory(reqBody)
+	fmt.Println(category)
 	category.ID = categoryID
 
 	if err := r.categoryService.UpdateCategory(category); err != nil {
@@ -152,19 +146,13 @@ func (r *categoryHandler) createBulkCategories(c *gin.Context) {
 
 // deleteCategory deletes a category
 func (r *categoryHandler) deleteCategory(c *gin.Context) {
-	category := &model.Category{}
-
-	if err := c.ShouldBindUri(category); err != nil {
-		c.JSON(httpErr.ErrorResponse(err))
-		return
-	}
 	categoryID, err := uuid.Parse(c.Param("id"))
 	if err != nil {
 		c.JSON(httpErr.ErrorResponse(err))
 		return
 	}
 
-	if err := r.categoryService.DeleteCategory(categoryID); err != nil {
+	if err := r.categoryService.DeleteCategoryService(categoryID); err != nil {
 		c.JSON(httpErr.ErrorResponse(err))
 		return
 	}

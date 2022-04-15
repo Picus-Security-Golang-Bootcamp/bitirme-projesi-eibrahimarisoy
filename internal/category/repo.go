@@ -18,7 +18,7 @@ type MockCategoryRepository interface {
 	GetCategoryByID(id uuid.UUID) (*model.Category, error)
 	UpdateCategory(category *model.Category) error
 	InsertBulkCategory(categories *[]model.Category) error
-	DeleteCategory(category *model.Category) error
+	Delete(category *model.Category) error
 }
 
 func (r *CategoryRepository) Migration() {
@@ -82,7 +82,7 @@ func (r *CategoryRepository) InsertBulkCategory(categories *[]model.Category) er
 }
 
 // DeleteCategory deletes a category by id
-func (r *CategoryRepository) DeleteCategory(category *model.Category) error {
+func (r *CategoryRepository) Delete(category *model.Category) error {
 	result := r.db.Select(clause.Associations).Delete(category)
 	if result.Error != nil {
 		return result.Error

@@ -30,7 +30,6 @@ func NewAuthHandler(r *gin.RouterGroup, cfg *config.Config, authService AuthServ
 // register is used to register a new user
 func (u *authHandler) register(c *gin.Context) {
 	var reqBody api.RegisterUser
-	fmt.Println("Register121212121121")
 
 	if err := c.ShouldBindJSON(&reqBody); err != nil {
 		c.JSON(httpErr.ErrorResponse(err))
@@ -98,7 +97,6 @@ func (u *authHandler) refreshToken(c *gin.Context) {
 		c.JSON(httpErr.ErrorResponse(err))
 		return
 	}
-	fmt.Println("dasdasdasodk446546465465465")
 
 	c.JSON(200, resp)
 }
