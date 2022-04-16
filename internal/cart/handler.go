@@ -14,11 +14,11 @@ import (
 )
 
 type cartHandler struct {
-	cartService *CartService
+	cartService MockCartService
 }
 
 // NewCartHandler creates a new cart handler
-func NewCartHandler(r *gin.RouterGroup, cfg *config.Config, cartService *CartService) {
+func NewCartHandler(r *gin.RouterGroup, cfg *config.Config, cartService MockCartService) {
 	handler := &cartHandler{cartService: cartService}
 
 	r.Use(mw.AuthenticationMiddleware(cfg.JWTConfig.SecretKey))
@@ -35,6 +35,7 @@ func (r *cartHandler) getOrCreateCart(c *gin.Context) {
 
 	cart, err := r.cartService.GetOrCreateCart(user)
 	if err != nil {
+
 		c.JSON(httpErr.ErrorResponse(err))
 		return
 	}

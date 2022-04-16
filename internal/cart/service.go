@@ -10,6 +10,13 @@ import (
 	"github.com/google/uuid"
 )
 
+type MockCartService interface {
+	GetOrCreateCart(user *model.User) (*model.Cart, error)
+	AddToCart(user *model.User, req *api.AddToCartRequest) (*model.Cart, error)
+	UpdateCartItem(user *model.User, id uuid.UUID, req *api.CartItemUpdateRequest) (*model.CartItem, error)
+	DeleteCartItem(user *model.User, id uuid.UUID) error
+}
+
 type CartService struct {
 	cartRepo     MockCartRepository
 	cartItemRepo MockCartItemRepository

@@ -54,6 +54,11 @@ func NewCartItemRepository(db *gorm.DB) *CartItemRepository {
 // GetOrCreateCart if cart is exists returns it otherwise create cart and return it
 func (r *CartRepository) GetOrCreateCart(user *model.User) (*model.Cart, error) {
 	cart := &model.Cart{}
+	result := r.db.Model(&user).Find(&user)
+	if result.Error != nil {
+		return nil, result.Error
+	}
+
 	if err := r.db.Preload("Items.Product").Where("user_id = ? AND status = ?", user.ID, model.CartStatusCreated).First(cart).Error; err != nil {
 		if err == gorm.ErrRecordNotFound {
 			cart.UserID = user.ID
