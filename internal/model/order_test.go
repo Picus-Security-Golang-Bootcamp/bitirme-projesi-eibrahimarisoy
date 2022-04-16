@@ -46,7 +46,8 @@ func TestOrder_IsCancelable(t *testing.T) {
 				},
 			},
 			want: true,
-		}, {
+		},
+		{
 			name: "IsCancelable_Failed_OrderStatusNotCompleted",
 			fields: fields{
 				Base: Base{
@@ -75,7 +76,7 @@ func TestOrder_IsCancelable(t *testing.T) {
 			fields: fields{
 				Base: Base{
 					ID:        uuid.New(),
-					CreatedAt: time.Now().AddDate(0, 0, 15),
+					CreatedAt: time.Now().AddDate(0, 0, -15),
 				},
 				UserID:     uuid.New(),
 				User:       User{Base: Base{ID: uuid.New()}},

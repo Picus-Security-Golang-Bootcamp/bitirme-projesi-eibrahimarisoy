@@ -41,9 +41,8 @@ type OrderItem struct {
 }
 
 func (o *Order) IsCancelable() bool {
-	today := time.Now()
-	lastDay := today.AddDate(0, 0, 14)
-	if o.CreatedAt.Before(lastDay) && o.Status == OrderStatusCompleted {
+	lastDay := o.CreatedAt.AddDate(0, 0, 14)
+	if time.Now().Before(lastDay) && o.Status == OrderStatusCompleted {
 		return true
 	}
 	return false

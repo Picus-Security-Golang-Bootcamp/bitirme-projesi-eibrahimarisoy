@@ -9,6 +9,7 @@ import (
 	"patika-ecommerce/internal/model"
 	paginationHelper "patika-ecommerce/pkg/pagination"
 	"testing"
+	"time"
 
 	"github.com/gin-gonic/gin"
 	"github.com/go-playground/assert/v2"
@@ -149,7 +150,10 @@ func Test_orderHandler_cancelOrder(t *testing.T) {
 	orderRepo := &mockOrderRepo{
 		orders: []model.Order{
 			{
-				Base:   model.Base{ID: orderId},
+				Base: model.Base{
+					ID:        orderId,
+					CreatedAt: time.Now(),
+				},
 				CartID: cartId,
 				Status: model.OrderStatusCompleted,
 				Items: []model.OrderItem{
@@ -237,7 +241,7 @@ func (r *mockOrderRepo) CompleteOrder(user *model.User, cartId uuid.UUID) (*mode
 		}
 	}
 
-	return nil, nil
+	return nil, fmt.Errorf("cart not found")
 }
 
 // GetOrdersByUser returns all orders of a user
