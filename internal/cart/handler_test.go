@@ -96,6 +96,60 @@ func Test_cartHandler_AddToCart(t *testing.T) {
 	fmt.Println(w.Body)
 }
 
+func Test_cartHandler_listCartItems(t *testing.T) {
+	// name, description := "test", "test"
+	cartId := uuid.New()
+	productId := uuid.New()
+	userId := uuid.New()
+
+	productName := "product name"
+	var productStock int64 = 10
+	gin.SetMode(gin.TestMode)
+
+	user := model.User{
+		Base: model.Base{ID: userId},
+	}
+
+	mockService := &mockCartService{
+		carts: []model.Cart{
+			{
+				Base:   model.Base{ID: cartId},
+				UserID: userId,
+				Status: model.CartStatusCreated,
+				Items: []model.CartItem{
+					{
+						ProductID: productId,
+						Quantity:  2,
+						Price:     100,
+						Product: model.Product{
+							Base:        model.Base{ID: productId},
+							Name:        &productName,
+							Description: "description",
+							Price:       100,
+							Stock:       &productStock,
+						},
+					},
+				},
+			},
+		},
+		users: []model.User{user},
+	}
+	w := httptest.NewRecorder()
+	cartHandler := &cartHandler{
+		cartService: mockService,
+	}
+	c, r := gin.CreateTestContext(w)
+
+	r.POST("/cart/items", cartHandler.listCartItems)
+	c.Request, _ = http.NewRequest("POST", "/cart/items", nil)
+	c.Request.Header.Set("Content-Type", "application/json")
+	c.Set("user", &user)
+	cartHandler.listCartItems(c)
+
+	assert.Equal(t, http.StatusOK, w.Code)
+	fmt.Println(w.Body)
+}
+
 var (
 	UserNotFoundError    = fmt.Errorf("user not found")
 	ProductNotFoundError = fmt.Errorf("product not found")
