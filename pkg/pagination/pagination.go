@@ -1,6 +1,7 @@
 package pagination
 
 import (
+	"fmt"
 	"math"
 
 	"gorm.io/gorm"
@@ -14,6 +15,10 @@ type Pagination struct {
 	TotalPages int         `json:"total_pages"`
 	Rows       interface{} `json:"rows"`
 	Q          string      `json:"q,omitempty;query:q"`
+}
+
+func (p *Pagination) ToString() string {
+	return fmt.Sprintf("limit: %d, page: %d, sort: %s", p.Limit, p.Page, p.Sort)
 }
 
 func (p *Pagination) GetOffset() int {

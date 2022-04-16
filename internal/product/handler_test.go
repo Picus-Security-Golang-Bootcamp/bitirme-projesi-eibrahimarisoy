@@ -16,6 +16,10 @@ import (
 	"github.com/google/uuid"
 )
 
+const (
+	categoryId = "85410bda-d3eb-475c-9d4b-f6d1ee9e4b7f"
+)
+
 func getProductPOSTPayload() []byte {
 	var jsonStr = []byte(
 		`{
@@ -24,7 +28,9 @@ func getProductPOSTPayload() []byte {
 			"price": 1450.444,
 			"sku": "PRODUCT-SKU",
 			"stock": 40,
-			"categories": []
+			"categories": [
+				{"id": "` + categoryId + `"}
+			]
 		}`)
 
 	return jsonStr
@@ -35,7 +41,7 @@ func getProductPUTPayload() []byte {
 		`{
 			"name": "product name update",
 			"description": "product description update",
-			"price": 1450.444,
+			"price": 1450.44,
 			"sku": "PRODUCT-SKU-UPDATE",
 			"stock": 40,
 			"categories": []
@@ -45,25 +51,33 @@ func getProductPUTPayload() []byte {
 }
 
 func Test_productHandler_createProduct(t *testing.T) {
-
-	name, description := "test", "test"
+	// name, description := "test", "test"
 	categoryName, categoryDescription := "test category", "test category description"
-
-	id := uuid.New()
-
+	// id := uuid.New()
 	gin.SetMode(gin.TestMode)
 
+	catId, _ := uuid.Parse(fmt.Sprintf("%s", categoryId))
 	mockProductRepo := &ProductMockRepository{
 		items: []model.Product{
-			{
-				Base:        model.Base{ID: id},
-				Name:        &name,
-				Description: description,
-			},
+			// {
+			// 	Base:        model.Base{ID: id},
+			// 	Name:        &name,
+			// 	Description: description,
+			// 	Price:       0,
+			// 	Stock:       new(int64),
+			// 	SKU:         new(string),
+			// 	Categories: []model.Category{
+			// 		{
+			// 			Base:        model.Base{ID: catId},
+			// 			Name:        &categoryName,
+			// 			Description: categoryDescription,
+			// 		},
+			// 	},
+			// },
 		},
 		categories: []model.Category{
 			{
-				Base:        model.Base{ID: uuid.New()},
+				Base:        model.Base{ID: catId},
 				Name:        &categoryName,
 				Description: categoryDescription,
 			},
@@ -80,11 +94,92 @@ func Test_productHandler_createProduct(t *testing.T) {
 	c.Request.Body = ioutil.NopCloser(bytes.NewBuffer(getProductPOSTPayload()))
 	c.Request.Header.Set("Content-Type", "application/json")
 	productHandler.createProduct(c)
-	fmt.Println(w.Body.String())
 	assert.Equal(t, http.StatusCreated, w.Code)
-
+	assert.Equal(t, 1, len(mockProductRepo.items))
 }
 
+func Test_productHandler_getProducts(t *testing.T) {
+	name, description := "test", "test"
+	categoryName, categoryDescription := "test category", "test category description"
+	pagination := paginationHelper.Pagination{
+		Limit: 2,
+		Page:  1,
+	}
+
+	id := uuid.New()
+	gin.SetMode(gin.TestMode)
+
+	catId, _ := uuid.Parse(fmt.Sprintf("%s", categoryId))
+	mockProductRepo := &ProductMockRepository{
+		items: []model.Product{
+			{
+				Base:        model.Base{ID: id},
+				Name:        &name,
+				Description: description,
+				Price:       0,
+				Stock:       new(int64),
+				SKU:         new(string),
+				Categories: []model.Category{
+					{
+						Base:        model.Base{ID: catId},
+						Name:        &categoryName,
+						Description: categoryDescription,
+					},
+				},
+			},
+		},
+		categories: []model.Category{},
+	}
+
+	w := httptest.NewRecorder()
+	productHandler := &productHandler{
+		productRepo: mockProductRepo,
+	}
+	c, r := gin.CreateTestContext(w)
+	c.Set("pagination", &pagination)
+	r.GET("/products", productHandler.getProducts)
+	c.Request, _ = http.NewRequest("GET", "/products", nil)
+	c.Request.Body = ioutil.NopCloser(bytes.NewBuffer(getProductPOSTPayload()))
+	c.Request.Header.Set("Content-Type", "application/json")
+	productHandler.getProducts(c)
+
+	assert.Equal(t, http.StatusOK, w.Code)
+	assert.Equal(t, 1, len(mockProductRepo.items))
+}
+
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
 type ProductMockRepository struct {
 	items      []model.Product
 	categories []model.Category
@@ -116,15 +211,11 @@ func (r *ProductMockRepository) Insert(product *model.Product) error {
 
 // GetProducts get all products
 func (r *ProductMockRepository) GetAll(pagination *paginationHelper.Pagination) (*paginationHelper.Pagination, error) {
-	// var products []model.Product
-	// var totalRows int64
+	var products []model.Product
+	pagination.TotalRows = int64(len(r.items))
+	pagination.Rows = ProductsToResponse(&products)
 
-	// query := r.db.Model(&model.Product{}).Scopes(Search(pagination.Q)).Count(&totalRows).Preload("Categories")
-	// query.Scopes(paginationHelper.Paginate(totalRows, pagination, r.db)).Find(&products)
-
-	// pagination.Rows = ProductsToResponse(&products)
-
-	return nil, nil
+	return pagination, nil
 }
 
 // GetProduct get a single product
