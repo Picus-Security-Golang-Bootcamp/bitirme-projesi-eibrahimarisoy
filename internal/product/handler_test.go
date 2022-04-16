@@ -144,49 +144,137 @@ func Test_productHandler_getProducts(t *testing.T) {
 	productHandler.getProducts(c)
 
 	assert.Equal(t, http.StatusOK, w.Code)
-	assert.Equal(t, 1, len(mockProductRepo.items))
 }
 
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
+func Test_productHandler_getProduct(t *testing.T) {
+	name, description := "test", "test"
+	categoryName, categoryDescription := "test category", "test category description"
+	id := uuid.New()
+	catId := uuid.New()
+	mockProductRepo := &ProductMockRepository{
+		items: []model.Product{
+			{
+				Base:        model.Base{ID: id},
+				Name:        &name,
+				Description: description,
+				Price:       0,
+				Stock:       new(int64),
+				SKU:         new(string),
+				Categories: []model.Category{
+					{
+						Base:        model.Base{ID: catId},
+						Name:        &categoryName,
+						Description: categoryDescription,
+					},
+				},
+			},
+		},
+		categories: []model.Category{},
+	}
+	gin.SetMode(gin.TestMode)
+	w := httptest.NewRecorder()
+	productHandler := &productHandler{
+		productRepo: mockProductRepo,
+	}
+	c, r := gin.CreateTestContext(w)
+	r.GET("/product/:id", productHandler.getProduct)
+	c.Params = []gin.Param{gin.Param{Key: "id", Value: id.String()}}
+	c.Request, _ = http.NewRequest("GET", "/product/:id", nil)
+	c.Request.Header.Set("Content-Type", "application/json")
+	productHandler.getProduct(c)
+
+	assert.Equal(t, http.StatusOK, w.Code)
+}
+
+func Test_productHandler_deleteProduct(t *testing.T) {
+	name, description := "test", "test"
+	categoryName, categoryDescription := "test category", "test category description"
+	id := uuid.New()
+	catId := uuid.New()
+	mockProductRepo := &ProductMockRepository{
+		items: []model.Product{
+			{
+				Base:        model.Base{ID: id},
+				Name:        &name,
+				Description: description,
+				Price:       0,
+				Stock:       new(int64),
+				SKU:         new(string),
+				Categories: []model.Category{
+					{
+						Base:        model.Base{ID: catId},
+						Name:        &categoryName,
+						Description: categoryDescription,
+					},
+				},
+			},
+		},
+		categories: []model.Category{},
+	}
+	gin.SetMode(gin.TestMode)
+	w := httptest.NewRecorder()
+	productHandler := &productHandler{
+		productRepo: mockProductRepo,
+	}
+	c, r := gin.CreateTestContext(w)
+	r.DELETE("/product/:id", productHandler.deleteProduct)
+	c.Params = []gin.Param{gin.Param{Key: "id", Value: id.String()}}
+	c.Request, _ = http.NewRequest("DELETE", "/product/:id", nil)
+	c.Request.Header.Set("Content-Type", "application/json")
+	productHandler.deleteProduct(c)
+
+	assert.Equal(t, http.StatusNoContent, w.Code)
+	assert.Equal(t, 0, len(mockProductRepo.items))
+}
+
+func Test_productHandler_updateProduct(t *testing.T) {
+	name, description := "test", "test"
+	categoryName, categoryDescription := "test category", "test category description"
+	id := uuid.New()
+	catId := uuid.New()
+	mockProductRepo := &ProductMockRepository{
+		items: []model.Product{
+			{
+				Base:        model.Base{ID: id},
+				Name:        &name,
+				Description: description,
+				Price:       0,
+				Stock:       new(int64),
+				SKU:         new(string),
+				Categories: []model.Category{
+					{
+						Base:        model.Base{ID: catId},
+						Name:        &categoryName,
+						Description: categoryDescription,
+					},
+				},
+			},
+		},
+		categories: []model.Category{},
+	}
+	gin.SetMode(gin.TestMode)
+	w := httptest.NewRecorder()
+	productHandler := &productHandler{
+		productRepo: mockProductRepo,
+	}
+	c, r := gin.CreateTestContext(w)
+	r.PUT("/product/:id", productHandler.updateProduct)
+	c.Request, _ = http.NewRequest("PUT", "/product/:id", nil)
+	c.Params = []gin.Param{gin.Param{Key: "id", Value: id.String()}}
+	c.Request.Body = ioutil.NopCloser(bytes.NewBuffer(getProductPUTPayload()))
+	c.Request.Header.Set("Content-Type", "application/json")
+	productHandler.updateProduct(c)
+
+	assert.Equal(t, http.StatusOK, w.Code)
+	assert.Equal(t, "product name update", mockProductRepo.items[0].Name)
+}
+
 type ProductMockRepository struct {
 	items      []model.Product
 	categories []model.Category
 }
 
 func (r *ProductMockRepository) Insert(product *model.Product) error {
-	fmt.Println("InsertProduct: ", product)
 
 	newCategories := []model.Category{}
 
@@ -220,12 +308,11 @@ func (r *ProductMockRepository) GetAll(pagination *paginationHelper.Pagination) 
 
 // GetProduct get a single product
 func (r *ProductMockRepository) Get(id uuid.UUID) (*model.Product, error) {
-	// product := new(model.Product)
-	// result := r.db.Preload("Categories").Where("id = ?", id).First(&product)
-	// if result.Error != nil {
-	// 	return nil, result.Error
-	// }
-
+	for _, item := range r.items {
+		if item.ID == id {
+			return &item, nil
+		}
+	}
 	return nil, nil
 }
 
@@ -242,21 +329,24 @@ func (r *ProductMockRepository) GetProductWithoutCategories(id uuid.UUID) (*mode
 
 // DeleteProduct delete a single product
 func (r *ProductMockRepository) Delete(product model.Product) error {
-	// r.db.Model(&product).Association("Categories").Delete(&product)
-	// r.db.Model(&product).Association("Categories").Delete(&product)
-
-	// result := r.db.Select(clause.Associations).Delete(&product)
-	// // result := r.db.Where(model.Product{}).Delete(&product)
-
-	// if result.Error != nil {
-	// 	return result.Error
-	// }
-	// fmt.Println("product: ", product)
-	return nil
+	for i, item := range r.items {
+		if item.ID == product.ID {
+			r.items = append(r.items[:i], r.items[i+1:]...)
+			return nil
+		}
+	}
+	return errors.New("product not found")
 }
 
 // UpdateProduct update a single product
 func (r *ProductMockRepository) Update(product *model.Product) error {
+	for i, item := range r.items {
+		if item.ID == product.ID {
+			r.items[i] = *product
+			return nil
+		}
+	}
+	return errors.New("product not found")
 	// tx := r.db.Begin()
 	// exProduct := new(model.Product)
 
