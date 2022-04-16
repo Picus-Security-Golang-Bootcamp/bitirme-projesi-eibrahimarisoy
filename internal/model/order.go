@@ -1,11 +1,9 @@
 package model
 
 import (
-	"fmt"
 	"time"
 
 	"github.com/google/uuid"
-	"gorm.io/gorm"
 )
 
 type OrderStatus string
@@ -42,12 +40,6 @@ type OrderItem struct {
 	Price float64 `json:"price" gorm:"type:numeric(10,2)"`
 }
 
-func (i *OrderItem) BeforeCreate(tx *gorm.DB) error {
-	fmt.Println(i.Price)
-	fmt.Printf("%T\n", i.Price)
-	return nil
-}
-
 func (o *Order) IsCancelable() bool {
 	today := time.Now()
 	lastDay := today.AddDate(0, 0, 14)
@@ -55,5 +47,4 @@ func (o *Order) IsCancelable() bool {
 		return true
 	}
 	return false
-
 }
