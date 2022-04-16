@@ -21,6 +21,7 @@ var (
 	UniqueError           = errors.New("Item should be unique on database")
 	Unauthorized          = errors.New("Unauthorized")
 	MediaTypeNotSupported = errors.New("Media type not supported")
+	UnauthorizedError     = errors.New("Unauthorized")
 )
 
 type RestError api.APIErrorResponse
@@ -90,7 +91,10 @@ func ParseErrors(err error) RestErr {
 		return NewRestError(http.StatusBadRequest, err.Error(), err)
 	case strings.Contains(err.Error(), "not found"):
 		return NewRestError(http.StatusNotFound, NotFound.Error(), err)
-
+	case strings.Contains(err.Error(), "password"):
+		return NewRestError(http.StatusBadRequest, UnauthorizedError.Error(), err)
+	case strings.Contains(err.Error(), "token contains an invalid number"):
+		return NewRestError(http.StatusBadRequest, ValidationError.Error(), err)
 	default:
 		if restErr, ok := err.(RestErr); ok {
 			return restErr

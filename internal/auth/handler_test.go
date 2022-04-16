@@ -19,116 +19,309 @@ import (
 	"github.com/google/uuid"
 )
 
-func getRegisterPOSTPayload() []byte {
+var (
+	firstname = "firstname"
+	lastname  = "lastname"
+	email     = "email@test.com"
+	username  = "username"
+	password  = "123456Aa"
+)
+
+func getRegisterPOSTPayloadSuccess() []byte {
 	var jsonStr = []byte(
-		`{"firstName":"emre","lastName":"yilmaz","email":"e@emre.com", "password":"123456", "username":"emre1", "isAdmin":"false"}`)
+		`{"firstName":"test","lastName":"test","email":"test@test.com", "password":"123456", "username":"username", "isAdmin":"false"}`)
+
+	return jsonStr
+}
+
+func getRegisterPOSTPayloadFault() []byte {
+	var jsonStr = []byte(
+		`{"first_Name":"test","last_Name":"test","email":"test@test.com", "password":"123456", "Username":"test_test", "isAdmin":"false"}`)
 
 	return jsonStr
 }
 
 func Test_authHandler_register(t *testing.T) {
-	firstname, lastname, email, username, password := "test", "test", "emre@arisoy.com", "emre", "123456Aa"
-
-	gin.SetMode(gin.TestMode)
 	cfg := &config.Config{
 		JWTConfig: config.JWTConfig{SecretKey: "secret", AccessTokenLifeTime: 30},
 	}
-	mockAuthService := &mockAuthService{
-		items: []model.User{
-			{
-				Base:      model.Base{ID: uuid.New()},
-				FirstName: &firstname,
-				LastName:  &lastname,
-				Username:  &username,
-				Email:     &email,
-				Password:  password,
+
+	t.Run("userRegister_Successfully", func(t *testing.T) {
+
+		mockAuthService := &mockAuthService{
+			items: []model.User{},
+			cfg:   cfg,
+		}
+		authHandler := &authHandler{authService: mockAuthService, cfg: cfg}
+
+		gin.SetMode(gin.TestMode)
+		w := httptest.NewRecorder()
+		c, _ := gin.CreateTestContext(w)
+		c.Request, _ = http.NewRequest("POST", "/register", nil)
+		c.Request.Header.Set("Content-Type", "application/json")
+		c.Request.Body = ioutil.NopCloser(bytes.NewBuffer(getRegisterPOSTPayloadSuccess()))
+		authHandler.register(c)
+
+		assert.Equal(t, http.StatusCreated, w.Code)
+	})
+
+	t.Run("userRegister_Failed_requestBody", func(t *testing.T) {
+
+		mockAuthService := &mockAuthService{
+			items: []model.User{},
+			cfg:   cfg,
+		}
+		authHandler := &authHandler{authService: mockAuthService, cfg: cfg}
+
+		gin.SetMode(gin.TestMode)
+		w := httptest.NewRecorder()
+		c, _ := gin.CreateTestContext(w)
+		c.Request, _ = http.NewRequest("POST", "/register", nil)
+		c.Request.Header.Set("Content-Type", "application/json")
+		c.Request.Body = ioutil.NopCloser(bytes.NewBuffer(getRegisterPOSTPayloadFault()))
+		authHandler.register(c)
+
+		assert.Equal(t, http.StatusBadRequest, w.Code)
+	})
+
+	t.Run("userRegister_Failed_duplicateUsername", func(t *testing.T) {
+
+		mockAuthService := &mockAuthService{
+			items: []model.User{
+				{
+					Base:      model.Base{ID: uuid.New()},
+					FirstName: &firstname,
+					LastName:  &lastname,
+					Username:  &username,
+					Email:     &email,
+					Password:  password,
+				},
 			},
-		},
-		cfg: cfg,
-	}
-	w := httptest.NewRecorder()
-	authHandler := &authHandler{authService: mockAuthService, cfg: cfg}
-	c, r := gin.CreateTestContext(w)
+			cfg: cfg,
+		}
+		authHandler := &authHandler{authService: mockAuthService, cfg: cfg}
 
-	r.POST("/register", authHandler.register)
-	c.Request, _ = http.NewRequest("POST", "/register", nil)
-	c.Request.Header.Set("Content-Type", "application/json")
-	c.Request.Body = ioutil.NopCloser(bytes.NewBuffer(getRegisterPOSTPayload()))
-	authHandler.register(c)
+		gin.SetMode(gin.TestMode)
+		w := httptest.NewRecorder()
+		c, _ := gin.CreateTestContext(w)
+		c.Request, _ = http.NewRequest("POST", "/register", nil)
+		c.Request.Header.Set("Content-Type", "application/json")
+		c.Request.Body = ioutil.NopCloser(bytes.NewBuffer(getRegisterPOSTPayloadSuccess()))
+		authHandler.register(c)
 
-	assert.Equal(t, http.StatusCreated, w.Code)
+		assert.Equal(t, http.StatusBadRequest, w.Code)
+	})
 
 }
 
 func Test_authHandler_login(t *testing.T) {
-	firstname, lastname, email, username, password := "test", "test", "emre@arisoy.com", "emre", "123456Aa"
-	loginPayload := []byte(`{"email":"emre@arisoy.com","password": "123456Aa"}`)
+	loginPayloadSuccess := []byte(`{"email":"email@test.com","password": "123456Aa"}`)
+	loginPayloadFaultRequestBody := []byte(`{"email":"test@test.com","password_test": "123456Aa"}`)
+	loginPayloadFaultUserNotFound := []byte(`{"email":"email_fault@test.com","password": "123456Aa"}`)
 
-	gin.SetMode(gin.TestMode)
 	cfg := &config.Config{
 		JWTConfig: config.JWTConfig{SecretKey: "secret", AccessTokenLifeTime: 30},
 	}
-	mockAuthService := &mockAuthService{
-		items: []model.User{
-			{
-				Base:      model.Base{ID: uuid.New()},
-				FirstName: &firstname,
-				LastName:  &lastname,
-				Username:  &username,
-				Email:     &email,
-				Password:  password,
+	t.Run("userLogin_Successful", func(t *testing.T) {
+		mockAuthService := &mockAuthService{
+			items: []model.User{
+				{
+					Base:      model.Base{ID: uuid.New()},
+					FirstName: &firstname,
+					LastName:  &lastname,
+					Username:  &username,
+					Email:     &email,
+					Password:  password,
+				},
 			},
-		},
-		cfg: cfg,
-	}
-	w := httptest.NewRecorder()
-	authHandler := &authHandler{authService: mockAuthService, cfg: cfg}
-	c, r := gin.CreateTestContext(w)
+			cfg: cfg,
+		}
+		gin.SetMode(gin.TestMode)
+		w := httptest.NewRecorder()
+		authHandler := &authHandler{authService: mockAuthService, cfg: cfg}
+		c, _ := gin.CreateTestContext(w)
+		c.Request, _ = http.NewRequest("POST", "/login", nil)
+		c.Request.Header.Set("Content-Type", "application/json")
+		c.Request.Body = ioutil.NopCloser(bytes.NewBuffer(loginPayloadSuccess))
+		authHandler.login(c)
 
-	r.POST("/login", authHandler.login)
-	c.Request, _ = http.NewRequest("POST", "/login", nil)
-	c.Request.Header.Set("Content-Type", "application/json")
-	c.Request.Body = ioutil.NopCloser(bytes.NewBuffer(loginPayload))
-	authHandler.login(c)
+		assert.Equal(t, http.StatusOK, w.Code)
 
-	assert.Equal(t, http.StatusOK, w.Code)
+	})
+
+	t.Run("userLogin_Failed_requestBody", func(t *testing.T) {
+		mockAuthService := &mockAuthService{
+			items: []model.User{
+				{
+					Base:      model.Base{ID: uuid.New()},
+					FirstName: &firstname,
+					LastName:  &lastname,
+					Username:  &username,
+					Email:     &email,
+					Password:  password,
+				},
+			},
+			cfg: cfg,
+		}
+		gin.SetMode(gin.TestMode)
+		w := httptest.NewRecorder()
+		authHandler := &authHandler{authService: mockAuthService, cfg: cfg}
+		c, _ := gin.CreateTestContext(w)
+		c.Request, _ = http.NewRequest("POST", "/login", nil)
+		c.Request.Header.Set("Content-Type", "application/json")
+		c.Request.Body = ioutil.NopCloser(bytes.NewBuffer(loginPayloadFaultRequestBody))
+		authHandler.login(c)
+
+		assert.Equal(t, http.StatusBadRequest, w.Code)
+
+	})
+
+	t.Run("userLogin_Failed_userNotFound", func(t *testing.T) {
+		mockAuthService := &mockAuthService{
+			items: []model.User{
+				{
+					Base:      model.Base{ID: uuid.New()},
+					FirstName: &firstname,
+					LastName:  &lastname,
+					Username:  &username,
+					Email:     &email,
+					Password:  password,
+				},
+			},
+			cfg: cfg,
+		}
+		gin.SetMode(gin.TestMode)
+		w := httptest.NewRecorder()
+		authHandler := &authHandler{authService: mockAuthService, cfg: cfg}
+		c, _ := gin.CreateTestContext(w)
+		c.Request, _ = http.NewRequest("POST", "/login", nil)
+		c.Request.Header.Set("Content-Type", "application/json")
+		c.Request.Body = ioutil.NopCloser(bytes.NewBuffer(loginPayloadFaultUserNotFound))
+		authHandler.login(c)
+
+		assert.Equal(t, http.StatusBadRequest, w.Code)
+
+	})
 
 }
 
 func Test_authHandler_refreshToken(t *testing.T) {
 	firstname, lastname, email, username, password := "test", "test", "emre@arisoy.com", "emre", "123456Aa"
-
-	gin.SetMode(gin.TestMode)
 	cfg := &config.Config{
 		JWTConfig: config.JWTConfig{SecretKey: "secret", AccessTokenLifeTime: 30, RefreshTokenLifeTime: 30},
 	}
-	mockAuthService := &mockAuthService{
-		items: []model.User{
-			{
-				Base:      model.Base{ID: uuid.New()},
-				FirstName: &firstname,
-				LastName:  &lastname,
-				Username:  &username,
-				Email:     &email,
-				Password:  password,
+
+	t.Run("refreshToken_Success", func(t *testing.T) {
+		mockAuthService := &mockAuthService{
+			items: []model.User{
+				{
+					Base:      model.Base{ID: uuid.New()},
+					FirstName: &firstname,
+					LastName:  &lastname,
+					Username:  &username,
+					Email:     &email,
+					Password:  password,
+				},
 			},
-		},
-		cfg: cfg,
-	}
-	token := jwtHelper.GetAuthToken(&mockAuthService.items[0], cfg).RefreshToken
-	refreshTokenPayload := []byte(`{"refreshToken":"` + token + `"}`)
+			cfg: cfg,
+		}
+		token := jwtHelper.GetAuthToken(&mockAuthService.items[0], cfg).RefreshToken
+		refreshTokenPayload := []byte(`{"refreshToken":"` + token + `"}`)
 
-	w := httptest.NewRecorder()
-	authHandler := &authHandler{authService: mockAuthService, cfg: cfg}
-	c, r := gin.CreateTestContext(w)
+		gin.SetMode(gin.TestMode)
+		w := httptest.NewRecorder()
+		authHandler := &authHandler{authService: mockAuthService, cfg: cfg}
+		c, _ := gin.CreateTestContext(w)
+		c.Request, _ = http.NewRequest("POST", "/refresh", nil)
+		c.Request.Header.Set("Content-Type", "application/json")
+		c.Request.Body = ioutil.NopCloser(bytes.NewBuffer(refreshTokenPayload))
+		authHandler.refreshToken(c)
+		assert.Equal(t, http.StatusOK, w.Code)
+	})
 
-	r.POST("/refresh", authHandler.refreshToken)
-	c.Request, _ = http.NewRequest("POST", "/refresh", nil)
-	c.Request.Header.Set("Content-Type", "application/json")
-	c.Request.Body = ioutil.NopCloser(bytes.NewBuffer(refreshTokenPayload))
-	authHandler.refreshToken(c)
-	fmt.Println(w.Body.String())
-	assert.Equal(t, http.StatusOK, w.Code)
+	t.Run("refreshToken_Failed_json", func(t *testing.T) {
+		mockAuthService := &mockAuthService{
+			items: []model.User{
+				{
+					Base:      model.Base{ID: uuid.New()},
+					FirstName: &firstname,
+					LastName:  &lastname,
+					Username:  &username,
+					Email:     &email,
+					Password:  password,
+				},
+			},
+			cfg: cfg,
+		}
+		token := jwtHelper.GetAuthToken(&mockAuthService.items[0], cfg).RefreshToken
+		refreshTokenPayload := []byte(`"refreshToken":"` + token + `"`)
+
+		gin.SetMode(gin.TestMode)
+		w := httptest.NewRecorder()
+		authHandler := &authHandler{authService: mockAuthService, cfg: cfg}
+		c, _ := gin.CreateTestContext(w)
+		c.Request, _ = http.NewRequest("POST", "/refresh", nil)
+		c.Request.Header.Set("Content-Type", "application/json")
+		c.Request.Body = ioutil.NopCloser(bytes.NewBuffer(refreshTokenPayload))
+		authHandler.refreshToken(c)
+		assert.Equal(t, http.StatusBadRequest, w.Code)
+	})
+
+	t.Run("refreshToken_Failed_reqBodyFormat", func(t *testing.T) {
+		mockAuthService := &mockAuthService{
+			items: []model.User{
+				{
+					Base:      model.Base{ID: uuid.New()},
+					FirstName: &firstname,
+					LastName:  &lastname,
+					Username:  &username,
+					Email:     &email,
+					Password:  password,
+				},
+			},
+			cfg: cfg,
+		}
+		token := jwtHelper.GetAuthToken(&mockAuthService.items[0], cfg).RefreshToken
+		refreshTokenPayload := []byte(`{"refresh__Token":"` + token + `"}`)
+
+		gin.SetMode(gin.TestMode)
+		w := httptest.NewRecorder()
+		authHandler := &authHandler{authService: mockAuthService, cfg: cfg}
+		c, _ := gin.CreateTestContext(w)
+		c.Request, _ = http.NewRequest("POST", "/refresh", nil)
+		c.Request.Header.Set("Content-Type", "application/json")
+		c.Request.Body = ioutil.NopCloser(bytes.NewBuffer(refreshTokenPayload))
+		authHandler.refreshToken(c)
+		assert.Equal(t, http.StatusBadRequest, w.Code)
+	})
+
+	t.Run("refreshToken_Failed_userNotFound", func(t *testing.T) {
+		mockAuthService := &mockAuthService{
+			items: []model.User{
+				{
+					Base:      model.Base{ID: uuid.New()},
+					FirstName: &firstname,
+					LastName:  &lastname,
+					Username:  &username,
+					Email:     &email,
+					Password:  password,
+				},
+			},
+			cfg: cfg,
+		}
+		// token := jwtHelper.GetAuthToken(&mockAuthService.items[0], cfg).RefreshToken
+		refreshTokenPayload := []byte(`{"refreshToken":"` + "token" + `"}`)
+
+		gin.SetMode(gin.TestMode)
+		w := httptest.NewRecorder()
+		authHandler := &authHandler{authService: mockAuthService, cfg: cfg}
+		c, _ := gin.CreateTestContext(w)
+		c.Request, _ = http.NewRequest("POST", "/refresh", nil)
+		c.Request.Header.Set("Content-Type", "application/json")
+		c.Request.Body = ioutil.NopCloser(bytes.NewBuffer(refreshTokenPayload))
+		authHandler.refreshToken(c)
+		assert.Equal(t, http.StatusBadRequest, w.Code)
+	})
 
 }
 
@@ -166,13 +359,9 @@ func (a *mockAuthService) Login(u *model.User) (api.TokenResponse, error) {
 
 // RefreshToken is a service that checks if the refresh token is valid and returns a new JWT token
 func (a *mockAuthService) RefreshToken(refreshToken string) (api.TokenResponse, error) {
-	fmt.Println("rewrewrwerwe")
-
 	token, err := jwtHelper.ParseToken(refreshToken, a.cfg.JWTConfig.SecretKey)
 
 	if err != nil {
-		fmt.Println("rewrewrwerwe")
-
 		return api.TokenResponse{}, err
 	}
 
@@ -194,14 +383,11 @@ func (a *mockAuthService) RefreshToken(refreshToken string) (api.TokenResponse, 
 	}
 
 	if user == nil {
-		fmt.Println("dddddddddddddd")
 		return api.TokenResponse{}, err
 	}
 
 	jwtClaimsForAccessToken := jwtHelper.NewJwtClaimsForAccessToken(user, a.cfg.JWTConfig.AccessTokenLifeTime)
-
 	accesToken := jwtHelper.GenerateToken(jwtClaimsForAccessToken, a.cfg.JWTConfig.SecretKey)
-	fmt.Println("fsdfsdfssssseddddddddddddddddddddddd")
 
 	return api.TokenResponse{
 		AccessToken: accesToken,
