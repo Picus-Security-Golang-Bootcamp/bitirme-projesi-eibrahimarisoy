@@ -215,6 +215,57 @@ func Test_cartHandler_updateCartItem(t *testing.T) {
 	fmt.Println(w.Body)
 }
 
+func Test_cartHandler_deleteCartItem(t *testing.T) {
+	cartId := uuid.New()
+	productId := uuid.New()
+	userId := uuid.New()
+	cartItemId := uuid.New()
+	productName := "product name"
+	var productStock int64 = 10
+
+	gin.SetMode(gin.TestMode)
+
+	user := model.User{
+		Base: model.Base{ID: userId},
+	}
+
+	mockService := &mockCartService{
+		carts: []model.Cart{
+			{
+				Base:   model.Base{ID: cartId},
+				UserID: userId,
+				Status: model.CartStatusCreated,
+				Items: []model.CartItem{
+					{
+						Base:      model.Base{ID: cartItemId},
+						ProductID: productId,
+						Quantity:  2,
+						Price:     100,
+						Product: model.Product{
+							Base:        model.Base{ID: productId},
+							Name:        &productName,
+							Description: "description",
+							Price:       100,
+							Stock:       &productStock,
+						},
+					},
+				},
+			},
+		},
+		users: []model.User{user},
+	}
+	w := httptest.NewRecorder()
+	cartHandler := &cartHandler{
+		cartService: mockService,
+	}
+	c, _ := gin.CreateTestContext(w)
+	c.Set("user", &user)
+	c.Params = []gin.Param{{Key: "id", Value: cartItemId.String()}}
+	cartHandler.deleteCartItem(c)
+
+	assert.Equal(t, http.StatusNoContent, w.Code)
+}
+
 var (
 	UserNotFoundError    = fmt.Errorf("user not found")
 	ProductNotFoundError = fmt.Errorf("product not found")
@@ -327,19 +378,18 @@ func (r *mockCartService) UpdateCartItem(user *model.User, id uuid.UUID, req *ap
 
 // DeleteCartItem deletes a cart item
 func (r *mockCartService) DeleteCartItem(user *model.User, id uuid.UUID) error {
-	// cart, err := r.cartRepo.GetCreatedCartWithItems(user)
-	// if err != nil {
-	// 	return err
-	// }
 
-	// cartItem, err := cart.GetCartItemByID(id)
-	// if err != nil {
-	// 	return err
-	// }
+	for _, item := range r.carts {
+		if item.UserID == user.ID && item.Status == model.CartStatusCreated {
+			for index, cartItem := range item.Items {
+				if cartItem.ID == id {
+					item.Items = append(item.Items[:index], item.Items[index+1:]...)
+					fmt.Println(item.Items)
+					return nil
+				}
+			}
+		}
+	}
+	return CartItemNotFoundError
 
-	// if err := r.cartItemRepo.DeleteCartItem(cartItem); err != nil {
-	// 	return err
-	// }
-
-	return nil
 }
