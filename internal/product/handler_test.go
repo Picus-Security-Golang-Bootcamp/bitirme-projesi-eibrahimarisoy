@@ -1,8 +1,10 @@
 package product
 
 import (
+	"bytes"
 	"errors"
 	"fmt"
+	"io/ioutil"
 	"net/http"
 	"net/http/httptest"
 	"patika-ecommerce/internal/model"
@@ -12,7 +14,6 @@ import (
 	"github.com/gin-gonic/gin"
 	"github.com/go-playground/assert/v2"
 	"github.com/google/uuid"
-	"gorm.io/gorm/clause"
 )
 
 func getProductPOSTPayload() []byte {
@@ -52,16 +53,6 @@ func Test_productHandler_createProduct(t *testing.T) {
 
 	gin.SetMode(gin.TestMode)
 
-	categoryRepo := &CategoryMockRepository{
-		Items: []model.Category{
-			{
-				Base:        model.Base{ID: id},
-				Name:        &categoryName,
-				Description: categoryDescription,
-			},
-		},
-	}
-
 	mockProductRepo := &ProductMockRepository{
 		items: []model.Product{
 			{
@@ -70,19 +61,26 @@ func Test_productHandler_createProduct(t *testing.T) {
 				Description: description,
 			},
 		},
+		categories: []model.Category{
+			{
+				Base:        model.Base{ID: uuid.New()},
+				Name:        &categoryName,
+				Description: categoryDescription,
+			},
+		},
 	}
 
 	w := httptest.NewRecorder()
 	productHandler := &productHandler{
-		productRepo:  mockProductRepo,
-		categoryRepo: categoryRepo,
+		productRepo: mockProductRepo,
 	}
 	c, r := gin.CreateTestContext(w)
 	r.POST("/products", productHandler.createProduct)
 	c.Request, _ = http.NewRequest("GET", "/products", nil)
+	c.Request.Body = ioutil.NopCloser(bytes.NewBuffer(getProductPOSTPayload()))
 	c.Request.Header.Set("Content-Type", "application/json")
 	productHandler.createProduct(c)
-
+	fmt.Println(w.Body.String())
 	assert.Equal(t, http.StatusCreated, w.Code)
 
 }
@@ -95,65 +93,60 @@ type ProductMockRepository struct {
 func (r *ProductMockRepository) Insert(product *model.Product) error {
 	fmt.Println("InsertProduct: ", product)
 
+	newCategories := []model.Category{}
+
 	for _, item := range product.Categories {
-		for _, category = range r.category.Items {
+		for _, category := range r.categories {
 			if item.ID == category.ID {
-				return errors.New("category already exists")
+				newCategories = append(newCategories, category)
 			}
 		}
-
 	}
 
-	result := tx.Omit("Categories").Create(product)
-	if err := result.Error; err != nil {
-		tx.Rollback()
-		return err
-	}
-	// insert categories
-	for _, category := range product.Categories {
-		if err := tx.Model(&category).Association("Products").Append(product); err != nil {
-			tx.Rollback()
-			return err
-		}
+	if len(newCategories) != len(product.Categories) {
+		return errors.New("category not found")
 	}
 
-	tx.Commit()
+	product.Categories = newCategories
+
+	r.items = append(r.items, *product)
+
 	return nil
 }
 
 // GetProducts get all products
 func (r *ProductMockRepository) GetAll(pagination *paginationHelper.Pagination) (*paginationHelper.Pagination, error) {
-	var products []model.Product
-	var totalRows int64
+	// var products []model.Product
+	// var totalRows int64
 
-	query := r.db.Model(&model.Product{}).Scopes(Search(pagination.Q)).Count(&totalRows).Preload("Categories")
-	query.Scopes(paginationHelper.Paginate(totalRows, pagination, r.db)).Find(&products)
+	// query := r.db.Model(&model.Product{}).Scopes(Search(pagination.Q)).Count(&totalRows).Preload("Categories")
+	// query.Scopes(paginationHelper.Paginate(totalRows, pagination, r.db)).Find(&products)
 
-	pagination.Rows = ProductsToResponse(&products)
+	// pagination.Rows = ProductsToResponse(&products)
 
-	return pagination, nil
+	return nil, nil
 }
 
 // GetProduct get a single product
 func (r *ProductMockRepository) Get(id uuid.UUID) (*model.Product, error) {
-	product := new(model.Product)
-	result := r.db.Preload("Categories").Where("id = ?", id).First(&product)
-	if result.Error != nil {
-		return nil, result.Error
-	}
+	// product := new(model.Product)
+	// result := r.db.Preload("Categories").Where("id = ?", id).First(&product)
+	// if result.Error != nil {
+	// 	return nil, result.Error
+	// }
 
-	return product, nil
+	return nil, nil
 }
 
 // GetProductWithoutCategories get a single product
 func (r *ProductMockRepository) GetProductWithoutCategories(id uuid.UUID) (*model.Product, error) {
-	product := new(model.Product)
-	result := r.db.Where("id = ?", id).First(&product)
-	if result.Error != nil {
-		return nil, result.Error
-	}
+	// product := new(model.Product)
+	// result := r.db.Where("id = ?", id).First(&product)
+	// if result.Error != nil {
+	// 	return nil, result.Error
+	// }
 
-	return product, nil
+	return nil, nil
 }
 
 // DeleteProduct delete a single product
@@ -161,41 +154,41 @@ func (r *ProductMockRepository) Delete(product model.Product) error {
 	// r.db.Model(&product).Association("Categories").Delete(&product)
 	// r.db.Model(&product).Association("Categories").Delete(&product)
 
-	result := r.db.Select(clause.Associations).Delete(&product)
-	// result := r.db.Where(model.Product{}).Delete(&product)
+	// result := r.db.Select(clause.Associations).Delete(&product)
+	// // result := r.db.Where(model.Product{}).Delete(&product)
 
-	if result.Error != nil {
-		return result.Error
-	}
-	fmt.Println("product: ", product)
+	// if result.Error != nil {
+	// 	return result.Error
+	// }
+	// fmt.Println("product: ", product)
 	return nil
 }
 
 // UpdateProduct update a single product
 func (r *ProductMockRepository) Update(product *model.Product) error {
-	tx := r.db.Begin()
-	exProduct := new(model.Product)
+	// tx := r.db.Begin()
+	// exProduct := new(model.Product)
 
-	// get product
-	err := tx.Where("id = ?", product.ID).Preload("Categories").First(&exProduct)
+	// // get product
+	// err := tx.Where("id = ?", product.ID).Preload("Categories").First(&exProduct)
 
-	if err.Error != nil {
-		return err.Error
-	}
+	// if err.Error != nil {
+	// 	return err.Error
+	// }
 
-	// delete all associated categories
-	if err := tx.Model(&exProduct).Association("Categories").Delete(&exProduct.Categories); err != nil {
-		return err
-	}
+	// // delete all associated categories
+	// if err := tx.Model(&exProduct).Association("Categories").Delete(&exProduct.Categories); err != nil {
+	// 	return err
+	// }
 
-	result := tx.Model(&product).Updates(&product)
+	// result := tx.Model(&product).Updates(&product)
 
-	if result.Error != nil {
-		tx.Rollback()
-		return result.Error
-	}
+	// if result.Error != nil {
+	// 	tx.Rollback()
+	// 	return result.Error
+	// }
 
-	tx.Commit()
+	// tx.Commit()
 	return nil
 }
 
