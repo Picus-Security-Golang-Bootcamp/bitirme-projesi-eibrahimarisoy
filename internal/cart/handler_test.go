@@ -24,6 +24,13 @@ func getAddToCartPayload(productID string, quantity int) []byte {
 	return jsonStr
 }
 
+func getUpdateCartItemPayload(quantity int) []byte {
+	q := strconv.Itoa(quantity)
+	var jsonStr = []byte(`{"quantity":` + q + `}`)
+
+	return jsonStr
+}
+
 func Test_cartHandler_getOrCreateCart(t *testing.T) {
 	// name, description := "test", "test"
 	id := uuid.New()
@@ -57,7 +64,7 @@ func Test_cartHandler_getOrCreateCart(t *testing.T) {
 	assert.Equal(t, http.StatusOK, w.Code)
 }
 
-func Test_cartHandler_AddToCart(t *testing.T) {
+func Test_cartHandler_addToCart(t *testing.T) {
 	// name, description := "test", "test"
 	cartId := uuid.New()
 	productId := uuid.New()
@@ -150,9 +157,68 @@ func Test_cartHandler_listCartItems(t *testing.T) {
 	fmt.Println(w.Body)
 }
 
+func Test_cartHandler_updateCartItem(t *testing.T) {
+	// name, description := "test", "test"
+	cartId := uuid.New()
+	productId := uuid.New()
+	userId := uuid.New()
+	cartItemId := uuid.New()
+	productName := "product name"
+	var productStock int64 = 10
+
+	gin.SetMode(gin.TestMode)
+
+	user := model.User{
+		Base: model.Base{ID: userId},
+	}
+
+	mockService := &mockCartService{
+		carts: []model.Cart{
+			{
+				Base:   model.Base{ID: cartId},
+				UserID: userId,
+				Status: model.CartStatusCreated,
+				Items: []model.CartItem{
+					{
+						Base:      model.Base{ID: cartItemId},
+						ProductID: productId,
+						Quantity:  2,
+						Price:     100,
+						Product: model.Product{
+							Base:        model.Base{ID: productId},
+							Name:        &productName,
+							Description: "description",
+							Price:       100,
+							Stock:       &productStock,
+						},
+					},
+				},
+			},
+		},
+		users: []model.User{user},
+	}
+	w := httptest.NewRecorder()
+	cartHandler := &cartHandler{
+		cartService: mockService,
+	}
+	c, r := gin.CreateTestContext(w)
+
+	r.POST("/cart/items/:id", cartHandler.updateCartItem)
+	c.Request, _ = http.NewRequest("POST", "/cart/items/:id", nil)
+	c.Request.Header.Set("Content-Type", "application/json")
+	c.Set("user", &user)
+	c.Params = []gin.Param{{Key: "id", Value: cartItemId.String()}}
+	c.Request.Body = ioutil.NopCloser(bytes.NewBuffer(getUpdateCartItemPayload(1)))
+	cartHandler.updateCartItem(c)
+
+	assert.Equal(t, http.StatusOK, w.Code)
+	fmt.Println(w.Body)
+}
+
 var (
 	UserNotFoundError    = fmt.Errorf("user not found")
 	ProductNotFoundError = fmt.Errorf("product not found")
+	NotEnoughStockError  = fmt.Errorf("not enough stock")
 )
 
 type mockCartService struct {
@@ -233,32 +299,30 @@ func (r *mockCartService) AddToCart(user *model.User, req *api.AddToCartRequest)
 
 // UpdateCartItem updates a cart item
 func (r *mockCartService) UpdateCartItem(user *model.User, id uuid.UUID, req *api.CartItemUpdateRequest) (*model.CartItem, error) {
-	// cart, err := r.cartRepo.GetCreatedCartWithItemsAndProducts(user)
-	// if err != nil {
-	// 	return nil, err
-	// }
 
-	// cartItem, err := cart.GetCartItemByID(id)
-	// if err != nil {
-	// 	return nil, err
-	// }
+	for _, item := range r.carts {
+		if item.UserID == user.ID && item.Status == model.CartStatusCreated {
+			fmt.Println(item.UserID)
+			fmt.Println(user.ID)
+			for index, cartItem := range item.Items {
+				fmt.Println(cartItem.ID)
+				fmt.Println(id)
+				if cartItem.ID == id {
+					if req.Quantity > *cartItem.Product.Stock {
+						return nil, NotEnoughStockError
+					}
+					if req.Quantity == 0 {
+						item.Items = append(item.Items[:index], item.Items[index+1:]...)
+						return &cartItem, nil
+					}
+					cartItem.Quantity = req.Quantity
+					return &cartItem, nil
+				}
+			}
+		}
 
-	// if req.Quantity == 0 {
-	// 	r.cartItemRepo.DeleteCartItem(cartItem)
-	// 	cartItem.Quantity = 0
-	// 	return cartItem, nil
-	// }
-
-	// if req.Quantity > *cartItem.Product.Stock {
-	// 	return nil, fmt.Errorf("product stock is not enough")
-	// }
-
-	// cartItem.Quantity = req.Quantity
-	// if err := r.cartItemRepo.UpdateCartItem(cartItem); err != nil {
-	// 	return nil, err
-	// }
-
-	return nil, nil
+	}
+	return nil, CartItemNotFoundError
 }
 
 // DeleteCartItem deletes a cart item
