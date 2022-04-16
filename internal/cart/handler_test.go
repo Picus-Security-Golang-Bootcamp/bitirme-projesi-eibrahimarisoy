@@ -1,17 +1,28 @@
 package cart
 
 import (
+	"bytes"
 	"fmt"
+	"io/ioutil"
 	"net/http"
 	"net/http/httptest"
 	"patika-ecommerce/internal/api"
 	"patika-ecommerce/internal/model"
+	"strconv"
 	"testing"
 
 	"github.com/gin-gonic/gin"
 	"github.com/go-playground/assert/v2"
 	"github.com/google/uuid"
 )
+
+func getAddToCartPayload(productID string, quantity int) []byte {
+	q := strconv.Itoa(quantity)
+	var jsonStr = []byte(
+		`{"productId": "` + productID + `","quantity": ` + q + `}`)
+
+	return jsonStr
+}
 
 func Test_cartHandler_getOrCreateCart(t *testing.T) {
 	// name, description := "test", "test"
@@ -41,19 +52,59 @@ func Test_cartHandler_getOrCreateCart(t *testing.T) {
 	c.Request, _ = http.NewRequest("POST", "/cart", nil)
 	c.Request.Header.Set("Content-Type", "application/json")
 	c.Set("user", &user)
-	// c.Request.Body = ioutil.NopCloser(bytes.NewBuffer(getCategoryPOSTPayload()))
 	cartHandler.getOrCreateCart(c)
 
 	assert.Equal(t, http.StatusOK, w.Code)
 }
 
+func Test_cartHandler_AddToCart(t *testing.T) {
+	// name, description := "test", "test"
+	cartId := uuid.New()
+	productId := uuid.New()
+	userId := uuid.New()
+
+	gin.SetMode(gin.TestMode)
+
+	user := model.User{
+		Base: model.Base{ID: userId},
+	}
+
+	mockService := &mockCartService{
+		carts: []model.Cart{
+			{
+				Base:   model.Base{ID: cartId},
+				UserID: userId,
+				Items:  []model.CartItem{},
+			},
+		},
+		users: []model.User{user},
+	}
+	w := httptest.NewRecorder()
+	cartHandler := &cartHandler{
+		cartService: mockService,
+	}
+	c, r := gin.CreateTestContext(w)
+
+	r.POST("/cart/add", cartHandler.addToCart)
+	c.Request, _ = http.NewRequest("POST", "/cart/add", nil)
+	c.Request.Header.Set("Content-Type", "application/json")
+	c.Set("user", &user)
+	c.Request.Body = ioutil.NopCloser(bytes.NewBuffer(getAddToCartPayload(productId.String(), 2)))
+	cartHandler.addToCart(c)
+
+	assert.Equal(t, http.StatusOK, w.Code)
+	fmt.Println(w.Body)
+}
+
 var (
-	UserNotFoundError = fmt.Errorf("user not found")
+	UserNotFoundError    = fmt.Errorf("user not found")
+	ProductNotFoundError = fmt.Errorf("product not found")
 )
 
 type mockCartService struct {
-	carts []model.Cart
-	users []model.User
+	carts    []model.Cart
+	users    []model.User
+	products []model.Product
 }
 
 // GetOrCreateCart returns a cart by user id
@@ -90,46 +141,39 @@ func (r *mockCartService) GetOrCreateCart(user *model.User) (*model.Cart, error)
 // AddToCart adds a product to cart
 func (r *mockCartService) AddToCart(user *model.User, req *api.AddToCartRequest) (*model.Cart, error) {
 	cart := &model.Cart{}
-	// cart, err := r.cartRepo.GetCreatedCart(user)
-	// if err != nil {
-	// 	return nil, err
-	// }
+	product := &model.Product{}
+	reqProductId, _ := uuid.Parse(req.ProductID.String())
 
-	// pId, err := common.StrfmtToUUID(req.ProductID)
-	// if err != nil {
-	// 	return nil, err
-	// }
+	for _, item := range r.products {
+		if item.ID == reqProductId {
+			product = &item
+		}
+	}
+	if product == nil {
+		return nil, ProductNotFoundError
+	}
+	for _, item := range r.carts {
+		if item.UserID == user.ID && item.Status == model.CartStatusCreated {
+			cart = &item
+		}
+	}
 
-	// // find product by given id
-	// product, err := r.productRepo.GetProductWithoutCategories(pId)
-	// if err != nil {
-	// 	return nil, err
-	// }
+	if cart == nil {
+		return nil, CartNotFoundError
+	}
 
-	// // check if product is available in cart
-	// is_exists := false
-	// for _, item := range cart.Items {
-	// 	// if product is already in cart then update quantity
-	// 	if item.ProductID == pId {
-	// 		if int64(item.Quantity)+req.Quantity > *product.Stock {
-	// 			return nil, fmt.Errorf("Product stock is not enough")
-	// 		}
-	// 		item.Quantity += req.Quantity
-	// 		r.cartItemRepo.UpdateCartItem(&item)
-	// 		is_exists = true
-	// 		break
-	// 	}
-	// }
+	for _, item := range cart.Items {
+		if item.ProductID == reqProductId {
+			item.Quantity += req.Quantity
+			return cart, nil
+		}
+	}
 
-	// // if product not exists in cart, create new cart item
-	// if !is_exists {
-	// 	if *product.Stock < req.Quantity {
-	// 		return nil, fmt.Errorf("Product stock is not enough")
-	// 	}
-	// 	if err := r.cartItemRepo.Create(cart, product); err != nil {
-	// 		return nil, err
-	// 	}
-	// }
+	cart.Items = append(cart.Items, model.CartItem{
+		ProductID: reqProductId,
+		Quantity:  req.Quantity,
+	})
+
 	return cart, nil
 }
 

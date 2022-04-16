@@ -519,7 +519,6 @@ func (r *mockCartItemRepo) Create(cart *model.Cart, product *model.Product) erro
 	}
 
 	cart.Items = append(cart.Items, cartItem)
-	fmt.Println("cart12121", cart.Items)
 	r.items = append(r.items, cartItem)
 	return nil
 }

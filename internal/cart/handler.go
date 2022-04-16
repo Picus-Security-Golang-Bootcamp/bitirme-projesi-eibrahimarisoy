@@ -23,10 +23,10 @@ func NewCartHandler(r *gin.RouterGroup, cfg *config.Config, cartService MockCart
 
 	r.Use(mw.AuthenticationMiddleware(cfg.JWTConfig.SecretKey))
 	r.POST("", handler.getOrCreateCart)
-	r.POST("/add", handler.AddToCart)
-	r.GET("/items", handler.ListCartItems)
-	r.PUT("/items/:id", handler.UpdateCartItem)
-	r.DELETE("/items/:id", handler.DeleteCartItem)
+	r.POST("/add", handler.addToCart)
+	r.GET("/items", handler.listCartItems)
+	r.PUT("/items/:id", handler.updateCartItem)
+	r.DELETE("/items/:id", handler.deleteCartItem)
 }
 
 // getOrCreateCart if users cart exists, returns it, otherwise creates a new one
@@ -44,7 +44,7 @@ func (r *cartHandler) getOrCreateCart(c *gin.Context) {
 }
 
 // AddToCart adds a product to cart
-func (r *cartHandler) AddToCart(c *gin.Context) {
+func (r *cartHandler) addToCart(c *gin.Context) {
 	reqBody := &api.AddToCartRequest{}
 
 	if err := c.ShouldBindJSON(&reqBody); err != nil {
@@ -70,7 +70,7 @@ func (r *cartHandler) AddToCart(c *gin.Context) {
 }
 
 // ListCartItem lists all cart items
-func (r *cartHandler) ListCartItems(c *gin.Context) {
+func (r *cartHandler) listCartItems(c *gin.Context) {
 	user := c.MustGet("user").(*model.User)
 
 	cart, err := r.cartService.GetOrCreateCart(user)
@@ -83,7 +83,7 @@ func (r *cartHandler) ListCartItems(c *gin.Context) {
 }
 
 // UpdateCartItem updates a cart item
-func (r *cartHandler) UpdateCartItem(c *gin.Context) {
+func (r *cartHandler) updateCartItem(c *gin.Context) {
 	reqBody := &api.CartItemUpdateRequest{}
 
 	if err := c.ShouldBindJSON(&reqBody); err != nil {
@@ -112,7 +112,7 @@ func (r *cartHandler) UpdateCartItem(c *gin.Context) {
 }
 
 // DeleteCartItem deletes a cart item
-func (r *cartHandler) DeleteCartItem(c *gin.Context) {
+func (r *cartHandler) deleteCartItem(c *gin.Context) {
 	user := c.MustGet("user").(*model.User)
 
 	id, err := uuid.Parse(c.Param("id"))
