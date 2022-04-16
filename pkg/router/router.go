@@ -42,7 +42,7 @@ func InitializeRoutes(rootRouter *gin.RouterGroup, db *gorm.DB, cfg *config.Conf
 	// Product repository
 	productRepo := product.NewProductRepository(db)
 	productRepo.Migration()
-	product.NewProductHandler(productGroup, cfg, productRepo, categoryRepo)
+	product.NewProductHandler(productGroup, cfg, productRepo)
 
 	// Cart repository
 	cartRepo := cart.NewCartRepository(db)

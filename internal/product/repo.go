@@ -10,6 +10,15 @@ import (
 	"gorm.io/gorm/clause"
 )
 
+type MockProductRepository interface {
+	Insert(product *model.Product) error
+	GetAll(pagination *paginationHelper.Pagination) (*paginationHelper.Pagination, error)
+	Get(id uuid.UUID) (*model.Product, error)
+	GetProductWithoutCategories(id uuid.UUID) (*model.Product, error)
+	Delete(product model.Product) error
+	Update(product *model.Product) error
+}
+
 type ProductRepository struct {
 	db *gorm.DB
 }
@@ -24,7 +33,7 @@ func NewProductRepository(db *gorm.DB) *ProductRepository {
 }
 
 // InsertProduct insert product
-func (r *ProductRepository) InsertProduct(product *model.Product) error {
+func (r *ProductRepository) Insert(product *model.Product) error {
 	fmt.Println("InsertProduct: ", product)
 	tx := r.db.Begin()
 
@@ -46,7 +55,7 @@ func (r *ProductRepository) InsertProduct(product *model.Product) error {
 }
 
 // GetProducts get all products
-func (r *ProductRepository) GetProducts(pagination *paginationHelper.Pagination) (*paginationHelper.Pagination, error) {
+func (r *ProductRepository) GetAll(pagination *paginationHelper.Pagination) (*paginationHelper.Pagination, error) {
 	var products []model.Product
 	var totalRows int64
 
@@ -59,7 +68,7 @@ func (r *ProductRepository) GetProducts(pagination *paginationHelper.Pagination)
 }
 
 // GetProduct get a single product
-func (r *ProductRepository) GetProduct(id uuid.UUID) (*model.Product, error) {
+func (r *ProductRepository) Get(id uuid.UUID) (*model.Product, error) {
 	product := new(model.Product)
 	result := r.db.Preload("Categories").Where("id = ?", id).First(&product)
 	if result.Error != nil {
@@ -81,7 +90,7 @@ func (r *ProductRepository) GetProductWithoutCategories(id uuid.UUID) (*model.Pr
 }
 
 // DeleteProduct delete a single product
-func (r *ProductRepository) DeleteProduct(product *model.Product) error {
+func (r *ProductRepository) Delete(product model.Product) error {
 	// r.db.Model(&product).Association("Categories").Delete(&product)
 	// r.db.Model(&product).Association("Categories").Delete(&product)
 
@@ -96,8 +105,18 @@ func (r *ProductRepository) DeleteProduct(product *model.Product) error {
 }
 
 // UpdateProduct update a single product
-func (r *ProductRepository) UpdateProduct(product *model.Product) error {
+func (r *ProductRepository) Update(product *model.Product) error {
 	tx := r.db.Begin()
+	for index, item := range product.Categories {
+		category := new(model.Category)
+		result := tx.Model(category).Where("id = ?", item.ID).First(&category)
+		if result.Error != nil {
+			tx.Rollback()
+			return result.Error
+		}
+		product.Categories[index] = *category
+	}
+
 	exProduct := new(model.Product)
 
 	// get product

@@ -3,7 +3,6 @@ package product
 import (
 	"errors"
 	"patika-ecommerce/internal/api"
-	"patika-ecommerce/internal/category"
 	"patika-ecommerce/internal/model"
 	"patika-ecommerce/pkg/config"
 
@@ -19,12 +18,11 @@ import (
 )
 
 type productHandler struct {
-	productRepo  *ProductRepository
-	categoryRepo *category.CategoryRepository
+	productRepo MockProductRepository
 }
 
-func NewProductHandler(r *gin.RouterGroup, cfg *config.Config, productRepo *ProductRepository, categoryRepo *category.CategoryRepository) {
-	handler := &productHandler{productRepo: productRepo, categoryRepo: categoryRepo}
+func NewProductHandler(r *gin.RouterGroup, cfg *config.Config, productRepo *ProductRepository) {
+	handler := &productHandler{productRepo: productRepo}
 	// Public endpoints
 	r.GET("", mw.PaginationMiddleware(), handler.getProducts)
 	r.GET("/:id", handler.getProduct)
@@ -53,7 +51,7 @@ func (r *productHandler) createProduct(c *gin.Context) {
 
 	product := ProductRequestToProduct(reqBody)
 
-	if err := r.productRepo.InsertProduct(product); err != nil {
+	if err := r.productRepo.Insert(product); err != nil {
 		c.JSON(httpErr.ErrorResponse(err))
 		return
 	}
@@ -64,7 +62,7 @@ func (r *productHandler) createProduct(c *gin.Context) {
 func (r *productHandler) getProducts(c *gin.Context) {
 	pagination := c.MustGet("pagination").(*paginationHelper.Pagination)
 
-	data, err := r.productRepo.GetProducts(pagination)
+	data, err := r.productRepo.GetAll(pagination)
 
 	if err != nil {
 		c.JSON(httpErr.ErrorResponse(err))
@@ -85,7 +83,7 @@ func (r *productHandler) getProduct(c *gin.Context) {
 		return
 	}
 
-	product, err = r.productRepo.GetProduct(id)
+	product, err = r.productRepo.Get(id)
 
 	if err != nil {
 		c.JSON(httpErr.ErrorResponse(err))
@@ -107,7 +105,7 @@ func (r *productHandler) deleteProduct(c *gin.Context) {
 
 	product.ID = id
 
-	if err := r.productRepo.DeleteProduct(product); err != nil {
+	if err := r.productRepo.Delete(*product); err != nil {
 		if errors.Is(err, gorm.ErrRecordNotFound) {
 			c.JSON(httpErr.ErrorResponse(err))
 			return
@@ -142,17 +140,7 @@ func (r *productHandler) updateProduct(c *gin.Context) {
 
 	product.ID = id
 
-	for index, item := range product.Categories {
-		category, err := r.categoryRepo.GetCategoryByID(item.ID)
-
-		if err != nil {
-			c.JSON(httpErr.ErrorResponse(err))
-			return
-		}
-		product.Categories[index] = *category
-	}
-
-	if err = r.productRepo.UpdateProduct(product); err != nil {
+	if err = r.productRepo.Update(product); err != nil {
 		c.JSON(httpErr.ErrorResponse(err))
 		return
 	}

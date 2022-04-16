@@ -12,6 +12,10 @@ import (
 	"github.com/google/uuid"
 )
 
+// type categoryMockRepository struct {
+// 	items []model.Category
+// }
+
 func TestCategoryService_CreateCategory(t *testing.T) {
 	categoryName := "category name 1"
 	categoryDescription := "category description 1"
@@ -31,8 +35,8 @@ func TestCategoryService_CreateCategory(t *testing.T) {
 		{
 			name: "categoryService_CreateCategory_Success",
 			fields: fields{
-				categoryRepo: &mockCategoryRepository{
-					items: []model.Category{},
+				categoryRepo: &categoryMockRepository{
+					Items: []model.Category{},
 				},
 			},
 			args: args{
@@ -47,8 +51,8 @@ func TestCategoryService_CreateCategory(t *testing.T) {
 		{
 			name: "categoryService_CreateCategory_Failed_AlreadyExists",
 			fields: fields{
-				categoryRepo: &mockCategoryRepository{
-					items: []model.Category{
+				categoryRepo: &categoryMockRepository{
+					Items: []model.Category{
 						{
 							Base:        model.Base{ID: uuid.New()},
 							Name:        &categoryName,
@@ -96,8 +100,8 @@ func TestCategoryService_GetCategories(t *testing.T) {
 		{
 			name: "categoryService_GetCategories_Success",
 			fields: fields{
-				categoryRepo: &mockCategoryRepository{
-					items: []model.Category{
+				categoryRepo: &categoryMockRepository{
+					Items: []model.Category{
 						{
 							Name:        &categoryName,
 							Description: categoryDescription,
@@ -152,8 +156,8 @@ func TestCategoryService_GetCategoryByID(t *testing.T) {
 		{
 			name: "categoryService_GetCategoryByID_Success",
 			fields: fields{
-				categoryRepo: &mockCategoryRepository{
-					items: []model.Category{
+				categoryRepo: &categoryMockRepository{
+					Items: []model.Category{
 						{
 							Base:        model.Base{ID: id},
 							Name:        &categoryName,
@@ -213,8 +217,8 @@ func TestCategoryService_UpdateCategory(t *testing.T) {
 		{
 			name: "categoryService_GetCategoryByID_Success",
 			fields: fields{
-				categoryRepo: &mockCategoryRepository{
-					items: []model.Category{
+				categoryRepo: &categoryMockRepository{
+					Items: []model.Category{
 						{
 							Base:        model.Base{ID: id},
 							Name:        &categoryName,
@@ -263,8 +267,8 @@ func TestCategoryService_DeleteCategory(t *testing.T) {
 		{
 			name: "categoryService_DeleteCategory_Success",
 			fields: fields{
-				categoryRepo: &mockCategoryRepository{
-					items: []model.Category{
+				categoryRepo: &categoryMockRepository{
+					Items: []model.Category{
 						{
 							Base: model.Base{ID: id},
 						},
@@ -277,10 +281,10 @@ func TestCategoryService_DeleteCategory(t *testing.T) {
 			wantErr: false,
 		},
 		{
-			name: "categoryService_DeleteCategory_Success",
+			name: "categoryService_DeleteCategory_Failed",
 			fields: fields{
-				categoryRepo: &mockCategoryRepository{
-					items: []model.Category{
+				categoryRepo: &categoryMockRepository{
+					Items: []model.Category{
 						{
 							Base: model.Base{ID: id},
 						},
@@ -325,8 +329,8 @@ func TestCategoryService_CreateBulkCategories(t *testing.T) {
 		{
 			name: "categoryService_CreateBulkCategories_Success",
 			fields: fields{
-				categoryRepo: &mockCategoryRepository{
-					items: []model.Category{
+				categoryRepo: &categoryMockRepository{
+					Items: []model.Category{
 						{
 							Base: model.Base{ID: uuid.New()},
 						},
@@ -365,29 +369,29 @@ func createFilename() *bytes.Buffer {
 	return body
 }
 
-type mockCategoryRepository struct {
-	items []model.Category
+type categoryMockRepository struct {
+	Items []model.Category
 }
 
-func (r *mockCategoryRepository) InsertCategory(category *model.Category) error {
-	for _, item := range r.items {
+func (r *categoryMockRepository) InsertCategory(category *model.Category) error {
+	for _, item := range r.Items {
 		item.ID = category.ID
 		return errors.New("category already exists")
 	}
-	r.items = append(r.items, *category)
+	r.Items = append(r.Items, *category)
 
 	return nil
 }
 
 // GetCategories returns all categories
-func (r *mockCategoryRepository) GetCategories() (*[]model.Category, error) {
-	return &r.items, nil
+func (r *categoryMockRepository) GetCategories() (*[]model.Category, error) {
+	return &r.Items, nil
 }
 
 // GetCategoryByID returns a category by id
-func (r *mockCategoryRepository) GetCategoryByID(id uuid.UUID) (*model.Category, error) {
+func (r *categoryMockRepository) GetCategoryByID(id uuid.UUID) (*model.Category, error) {
 	category := &model.Category{}
-	for _, item := range r.items {
+	for _, item := range r.Items {
 		if item.ID == id {
 			category = &item
 		}
@@ -396,10 +400,10 @@ func (r *mockCategoryRepository) GetCategoryByID(id uuid.UUID) (*model.Category,
 }
 
 // UpdateCategory updates a category with the given id
-func (r *mockCategoryRepository) UpdateCategory(category *model.Category) error {
-	for i, item := range r.items {
+func (r *categoryMockRepository) UpdateCategory(category *model.Category) error {
+	for i, item := range r.Items {
 		if item.ID == category.ID {
-			r.items[i] = *category
+			r.Items[i] = *category
 		}
 	}
 
@@ -407,27 +411,27 @@ func (r *mockCategoryRepository) UpdateCategory(category *model.Category) error 
 }
 
 // InsertBulkCategory inserts bulk categories //TODO
-func (r *mockCategoryRepository) InsertBulkCategory(categories *[]model.Category) error {
+func (r *categoryMockRepository) InsertBulkCategory(categories *[]model.Category) error {
 	for _, category := range *categories {
-		for _, item := range r.items {
+		for _, item := range r.Items {
 			if item.Name == category.Name {
 				return errors.New("category already exists")
 			}
 		}
-		r.items = append(r.items, category)
+		r.Items = append(r.Items, category)
 	}
 
 	return nil
 }
 
 // DeleteCategory deletes a category by id
-func (r *mockCategoryRepository) Delete(category *model.Category) error {
+func (r *categoryMockRepository) Delete(category *model.Category) error {
 	isExist := false
-	for index, item := range r.items {
+	for index, item := range r.Items {
 		if item.ID == category.ID {
 			category = &item
 			isExist = true
-			r.items = append(r.items[:index], r.items[index+1:]...)
+			r.Items = append(r.Items[:index], r.Items[index+1:]...)
 		}
 	}
 	if !isExist {
