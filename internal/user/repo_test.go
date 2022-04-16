@@ -2,14 +2,10 @@ package auth
 
 import (
 	"database/sql"
-	"fmt"
 	"patika-ecommerce/internal/model"
-	"regexp"
 	"testing"
 
 	"github.com/DATA-DOG/go-sqlmock"
-	"github.com/go-playground/assert/v2"
-	"github.com/google/uuid"
 	"github.com/stretchr/testify/require"
 	"github.com/stretchr/testify/suite"
 	"gorm.io/driver/postgres"
@@ -83,44 +79,44 @@ func TestInit(t *testing.T) {
 
 // }
 
-func (s *Suite) TestUserRepository_GetUser() {
+// func (s *Suite) TestUserRepository_GetUser() {
 
-	var (
-		id       = uuid.New()
-		username = "test-name"
-	)
+// 	var (
+// 		id       = uuid.New()
+// 		username = "test-name"
+// 	)
 
-	s.mock.ExpectQuery(regexp.QuoteMeta(
-		`SELECT * FROM "users" WHERE id = $1 ORDER BY "users"."id" LIMIT 1`)).
-		WithArgs(id.String()).
-		WillReturnRows(sqlmock.NewRows([]string{"id", "username"}).
-			AddRow(id.String(), username))
+// 	s.mock.ExpectQuery(regexp.QuoteMeta(
+// 		`SELECT * FROM "users" WHERE id = $1 ORDER BY "users"."id" LIMIT 1`)).
+// 		WithArgs(id.String()).
+// 		WillReturnRows(sqlmock.NewRows([]string{"id", "username"}).
+// 			AddRow(id.String(), username))
 
-	user, err := s.repository.GetUser(id.String())
+// 	user, err := s.repository.GetUser(id.String())
 
-	require.NoError(s.T(), err)
-	assert.Equal(s.T(), user.ID, id)
-	assert.Equal(s.T(), user.Username, username)
+// 	require.NoError(s.T(), err)
+// 	assert.Equal(s.T(), user.ID, id)
+// 	assert.Equal(s.T(), user.Username, username)
 
-	// s.mock.ExpectCommit()
+// 	// s.mock.ExpectCommit()
 
-}
+// }
 
-func (s *Suite) TestUserRepository_GetAll() {
+// func (s *Suite) TestUserRepository_GetAll() {
 
-	s.mock.ExpectQuery(regexp.QuoteMeta(
-		`SELECT * FROM "users"`)).
-		WillReturnRows(sqlmock.NewRows([]string{"id"}).
-			AddRow(uuid.New().String()).
-			AddRow(uuid.New().String()))
+// 	s.mock.ExpectQuery(regexp.QuoteMeta(
+// 		`SELECT * FROM "users"`)).
+// 		WillReturnRows(sqlmock.NewRows([]string{"id"}).
+// 			AddRow(uuid.New().String()).
+// 			AddRow(uuid.New().String()))
 
-	users, err := s.repository.GetAll()
-	fmt.Println(users)
+// 	users, err := s.repository.GetAll()
+// 	fmt.Println(users)
 
-	require.NoError(s.T(), err)
-	assert.Equal(s.T(), len(*users), 2)
+// 	require.NoError(s.T(), err)
+// 	assert.Equal(s.T(), len(*users), 2)
 
-}
+// }
 
 // func (s *Suite) TestUserRepository_DeleteUser() {
 

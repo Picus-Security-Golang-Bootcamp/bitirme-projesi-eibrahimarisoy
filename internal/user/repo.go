@@ -8,19 +8,13 @@ import (
 
 type AuthRepository interface {
 	InsertUser(user *model.User) (*model.User, error)
-	GetAll() (*[]model.User, error)
 	GetUser(id string) (*model.User, error)
-	DeleteUser(id string) error
-	UpdateUser(user *model.User) (*model.User, error)
 	GetUserByEmail(email string) (*model.User, error)
 }
 
 type UserRepositoryForMock interface {
 	InsertUser(user *model.User) (*model.User, error)
-	GetAll() (*[]model.User, error)
 	GetUser(id string) (*model.User, error)
-	DeleteUser(id string) error
-	UpdateUser(user *model.User) (*model.User, error)
 	GetUserByEmail(email string) (*model.User, error)
 }
 type UserRepository struct {
@@ -45,16 +39,6 @@ func (u *UserRepository) InsertUser(user *model.User) (*model.User, error) {
 
 }
 
-func (u *UserRepository) GetAll() (*[]model.User, error) {
-	var users []model.User
-
-	result := u.db.Find(&users)
-	if result.Error != nil {
-		return nil, result.Error
-	}
-	return &users, nil
-}
-
 // GetUser
 func (u *UserRepository) GetUser(id string) (*model.User, error) {
 	var user model.User
@@ -64,24 +48,6 @@ func (u *UserRepository) GetUser(id string) (*model.User, error) {
 		return nil, result.Error
 	}
 	return &user, nil
-}
-
-// DeleteUser
-func (u *UserRepository) DeleteUser(id string) error {
-	result := u.db.Debug().Delete(&model.User{}, "id = ?", id)
-	if result.Error != nil {
-		return result.Error
-	}
-	return nil
-}
-
-// UpdateUser
-func (u *UserRepository) UpdateUser(user *model.User) (*model.User, error) {
-	result := u.db.Save(user)
-	if result.Error != nil {
-		return nil, result.Error
-	}
-	return user, nil
 }
 
 // GetUserByEmail
