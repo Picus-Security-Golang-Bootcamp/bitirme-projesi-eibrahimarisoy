@@ -20,8 +20,6 @@ securityDefinitions:
 tags:
   - name: "auth"
     description: "Authentication operations"
-  - name: "user"
-    description: "Everything about User"
   - name: "category"
     description: "Everything about category"
   - name: "product"
@@ -515,11 +513,6 @@ paths:
         - "application/json"
       produces:
         - "application/json"
-      # parameters:
-      #   - $ref: '#/parameters/offsetParam'
-      #   - $ref: '#/parameters/limitParam'
-      #   - $ref: '#/parameters/queryParam'
-      #   - $ref: '#/parameters/sortParam'
       responses:
         "200":
           description: "Products retrieved successfully"
@@ -570,7 +563,35 @@ paths:
             $ref: "#/definitions/ApiErrorResponse"
         "401":
           description: "Unauthorized access"
-  # TODO add delete
+    delete:
+      tags:
+        - "cart"
+      summary: "Delete a cart item in cart by ID"
+      description: "Delete a cart item in cart by ID"
+      operationId: "DeleteCartItemInCartById"
+      consumes:
+        - "application/json"
+      produces:
+        - "application/json"
+      parameters:
+        - in: "path"
+          name: "id"
+          description: "ID of the Cart Item in cart to return"
+          required: true
+          type: "string"
+          format: "uuid"
+      responses:
+        "204":
+          description: "Product in cart deleted successfully"
+        "400":
+          description: "Invalid cart information"
+          schema:
+            $ref: "#/definitions/ApiErrorResponse"
+        "401":
+          description: "Unauthorized access"
+          schema:
+            $ref: "#/definitions/ApiErrorResponse"
+
   /orders:
     post:
       tags:
@@ -612,11 +633,11 @@ paths:
         - "application/json"
       produces:
         - "application/json"
-      # parameters:
-      #   - $ref: '#/parameters/offsetParam'
-      #   - $ref: '#/parameters/limitParam'
-      #   - $ref: '#/parameters/queryParam'
-      #   - $ref: '#/parameters/sortParam'
+      parameters:
+        - $ref: '#/parameters/offsetParam'
+        - $ref: '#/parameters/limitParam'
+        - $ref: '#/parameters/queryParam'
+        - $ref: '#/parameters/sortParam'
       responses:
         "200":
           description: "Orders retrieved successfully"
@@ -959,7 +980,3 @@ parameters:
     required: false
     type: string
     description: Sort Parameters
-  
-  
-  
-  
