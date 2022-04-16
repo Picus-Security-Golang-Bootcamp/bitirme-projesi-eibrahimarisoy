@@ -2,7 +2,6 @@ package order
 
 import (
 	"patika-ecommerce/internal/api"
-	"patika-ecommerce/internal/cart"
 	"patika-ecommerce/internal/model"
 	paginationHelper "patika-ecommerce/pkg/pagination"
 	common "patika-ecommerce/pkg/utils"
@@ -11,29 +10,20 @@ import (
 )
 
 type OrderService struct {
-	orderRepo     *OrderRepository
+	orderRepo     MockOrderRepository
 	orderItemRepo *OrderItemRepository
-	cartRepo      *cart.CartRepository
-	// productRepo   *product.ProductRepository
 }
 
 // NewOrderService creates a new OrderService
-func NewOrderService(orderRepo *OrderRepository, orderItemRepo *OrderItemRepository, cartRepo *cart.CartRepository) *OrderService {
+func NewOrderService(orderRepo *OrderRepository, orderItemRepo *OrderItemRepository) *OrderService {
 	return &OrderService{
 		orderRepo:     orderRepo,
 		orderItemRepo: orderItemRepo,
-		cartRepo:      cartRepo,
-		// productRepo:   productRepo,
 	}
 }
 
 // CompleteOrder completes an order
 func (r *OrderService) CompleteOrder(user *model.User, req *api.OrderRequest) (*model.Order, error) {
-	// Check given cart is valid
-	// cart, err := r.cartRepo.GetCreatedCartByUserAndCart(user, *req.CartID)
-	// if err != nil {
-	// 	return nil, err
-	// }
 	cartId, err := common.StrfmtToUUID(*req.CartID)
 	if err != nil {
 		return nil, err

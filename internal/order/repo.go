@@ -11,6 +11,13 @@ import (
 	"gorm.io/gorm/clause"
 )
 
+type MockOrderRepository interface {
+	CompleteOrder(user *model.User, cartId uuid.UUID) (*model.Order, error)
+	GetOrdersByUser(user *model.User, pagination *paginationHelper.Pagination) (*paginationHelper.Pagination, error)
+	GetOrderByIdAndUser(user *model.User, id uuid.UUID) (*model.Order, error)
+	CancelOrder(id uuid.UUID, user *model.User) error
+}
+
 type OrderRepository struct {
 	db *gorm.DB
 }
@@ -65,7 +72,7 @@ func (r *OrderRepository) CompleteOrder(user *model.User, cartId uuid.UUID) (*mo
 		product := item.Product
 		if *product.Stock < item.Quantity {
 			tx.Rollback()
-			return nil, fmt.Errorf("product %s stock is not enough", item.Product.Name)
+			return nil, fmt.Errorf("product %s stock is not enough", *item.Product.Name)
 		}
 		newProd := &model.Product{}
 		if err := tx.Model(&model.Product{}).
