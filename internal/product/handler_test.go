@@ -178,7 +178,7 @@ func Test_productHandler_getProduct(t *testing.T) {
 	}
 	c, r := gin.CreateTestContext(w)
 	r.GET("/product/:id", productHandler.getProduct)
-	c.Params = []gin.Param{gin.Param{Key: "id", Value: id.String()}}
+	c.Params = []gin.Param{{Key: "id", Value: id.String()}}
 	c.Request, _ = http.NewRequest("GET", "/product/:id", nil)
 	c.Request.Header.Set("Content-Type", "application/json")
 	productHandler.getProduct(c)
@@ -218,7 +218,7 @@ func Test_productHandler_deleteProduct(t *testing.T) {
 	}
 	c, r := gin.CreateTestContext(w)
 	r.DELETE("/product/:id", productHandler.deleteProduct)
-	c.Params = []gin.Param{gin.Param{Key: "id", Value: id.String()}}
+	c.Params = []gin.Param{{Key: "id", Value: id.String()}}
 	c.Request, _ = http.NewRequest("DELETE", "/product/:id", nil)
 	c.Request.Header.Set("Content-Type", "application/json")
 	productHandler.deleteProduct(c)
@@ -260,7 +260,7 @@ func Test_productHandler_updateProduct(t *testing.T) {
 	c, r := gin.CreateTestContext(w)
 	r.PUT("/product/:id", productHandler.updateProduct)
 	c.Request, _ = http.NewRequest("PUT", "/product/:id", nil)
-	c.Params = []gin.Param{gin.Param{Key: "id", Value: id.String()}}
+	c.Params = []gin.Param{{Key: "id", Value: id.String()}}
 	c.Request.Body = ioutil.NopCloser(bytes.NewBuffer(getProductPUTPayload()))
 	c.Request.Header.Set("Content-Type", "application/json")
 	productHandler.updateProduct(c)
@@ -347,30 +347,6 @@ func (r *ProductMockRepository) Update(product *model.Product) error {
 		}
 	}
 	return errors.New("product not found")
-	// tx := r.db.Begin()
-	// exProduct := new(model.Product)
-
-	// // get product
-	// err := tx.Where("id = ?", product.ID).Preload("Categories").First(&exProduct)
-
-	// if err.Error != nil {
-	// 	return err.Error
-	// }
-
-	// // delete all associated categories
-	// if err := tx.Model(&exProduct).Association("Categories").Delete(&exProduct.Categories); err != nil {
-	// 	return err
-	// }
-
-	// result := tx.Model(&product).Updates(&product)
-
-	// if result.Error != nil {
-	// 	tx.Rollback()
-	// 	return result.Error
-	// }
-
-	// tx.Commit()
-	return nil
 }
 
 ///Categories

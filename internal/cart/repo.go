@@ -10,6 +10,23 @@ import (
 	"gorm.io/gorm"
 )
 
+type MockCartRepository interface {
+	GetOrCreateCart(user *model.User) (*model.Cart, error)
+	GetCreatedCart(user *model.User) (*model.Cart, error)
+	GetCreatedCartWithItemsAndProducts(user *model.User) (*model.Cart, error)
+	GetCreatedCartWithItems(user *model.User) (*model.Cart, error)
+	GetCreatedCartByUserAndCart(user *model.User, cartId strfmt.UUID) (*model.Cart, error)
+	GetCartByID(id uuid.UUID) (*model.Cart, error)
+	UpdateCart(cart *model.Cart) error
+}
+
+type MockCartItemRepository interface {
+	Create(cart *model.Cart, product *model.Product) error
+	UpdateCartItem(cartItem *model.CartItem) error
+	GetCartItemByCartAndIDWithProduct(cart *model.Cart, id uuid.UUID) (*model.CartItem, error)
+	DeleteCartItem(cartItem *model.CartItem) error
+}
+
 type CartRepository struct {
 	db *gorm.DB
 }

@@ -11,8 +11,8 @@ import (
 )
 
 type CartService struct {
-	cartRepo     *CartRepository
-	cartItemRepo *CartItemRepository
+	cartRepo     MockCartRepository
+	cartItemRepo MockCartItemRepository
 	productRepo  *product.ProductRepository
 }
 
