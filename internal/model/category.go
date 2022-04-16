@@ -20,11 +20,3 @@ func (c *Category) BeforeCreate(tx *gorm.DB) error {
 	}
 	return nil
 }
-
-// ToString converts the category to string
-func (c *Category) ToString() string {
-	return "Category: " +
-		"ID: " + c.ID.String() +
-		"Name: " + *c.Name +
-		"Description: " + c.Description
-}

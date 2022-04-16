@@ -1,8 +1,6 @@
 package model
 
 import (
-	"fmt"
-
 	"github.com/go-openapi/strfmt"
 	"github.com/gosimple/slug"
 	"gorm.io/gorm"
@@ -24,16 +22,4 @@ type Product struct {
 func (p *Product) BeforeCreate(tx *gorm.DB) error {
 	p.Slug = slug.Make(*p.Name + "-" + *p.SKU)
 	return nil
-}
-
-// ToString converts the product to string
-func (p *Product) ToString() string {
-	return "Product: " +
-		"ID: " + p.ID.String() +
-		"Name: " + *p.Name +
-		"Description: " + p.Description +
-		// "Price: " + fmt.Sprintf("%f", *p.Price) +
-		"Categories: " + fmt.Sprintf("%v", p.Categories)
-	// "Stock: " + strconv.Itoa(p.Stock)
-	// "SKU: " + *p.SKU
 }
