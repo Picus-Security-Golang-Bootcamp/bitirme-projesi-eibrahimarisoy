@@ -13,7 +13,7 @@ import (
 type CartService struct {
 	cartRepo     MockCartRepository
 	cartItemRepo MockCartItemRepository
-	productRepo  *product.ProductRepository
+	productRepo  product.MockProductRepository
 }
 
 // NewCartService creates a new CartService
@@ -68,13 +68,11 @@ func (r *CartService) AddToCart(user *model.User, req *api.AddToCartRequest) (*m
 		if *product.Stock < req.Quantity {
 			return nil, fmt.Errorf("Product stock is not enough")
 		}
-
 		if err := r.cartItemRepo.Create(cart, product); err != nil {
 			return nil, err
 		}
 	}
-
-	return r.cartRepo.GetCartByID(cart.ID)
+	return cart, nil
 }
 
 // UpdateCartItem updates a cart item
