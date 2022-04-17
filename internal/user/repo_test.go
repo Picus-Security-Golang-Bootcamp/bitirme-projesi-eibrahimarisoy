@@ -2,158 +2,111 @@ package auth
 
 import (
 	"database/sql"
+	"fmt"
 	"patika-ecommerce/internal/model"
+	"regexp"
 	"testing"
 
 	"github.com/DATA-DOG/go-sqlmock"
-	"github.com/stretchr/testify/require"
-	"github.com/stretchr/testify/suite"
+	"github.com/google/uuid"
+	"github.com/stretchr/testify/assert"
 	"gorm.io/driver/postgres"
 	"gorm.io/gorm"
 )
 
-type Suite struct {
-	suite.Suite
-	DB   *gorm.DB
-	mock sqlmock.Sqlmock
-
-	repository AuthRepository
-	person     *model.User
-}
-
-func (s *Suite) SetupSuite() {
+func NewMock() (DB *gorm.DB, mock sqlmock.Sqlmock) {
 	var (
-		db  *sql.DB
-		err error
+		db *sql.DB
 	)
 
-	db, s.mock, err = sqlmock.New(sqlmock.QueryMatcherOption(sqlmock.QueryMatcherRegexp))
-	require.NoError(s.T(), err) //sqlmock.QueryMatcherOption(sqlmock.QueryMatcherRegexp)
+	db, mock, _ = sqlmock.New()
 
-	s.DB, err = gorm.Open(postgres.New(postgres.Config{
+	DB, _ = gorm.Open(postgres.New(postgres.Config{
 		Conn: db,
 	}), &gorm.Config{})
-	require.NoError(s.T(), err)
 
-	// s.DB.LogMode(true)
-
-	s.repository = NewUserRepository(s.DB)
+	return DB, mock
 }
 
-func (s *Suite) AfterTest(_, _ string) {
-	// require.NoError(s.T(), s.mock.ExpectationsWereMet())
+var (
+	firstName = "test"
+	lastName  = "test"
+	username  = "test"
+	email     = "test@email.com"
+	password  = "test"
+	id        = uuid.New()
+)
+
+var u = model.User{
+	Base:      model.Base{ID: id},
+	FirstName: &firstName,
+	LastName:  &lastName,
+	Username:  &username,
+	Email:     &email,
+	Password:  password,
+	IsAdmin:   false,
 }
 
-func TestInit(t *testing.T) {
-	suite.Run(t, new(Suite))
+func TestUserRepository_GetUser(t *testing.T) {
+	db, mock := NewMock()
+	repo := &UserRepository{db}
+
+	// query := "SELECT id, first_name, last_name, username, email, is_admin FROM users WHERE id = \\?"
+
+	query := `SELECT * FROM "users" WHERE id = $1 ORDER BY "users"."id" LIMIT 1`
+
+	rows := sqlmock.NewRows([]string{"id", "first_name", "last_email", "username", "email", "is_admin"}).
+		AddRow(u.ID, u.FirstName, u.LastName, u.Username, u.Email, u.IsAdmin)
+
+	mock.ExpectQuery(regexp.QuoteMeta(query)).WithArgs(u.ID).WillReturnRows(rows)
+
+	user, _ := repo.GetUser(u.ID.String())
+
+	assert.Equal(t, user.ID, id)
+	assert.Equal(t, *user.Username, username)
+
 }
 
-// func (s *Suite) TestUserRepository_InsertUser() {
+func TestUserRepository_GetUserByEmail(t *testing.T) {
+	db, mock := NewMock()
+	repo := &UserRepository{db}
 
-// 	FirstName := "test"
-// 	LastName := "test"
-// 	Username := "test"
-// 	Email := "test@email.com"
-// 	Password := "test"
-// 	id := uuid.New()
-// 	user := &model.User{
-// 		Base:      model.Base{ID: id},
-// 		FirstName: &FirstName,
-// 		LastName:  &LastName,
-// 		Username:  &Username,
-// 		Email:     &Email,
-// 		Password:  Password,
-// 		IsAdmin:   false,
-// 	}
-// 	fmt.Println("id", id)
-// 	s.mock.ExpectBegin()
-// 	sqlInsert := `INSERT INTO "users" ("created_at","updated_at","deleted_at","first_name","last_name","username","email","password","is_admin","id") VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10) RETURNING "users"."id"`
+	query := `SELECT * FROM "users" WHERE email = $1 ORDER BY "users"."id" LIMIT 1`
 
-// 	s.mock.ExpectQuery(regexp.QuoteMeta(sqlInsert)).
-// 		WithArgs(time.Now(), sqlmock.AnyArg(), sqlmock.AnyArg(), user.FirstName, user.LastName, user.Username, user.Email, user.Password, user.IsAdmin, id).
-// 		WillReturnRows(sqlmock.NewRows([]string{"id"}).AddRow(id))
+	rows := sqlmock.NewRows([]string{"id", "first_name", "last_email", "username", "email", "is_admin"}).
+		AddRow(u.ID, u.FirstName, u.LastName, u.Username, u.Email, u.IsAdmin)
 
-// 	_, err := s.repository.InsertUser(user)
+	mock.ExpectQuery(regexp.QuoteMeta(query)).WithArgs(*u.Email).WillReturnRows(rows)
 
-// 	require.NoError(s.T(), err)
+	user, _ := repo.GetUserByEmail(*u.Email)
+	fmt.Println(user)
+	assert.Equal(t, user.ID, id)
+	assert.Equal(t, *user.Username, username)
+}
 
-// }
+// func TestUserRepository_InserUser(t *testing.T) {
+// 	db, mock := NewMock()
+// 	repo := &UserRepository{db}
 
-// func (s *Suite) TestUserRepository_GetUser() {
+// 	query := `INSERT INTO "users" ("created_at", "updated_at", "deleted_at", "first_name", "last_name", "username", "email", "password", "is_admin") VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?) RETURNING "id"`
 
-// 	var (
-// 		id       = uuid.New()
-// 		username = "test-name"
-// 	)
-
-// 	s.mock.ExpectQuery(regexp.QuoteMeta(
-// 		`SELECT * FROM "users" WHERE id = $1 ORDER BY "users"."id" LIMIT 1`)).
-// 		WithArgs(id.String()).
-// 		WillReturnRows(sqlmock.NewRows([]string{"id", "username"}).
-// 			AddRow(id.String(), username))
-
-// 	user, err := s.repository.GetUser(id.String())
-
-// 	require.NoError(s.T(), err)
-// 	assert.Equal(s.T(), user.ID, id)
-// 	assert.Equal(s.T(), user.Username, username)
-
-// 	// s.mock.ExpectCommit()
-
-// }
-
-// func (s *Suite) TestUserRepository_GetAll() {
-
-// 	s.mock.ExpectQuery(regexp.QuoteMeta(
-// 		`SELECT * FROM "users"`)).
-// 		WillReturnRows(sqlmock.NewRows([]string{"id"}).
-// 			AddRow(uuid.New().String()).
-// 			AddRow(uuid.New().String()))
-
-// 	users, err := s.repository.GetAll()
-// 	fmt.Println(users)
-
-// 	require.NoError(s.T(), err)
-// 	assert.Equal(s.T(), len(*users), 2)
-
-// }
-
-// func (s *Suite) TestUserRepository_DeleteUser() {
-
-// 	id := uuid.New()
-// 	// FirstName := "test"
-// 	// LastName := "test"
-// 	// Username := "test"
-// 	// Email := "test@email.com"
-// 	// Password := "test"
-// 	// user := &model.User{
-// 	// 	Base:      model.Base{ID: id},
-// 	// 	FirstName: &FirstName,
-// 	// 	LastName:  &LastName,
-// 	// 	Username:  &Username,
-// 	// 	Email:     &Email,
-// 	// 	Password:  Password,
-// 	// 	IsAdmin:   false,
-// 	// 	Roles:     []*model.Role{},
-// 	// }
-// 	// query := `DELETE FROM "users" WHERE id = $1`
-
-// 	s.mock.ExpectBegin()
-
-// 	// rows := s.mock.
-// 	// 	NewRows([]string{"id", "first_name", "last_name", "username", "email", "password"}).
-// 	// 	AddRow(user.ID, user.FirstName, user.LastName, user.Username, user.Email, user.Password)
-
-// 	s.mock.ExpectQuery(regexp.QuoteMeta(`DELETE FROM "users" WHERE id = $1`)).
-// 		WithArgs(id)
-// 	// s.mock.ExpectCommit()
-
-// 	// s.mock.ExpectExec(query).
-
-// 	err := s.repository.DeleteUser(id.String())
-// 	// fmt.Println(err)
-// 	require.NoError(s.T(), err)
-// 	assert.Equal(s.T(), nil, nil)
-// 	s.mock.ExpectCommit()
+// 	// rows := sqlmock.NewRows([]string{"id", "first_name", "last_email", "username", "email", "is_admin"}).
+// 	// 	AddRow(u.ID, u.FirstName, u.LastName, u.Username, u.Email, u.IsAdmin)
+// 	mock.ExpectBegin()
+// 	prep := mock.ExpectPrepare(regexp.QuoteMeta(query))
+// 	prep.ExpectExec().WithArgs(
+// 		time.Now(),
+// 		time.Now(),
+// 		nil,
+// 		*u.FirstName,
+// 		*u.LastName,
+// 		*u.Username,
+// 		*u.Email,
+// 		u.Password,
+// 		u.IsAdmin,
+// 	).WillReturnResult(sqlmock.NewResult(0, 1))
+// 	mock.ExpectCommit()
+// 	_, err := repo.InsertUser(&u)
+// 	assert.NoError(t, err)
 
 // }

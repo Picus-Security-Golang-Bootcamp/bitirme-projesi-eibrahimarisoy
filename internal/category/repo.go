@@ -40,8 +40,8 @@ func (r *CategoryRepository) InsertCategory(category *model.Category) error {
 // GetCategories returns all categories
 func (r *CategoryRepository) GetCategories() (*[]model.Category, error) {
 	categories := &[]model.Category{}
-	//  &[]models.Book{}
-	if err := r.db.Find(categories).Error; err != nil {
+
+	if err := r.db.Debug().Find(categories).Error; err != nil {
 		return nil, err
 	}
 
@@ -83,7 +83,7 @@ func (r *CategoryRepository) InsertBulkCategory(categories *[]model.Category) er
 
 // DeleteCategory deletes a category by id
 func (r *CategoryRepository) Delete(category *model.Category) error {
-	result := r.db.Select(clause.Associations).Delete(category)
+	result := r.db.Debug().Select(clause.Associations).Delete(category)
 	if result.Error != nil {
 		return result.Error
 	}

@@ -3,6 +3,7 @@ package auth
 import (
 	"fmt"
 	"patika-ecommerce/internal/api"
+	httpErr "patika-ecommerce/internal/httpErrors"
 	"patika-ecommerce/internal/model"
 	user "patika-ecommerce/internal/user"
 	"patika-ecommerce/pkg/config"
@@ -10,6 +11,7 @@ import (
 	"time"
 
 	"github.com/golang-jwt/jwt/v4"
+	"gorm.io/gorm"
 )
 
 type AuthService struct {
@@ -44,11 +46,14 @@ func (a *AuthService) Register(user *model.User) (api.TokenResponse, error) {
 func (a *AuthService) Login(u *model.User) (api.TokenResponse, error) {
 	user, err := a.userRepo.GetUserByEmail(*u.Email)
 	if err != nil {
+		if err := gorm.ErrRecordNotFound; err != nil {
+			return api.TokenResponse{}, httpErr.UnauthorizedError
+		}
 		return api.TokenResponse{}, err
 	}
 
 	if !user.CheckPassword(u.Password) {
-		return api.TokenResponse{}, fmt.Errorf("invalid password")
+		return api.TokenResponse{}, httpErr.UnauthorizedError
 	}
 
 	return jwtHelper.GetAuthToken(user, a.cfg), nil

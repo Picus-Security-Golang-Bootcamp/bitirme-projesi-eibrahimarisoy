@@ -30,7 +30,7 @@ func NewUserRepository(db *gorm.DB) *UserRepository {
 
 // InsertUser insert user to database
 func (u *UserRepository) InsertUser(user *model.User) (*model.User, error) {
-	result := u.db.Create(user)
+	result := u.db.Debug().Create(user)
 
 	if result.Error != nil {
 		return nil, result.Error
