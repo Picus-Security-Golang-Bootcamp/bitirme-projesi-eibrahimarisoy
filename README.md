@@ -36,6 +36,10 @@ $ git clone https://github.com/Picus-Security-Golang-Bootcamp/bitirme-projesi-ei
 $ cd bitirme-projesi-eibrahimarisoy.git
 ```
 
+## Dependencies used in the project
+ - Go 1.18
+ - Postgres 14.2
+
 ## Configuration
 App uses viper to read configuration file.
 You can edit file `config.yaml` in the project pkg/config directory.
@@ -45,9 +49,18 @@ There is a sample file `config.yaml.example` in the project pkg/config directory
 ```
 $ go test ./...
 ```
- ## Run the project
+## Run the project
 ```
 $ go run main.go
+```
+
+## Run the project with swagger
+Installing swagger please follow the instructions on the link below.
+
+https://goswagger.io/install.html
+
+```
+$ swagger serve ./docs/patika-ecommerce.yml
 ```
 
 ## Routes
