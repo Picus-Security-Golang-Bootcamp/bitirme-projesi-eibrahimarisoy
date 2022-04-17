@@ -327,6 +327,8 @@ paths:
       summary: "Add a new product"
       description: "Add a new product"
       operationId: "addProduct"
+      security:
+        - Bearer: []
       consumes:
         - "application/json"
       produces:
@@ -389,6 +391,8 @@ paths:
       summary: "Update a product by ID"
       description: "Update a product by ID"
       operationId: "updateProductById"
+      security:
+        - Bearer: []
       consumes:
         - "application/json"
       produces:
@@ -425,6 +429,8 @@ paths:
       summary: "Delete a product by ID"
       description: "Delete a product by ID"
       operationId: "deleteProductById"
+      security:
+        - Bearer: []
       consumes:
         - "application/json"
       produces:
@@ -455,6 +461,8 @@ paths:
       summary: "Get or create a cart"
       description: "Get or create a cart"
       operationId: "getOrCreateCart"
+      security:
+        - Bearer: []
       produces:
         - "application/json"
       responses:
@@ -477,6 +485,8 @@ paths:
       summary: "Add a product to cart"
       description: "Add a product to cart"
       operationId: "addProductToCart"
+      security:
+        - Bearer: []
       consumes:
         - "application/json"
       produces:
@@ -508,6 +518,8 @@ paths:
       summary: "Get all products in cart"
       description: "Get all products in cart"
       operationId: "getProductsInCart"
+      security:
+        - Bearer: []
       consumes:
         - "application/json"
       produces:
@@ -527,6 +539,7 @@ paths:
           description: "Unauthorized access"
           schema:
             $ref: "#/definitions/ApiErrorResponse"
+
   /cart/items/{id}:
     put:
       tags:
@@ -534,6 +547,8 @@ paths:
       summary: "Update a cart item in cart by ID"
       description: "Update a cart item in cart by ID"
       operationId: "updateCartItemInCartById"
+      security:
+        - Bearer: []
       consumes:
         - "application/json"
       produces:
@@ -568,6 +583,8 @@ paths:
       summary: "Delete a cart item in cart by ID"
       description: "Delete a cart item in cart by ID"
       operationId: "DeleteCartItemInCartById"
+      security:
+        - Bearer: []
       consumes:
         - "application/json"
       produces:
@@ -598,6 +615,8 @@ paths:
       summary: "Create an order"
       description: "Create an order"
       operationId: "createOrder"
+      security:
+        - Bearer: []
       consumes:
         - "application/json"
       produces:
@@ -628,6 +647,8 @@ paths:
       summary: "Get all orders"
       description: "Get all orders"
       operationId: "getAllOrders"
+      security:
+        - Bearer: []
       consumes:
         - "application/json"
       produces:

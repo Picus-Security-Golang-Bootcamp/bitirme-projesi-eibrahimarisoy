@@ -77,7 +77,7 @@ func ParseErrors(err error) RestErr {
 		return NewRestError(http.StatusNotFound, gorm.ErrRecordNotFound.Error(), err)
 	case errors.Is(err, OrderCannotBeCanceledError):
 		return NewRestError(http.StatusBadRequest, OrderCannotBeCanceledError.Error(), err)
-	case strings.Contains(err.Error(), "validation"): //validator.ValidationErrorsKey:
+	case strings.Contains(err.Error(), "validation"):
 		return NewRestError(http.StatusBadRequest, ValidationError.Error(), err)
 	case strings.Contains(err.Error(), "extension") || strings.Contains(err.Error(), "Media type"):
 		return NewRestError(http.StatusBadRequest, MediaTypeNotSupported.Error(), err)
@@ -85,7 +85,7 @@ func ParseErrors(err error) RestErr {
 		return NewRestError(http.StatusBadRequest, UniqueError.Error(), err)
 	case strings.Contains(err.Error(), "23503"):
 		return NewRestError(http.StatusBadRequest, GivenAssociationNotFound.Error(), err)
-	case strings.Contains(err.Error(), "cannot unmarshal"): //*json.UnmarshalTypeError
+	case strings.Contains(err.Error(), "cannot unmarshal"):
 		return NewRestError(http.StatusBadRequest, CannotBindGivenData.Error(), err)
 	case strings.Contains(err.Error(), "Unauthorized"):
 		return NewRestError(http.StatusUnauthorized, err.Error(), err)

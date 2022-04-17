@@ -151,12 +151,10 @@ func (r *OrderRepository) CancelOrder(id uuid.UUID, user *model.User) error {
 		Preload("Items.Product").
 		Where("id = ? AND user_id = ? AND status = ?", id, user.ID, model.OrderStatusCompleted).
 		First(&order).Error; err != nil {
-
 		tx.Rollback()
 		return err
 	}
 	if !order.IsCancelable() {
-		// return model.ErrOrderCannotBeCanceled
 		return httpErr.OrderCannotBeCanceledError
 	}
 

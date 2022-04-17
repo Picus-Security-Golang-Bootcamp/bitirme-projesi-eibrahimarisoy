@@ -1,33 +1,25 @@
 ServerConfig:
-  AppVersion:  
-  Mode:  
-  RoutePrefix:  
-  Debug:  
-  Port:  
-  TimeoutSecs:  
-  ReadTimeoutSecs:  
-  WriteTimeoutSecs:  
+  AppVersion: 1.0.0
+  Mode: Development
+  RoutePrefix: /api/v1
+  Debug: false
+  Port: 8080
+  TimeoutSecs: 60
+  ReadTimeoutSecs: 60
+  WriteTimeoutSecs: 12
 
 JWTConfig:
-  SessionTime:  
-  SecretKey:  
+  SecretKey: dummySecretKey
+  AccessTokenLifeTime: 43200
+  RefreshTokenLifeTime: 86400
 
 DBConfig:
-  DataSourceName:
-  MaxOpen: 
-  MaxIdle: 
-  MaxLifetime: 
+  DataSourceName: postgres://username:Password@localhost:5432/databaseName?sslmode=disable
+  MaxOpen: 50
+  MaxIdle: 50
+  MaxLifetime: 5
 
 LoggerConfig:
-  Development:
-  Encoding:
-  Level: 
-
-LoggerConfig22:
-  Level:  
-  File:  
-  Console:  
-  MaxSize:  
-  MaxAge:  
-  MaxBackups:  
-  Compress:
+  Development: true
+  Encoding: JSON
+  Level: debug

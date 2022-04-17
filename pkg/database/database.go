@@ -1,7 +1,6 @@
 package db
 
 import (
-	"fmt"
 	"patika-ecommerce/pkg/config"
 	"time"
 
@@ -12,8 +11,6 @@ import (
 
 // NewPsqlDB creates a new database connection
 func NewPsqlDB(cfg *config.Config) *gorm.DB {
-
-	fmt.Println("dataSourceName: ", cfg.DBConfig.DataSourceName)
 	db, err := gorm.Open(postgres.Open(cfg.DBConfig.DataSourceName), &gorm.Config{})
 
 	if err != nil {
