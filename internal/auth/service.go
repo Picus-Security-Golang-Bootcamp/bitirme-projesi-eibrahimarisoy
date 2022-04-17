@@ -61,6 +61,12 @@ func (a *AuthService) Login(u *model.User) (api.TokenResponse, error) {
 
 // RefreshToken is a service that checks if the refresh token is valid and returns a new JWT token
 func (a *AuthService) RefreshToken(refreshToken string) (api.TokenResponse, error) {
+	u := jwtHelper.VerifyToken(refreshToken, a.cfg.JWTConfig.SecretKey)
+
+	if u == nil {
+		return api.TokenResponse{}, httpErr.UnauthorizedError
+	}
+
 	token, err := jwtHelper.ParseToken(refreshToken, a.cfg.JWTConfig.SecretKey)
 
 	if err != nil {
@@ -74,6 +80,7 @@ func (a *AuthService) RefreshToken(refreshToken string) (api.TokenResponse, erro
 	}
 
 	userId := claims["UserId"].(string)
+
 	user, err := a.userRepo.GetUser(userId)
 	if err != nil {
 		return api.TokenResponse{}, err

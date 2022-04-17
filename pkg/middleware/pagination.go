@@ -22,12 +22,6 @@ func PaginationMiddleware() gin.HandlerFunc {
 			page = 0
 		}
 		pagination.Page = page
-
-		sort := c.Query("sort")
-		if sort == "" {
-			sort = "created_at desc"
-		}
-		pagination.Sort = sort
 		pagination.Q = c.DefaultQuery("q", "")
 
 		c.Set("pagination", pagination)

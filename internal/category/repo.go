@@ -1,6 +1,7 @@
 package category
 
 import (
+	"fmt"
 	"patika-ecommerce/internal/model"
 
 	"github.com/google/uuid"
@@ -72,6 +73,7 @@ func (r *CategoryRepository) UpdateCategory(category *model.Category) error {
 	if result.Error != nil {
 		return result.Error
 	}
+	fmt.Println(result)
 	return nil
 }
 

@@ -313,7 +313,6 @@ paths:
         - $ref: '#/parameters/offsetParam'
         - $ref: '#/parameters/limitParam'
         - $ref: '#/parameters/queryParam'
-        - $ref: '#/parameters/sortParam'
 
       responses:
         "200":
@@ -637,7 +636,6 @@ paths:
         - $ref: '#/parameters/offsetParam'
         - $ref: '#/parameters/limitParam'
         - $ref: '#/parameters/queryParam'
-        - $ref: '#/parameters/sortParam'
       responses:
         "200":
           description: "Orders retrieved successfully"
@@ -974,9 +972,3 @@ parameters:
     required: false
     type: string
     description: Query Parameters
-  sortParam:
-    in: query
-    name: sort
-    required: false
-    type: string
-    description: Sort Parameters

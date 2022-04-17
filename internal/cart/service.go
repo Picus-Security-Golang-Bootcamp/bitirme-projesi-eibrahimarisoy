@@ -58,7 +58,7 @@ func (r *CartService) AddToCart(user *model.User, req *api.AddToCartRequest) (*m
 
 	// check if product is available in cart
 	is_exists := false
-	for _, item := range cart.Items {
+	for index, item := range cart.Items {
 		// if product is already in cart then update quantity
 		if item.ProductID == pId {
 			if int64(item.Quantity)+req.Quantity > *product.Stock {
@@ -68,8 +68,10 @@ func (r *CartService) AddToCart(user *model.User, req *api.AddToCartRequest) (*m
 
 			r.cartItemRepo.UpdateCartItem(&item)
 			is_exists = true
-			break
-		} // FIXME
+
+			cart.Items[index] = item
+			return cart, nil
+		}
 	}
 
 	// if product not exists in cart, create new cart item
@@ -81,6 +83,7 @@ func (r *CartService) AddToCart(user *model.User, req *api.AddToCartRequest) (*m
 			return nil, err
 		}
 	}
+	cart.Items = append(cart.Items)
 	return cart, nil
 }
 

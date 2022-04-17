@@ -161,7 +161,7 @@ func (r *CartItemRepository) Create(cart *model.Cart, product *model.Product) er
 		Quantity:  1,
 		Price:     product.Price,
 	}
-	// cart.Items = append(cart.Items, *cartItem)
+	cart.Items = append(cart.Items, *cartItem)
 
 	return r.db.Create(cartItem).Error
 }

@@ -2,6 +2,7 @@ package category
 
 import (
 	"bytes"
+	"fmt"
 	"io"
 	"patika-ecommerce/internal/api"
 	httpErr "patika-ecommerce/internal/httpErrors"
@@ -107,6 +108,7 @@ func (r *categoryHandler) updateCategory(c *gin.Context) {
 	category.ID = categoryID
 
 	if err := r.categoryService.UpdateCategory(category); err != nil {
+		fmt.Println(err, "123213132")
 		c.JSON(httpErr.ErrorResponse(err))
 		return
 	}

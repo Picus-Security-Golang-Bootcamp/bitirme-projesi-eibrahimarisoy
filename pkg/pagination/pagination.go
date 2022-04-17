@@ -10,7 +10,6 @@ import (
 type Pagination struct {
 	Limit      int         `json:"limit,omitempty;query:limit"`
 	Page       int         `json:"page,omitempty;query:page"`
-	Sort       string      `json:"sort,omitempty;query:sort"`
 	TotalRows  int64       `json:"total_rows"`
 	TotalPages int         `json:"total_pages"`
 	Rows       interface{} `json:"rows"`
@@ -18,7 +17,7 @@ type Pagination struct {
 }
 
 func (p *Pagination) ToString() string {
-	return fmt.Sprintf("limit: %d, page: %d, sort: %s", p.Limit, p.Page, p.Sort)
+	return fmt.Sprintf("limit: %d, page: %d", p.Limit, p.Page)
 }
 
 func (p *Pagination) GetOffset() int {
@@ -39,13 +38,6 @@ func (p *Pagination) GetPage() int {
 	return p.Page
 }
 
-func (p *Pagination) GetSort() string {
-	if p.Sort == "" {
-		p.Sort = "Id desc"
-	}
-	return p.Sort
-}
-
 func Paginate(totalRows int64, pagination *Pagination, db *gorm.DB) func(db *gorm.DB) *gorm.DB {
 	pagination.TotalRows = totalRows
 
@@ -53,6 +45,6 @@ func Paginate(totalRows int64, pagination *Pagination, db *gorm.DB) func(db *gor
 	pagination.TotalPages = totalPages
 
 	return func(db *gorm.DB) *gorm.DB {
-		return db.Offset(pagination.GetOffset()).Limit(pagination.GetLimit()).Order(pagination.GetSort())
+		return db.Offset(pagination.GetOffset()).Limit(pagination.GetLimit())
 	}
 }
