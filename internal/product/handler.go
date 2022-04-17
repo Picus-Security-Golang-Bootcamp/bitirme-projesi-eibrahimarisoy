@@ -2,7 +2,6 @@ package product
 
 import (
 	"errors"
-	"fmt"
 	"patika-ecommerce/internal/api"
 	"patika-ecommerce/internal/model"
 	"patika-ecommerce/pkg/config"
@@ -60,7 +59,6 @@ func (r *productHandler) createProduct(c *gin.Context) {
 
 // getProducts gets all products
 func (r *productHandler) getProducts(c *gin.Context) {
-	fmt.Println("getProducts", c.Param("pagination"))
 	pagination := c.MustGet("pagination").(*paginationHelper.Pagination)
 
 	data, err := r.productRepo.GetAll(pagination)

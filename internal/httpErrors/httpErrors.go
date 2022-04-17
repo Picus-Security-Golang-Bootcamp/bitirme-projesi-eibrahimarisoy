@@ -66,8 +66,6 @@ func NewInternalServerError(causes interface{}) RestErr {
 
 // ParseErrors Parser of error string messages returns RestError
 func ParseErrors(err error) RestErr {
-	fmt.Println(err)
-	fmt.Printf("%T", err)
 	switch {
 	case errors.Is(err, sql.ErrNoRows):
 		return NewRestError(http.StatusNotFound, NotFound.Error(), err)

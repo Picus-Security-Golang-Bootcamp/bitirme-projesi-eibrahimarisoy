@@ -12,6 +12,7 @@ import (
 	"time"
 
 	"github.com/gin-gonic/gin"
+	"go.uber.org/zap"
 )
 
 func main() {
@@ -45,6 +46,21 @@ func main() {
 
 	rootRouter := r.Group(cfg.ServerConfig.RoutePrefix)
 	router.InitializeRoutes(rootRouter, DB, cfg)
+
+	rootRouter.GET("/healthz", func(c *gin.Context) {
+		c.JSON(http.StatusOK, nil)
+	})
+
+	rootRouter.GET("/readyz", func(c *gin.Context) {
+		db, err := DB.DB()
+		if err != nil {
+			zap.L().Fatal("cannot get sql database instance", zap.Error(err))
+		}
+		if err := db.Ping(); err != nil {
+			zap.L().Fatal("cannot ping database", zap.Error(err))
+		}
+		c.JSON(http.StatusOK, nil)
+	})
 
 	go func() {
 		if err := srv.ListenAndServe(); err != nil && err != http.ErrServerClosed {

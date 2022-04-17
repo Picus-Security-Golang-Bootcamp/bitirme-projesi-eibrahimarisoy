@@ -4,6 +4,7 @@ import (
 	"patika-ecommerce/internal/model"
 
 	"github.com/google/uuid"
+	"go.uber.org/zap"
 	"gorm.io/gorm"
 	"gorm.io/gorm/clause"
 )
@@ -30,6 +31,8 @@ func NewCategoryrRepository(db *gorm.DB) *CategoryRepository {
 
 // InsertCategory inserts a new category
 func (r *CategoryRepository) InsertCategory(category *model.Category) error {
+	zap.L().Debug("category.repo.InsertCategory", zap.Reflect("category", category))
+
 	result := r.db.Create(category)
 	if result.Error != nil {
 		return result.Error
@@ -39,9 +42,11 @@ func (r *CategoryRepository) InsertCategory(category *model.Category) error {
 
 // GetCategories returns all categories
 func (r *CategoryRepository) GetCategories() (*[]model.Category, error) {
+	zap.L().Debug("category.repo.GetCategories")
+
 	categories := &[]model.Category{}
 
-	if err := r.db.Debug().Find(categories).Error; err != nil {
+	if err := r.db.Find(categories).Error; err != nil {
 		return nil, err
 	}
 
@@ -50,6 +55,8 @@ func (r *CategoryRepository) GetCategories() (*[]model.Category, error) {
 
 // GetCategoryByID returns a category by id
 func (r *CategoryRepository) GetCategoryByID(id uuid.UUID) (*model.Category, error) {
+	zap.L().Debug("category.repo.GetCategoryByID", zap.Reflect("id", id))
+
 	category := &model.Category{}
 	if err := r.db.Where("id = ?", id).First(category).Error; err != nil {
 		return nil, err
@@ -59,6 +66,8 @@ func (r *CategoryRepository) GetCategoryByID(id uuid.UUID) (*model.Category, err
 
 // UpdateCategory updates a category with the given id
 func (r *CategoryRepository) UpdateCategory(category *model.Category) error {
+	zap.L().Debug("category.repo.UpdateCategory", zap.Reflect("category", category))
+
 	result := r.db.Updates(category)
 	if result.Error != nil {
 		return result.Error
@@ -68,6 +77,8 @@ func (r *CategoryRepository) UpdateCategory(category *model.Category) error {
 
 // InsertBulkCategory inserts bulk categories
 func (r *CategoryRepository) InsertBulkCategory(categories *[]model.Category) error {
+	zap.L().Debug("category.repo.InsertBulkCategory", zap.Reflect("categories", categories))
+
 	tx := r.db.Begin()
 
 	for _, category := range *categories {
@@ -83,6 +94,8 @@ func (r *CategoryRepository) InsertBulkCategory(categories *[]model.Category) er
 
 // DeleteCategory deletes a category by id
 func (r *CategoryRepository) Delete(category *model.Category) error {
+	zap.L().Debug("category.repo.Delete", zap.Reflect("category", category))
+
 	result := r.db.Debug().Select(clause.Associations).Delete(category)
 	if result.Error != nil {
 		return result.Error

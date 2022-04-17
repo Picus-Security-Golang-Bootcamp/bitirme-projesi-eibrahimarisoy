@@ -480,8 +480,6 @@ func (r *mockProductRepository) GetAll(pagination *paginationHelper.Pagination) 
 // GetProduct get a single product
 func (r *mockProductRepository) Get(id uuid.UUID) (*model.Product, error) {
 	for _, item := range r.items {
-		fmt.Println(item.ID)
-		fmt.Println(id)
 		if item.ID == id {
 			return &item, nil
 		}

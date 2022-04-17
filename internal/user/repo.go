@@ -1,6 +1,7 @@
 package auth
 
 import (
+	"go.uber.org/zap"
 	"gorm.io/gorm"
 
 	"patika-ecommerce/internal/model"
@@ -30,7 +31,9 @@ func NewUserRepository(db *gorm.DB) *UserRepository {
 
 // InsertUser insert user to database
 func (u *UserRepository) InsertUser(user *model.User) (*model.User, error) {
-	result := u.db.Debug().Create(user)
+	zap.L().Debug("user.repo.insertUser", zap.Reflect("user", user))
+
+	result := u.db.Create(user)
 
 	if result.Error != nil {
 		return nil, result.Error
@@ -41,6 +44,8 @@ func (u *UserRepository) InsertUser(user *model.User) (*model.User, error) {
 
 // GetUser
 func (u *UserRepository) GetUser(id string) (*model.User, error) {
+	zap.L().Debug("user.repo.GetUser", zap.Reflect("id", id))
+
 	var user model.User
 
 	result := u.db.First(&user, "id = ?", id)
@@ -52,6 +57,8 @@ func (u *UserRepository) GetUser(id string) (*model.User, error) {
 
 // GetUserByEmail
 func (u *UserRepository) GetUserByEmail(email string) (*model.User, error) {
+	zap.L().Debug("user.repo.GetUserByEmail", zap.Reflect("email", email))
+
 	var user model.User
 
 	result := u.db.First(&user, "email = ?", email)

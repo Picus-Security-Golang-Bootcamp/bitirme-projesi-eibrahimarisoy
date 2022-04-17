@@ -2,7 +2,6 @@ package jwt_helper
 
 import (
 	"encoding/json"
-	"fmt"
 	"patika-ecommerce/internal/api"
 	"patika-ecommerce/internal/model"
 	"patika-ecommerce/pkg/config"
@@ -23,7 +22,6 @@ type JWTToken struct {
 
 // GetAuthToken is a service that generates a new JWT token
 func GetAuthToken(user *model.User, cfg *config.Config) api.TokenResponse {
-	fmt.Println("user", user)
 	jwtClaimsForAccessToken := NewJwtClaimsForAccessToken(user, cfg.JWTConfig.AccessTokenLifeTime)
 
 	jwtClaimsForRefreshToken := NewJwtClaimsForRefreshToken(user, cfg.JWTConfig.RefreshTokenLifeTime)

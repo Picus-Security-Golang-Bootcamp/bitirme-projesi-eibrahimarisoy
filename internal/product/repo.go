@@ -1,11 +1,11 @@
 package product
 
 import (
-	"fmt"
 	"patika-ecommerce/internal/model"
 	paginationHelper "patika-ecommerce/pkg/pagination"
 
 	"github.com/google/uuid"
+	"go.uber.org/zap"
 	"gorm.io/gorm"
 	"gorm.io/gorm/clause"
 )
@@ -34,7 +34,8 @@ func NewProductRepository(db *gorm.DB) *ProductRepository {
 
 // InsertProduct insert product
 func (r *ProductRepository) Insert(product *model.Product) error {
-	fmt.Println("InsertProduct: ", product)
+	zap.L().Debug("product.repo.Insert", zap.Reflect("product", product))
+
 	tx := r.db.Begin()
 
 	result := tx.Omit("Categories").Create(product)
@@ -56,6 +57,8 @@ func (r *ProductRepository) Insert(product *model.Product) error {
 
 // GetProducts get all products
 func (r *ProductRepository) GetAll(pagination *paginationHelper.Pagination) (*paginationHelper.Pagination, error) {
+	zap.L().Debug("product.repo.GetAll", zap.Reflect("pagination", pagination))
+
 	var products []model.Product
 	var totalRows int64
 
@@ -69,6 +72,8 @@ func (r *ProductRepository) GetAll(pagination *paginationHelper.Pagination) (*pa
 
 // GetProduct get a single product
 func (r *ProductRepository) Get(id uuid.UUID) (*model.Product, error) {
+	zap.L().Debug("product.repo.Get", zap.Reflect("id", id))
+
 	product := new(model.Product)
 	result := r.db.Preload("Categories").Where("id = ?", id).First(&product)
 	if result.Error != nil {
@@ -80,6 +85,8 @@ func (r *ProductRepository) Get(id uuid.UUID) (*model.Product, error) {
 
 // GetProductWithoutCategories get a single product
 func (r *ProductRepository) GetProductWithoutCategories(id uuid.UUID) (*model.Product, error) {
+	zap.L().Debug("product.repo.GetProductWithoutCategories", zap.Reflect("id", id))
+
 	product := new(model.Product)
 	result := r.db.Where("id = ?", id).First(&product)
 	if result.Error != nil {
@@ -91,21 +98,20 @@ func (r *ProductRepository) GetProductWithoutCategories(id uuid.UUID) (*model.Pr
 
 // DeleteProduct delete a single product
 func (r *ProductRepository) Delete(product *model.Product) error {
-	// r.db.Model(&product).Association("Categories").Delete(&product)
-	// r.db.Model(&product).Association("Categories").Delete(&product)
+	zap.L().Debug("product.repo.Delete", zap.Reflect("product", product))
 
 	result := r.db.Select(clause.Associations).Delete(product)
-	// result := r.db.Where(model.Product{}).Delete(&product)
 
 	if result.Error != nil {
 		return result.Error
 	}
-	fmt.Println("product: ", product)
 	return nil
 }
 
 // UpdateProduct update a single product
 func (r *ProductRepository) Update(product *model.Product) error {
+	zap.L().Debug("product.repo.Update", zap.Reflect("product", product))
+
 	tx := r.db.Begin()
 	for index, item := range product.Categories {
 		category := new(model.Category)

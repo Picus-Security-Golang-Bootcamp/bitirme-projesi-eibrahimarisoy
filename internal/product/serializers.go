@@ -71,26 +71,3 @@ func ProductToProductBasicResponse(product *model.Product) *api.ProductBasicResp
 		Stock:       stock,
 	}
 }
-
-// func ProductUpdateRequestToProduct(productUpdateRequest *api.ProductUpdateRequest) *model.Product {
-// 	stockAddr := productUpdateRequest.Stock
-// 	stock := int(stockAddr)
-
-// 	categories := []model.Category{}
-// 	for _, c := range productUpdateRequest.Categories {
-// 		categories = append(categories, model.Category{Base: model.Base{ID: c.ID}})
-// 	}
-
-// 	fmt.Printf("%+v", productUpdateRequest)
-
-// 	a := &model.Product{
-// 		Name:        &productUpdateRequest.Name,
-// 		Description: productUpdateRequest.Description,
-// 		Price:       &productUpdateRequest.Price,
-// 		Stock:       &stock,
-// 		Categories:  &categories,
-// 	}
-// 	fmt.Println("ddddddddddd", a.ToString())
-
-// 	return a
-// }

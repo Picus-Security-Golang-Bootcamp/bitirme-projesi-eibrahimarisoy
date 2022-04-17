@@ -7,6 +7,7 @@ import (
 	paginationHelper "patika-ecommerce/pkg/pagination"
 
 	"github.com/google/uuid"
+	"go.uber.org/zap"
 	"gorm.io/gorm"
 	"gorm.io/gorm/clause"
 )
@@ -44,6 +45,8 @@ func NewOrderItemRepository(db *gorm.DB) *OrderItemRepository {
 
 // CompleteOrder
 func (r *OrderRepository) CompleteOrder(user *model.User, cartId uuid.UUID) (*model.Order, error) {
+	zap.L().Debug("order.repo.CompleteOrder", zap.Reflect("user", user), zap.Reflect("cartId", cartId))
+
 	tx := r.db.Begin()
 	cart := model.Cart{}
 
@@ -110,6 +113,8 @@ func (r *OrderRepository) CompleteOrder(user *model.User, cartId uuid.UUID) (*mo
 
 // GetOrdersByUser returns all orders of a user
 func (r *OrderRepository) GetOrdersByUser(user *model.User, pagination *paginationHelper.Pagination) (*paginationHelper.Pagination, error) {
+	zap.L().Debug("order.repo.GetOrdersByUser", zap.Reflect("user", user), zap.Reflect("pagination", pagination))
+
 	var (
 		orders    []*model.Order
 		totalRows int64
@@ -124,6 +129,8 @@ func (r *OrderRepository) GetOrdersByUser(user *model.User, pagination *paginati
 
 // GetOrderByIdAndUser returns an order by id and user
 func (r *OrderRepository) GetOrderByIdAndUser(user *model.User, id uuid.UUID) (*model.Order, error) {
+	zap.L().Debug("order.repo.GetOrderByIdAndUser", zap.Reflect("user", user), zap.Reflect("id", id))
+
 	var order model.Order
 	if err := r.db.Preload("Items.Product").Where("id = ? AND user_id = ?", id, user.ID).First(&order).Error; err != nil {
 		return nil, err
@@ -134,6 +141,8 @@ func (r *OrderRepository) GetOrderByIdAndUser(user *model.User, id uuid.UUID) (*
 
 // CancelOrder cancels an order
 func (r *OrderRepository) CancelOrder(id uuid.UUID, user *model.User) error {
+	zap.L().Debug("order.repo.CancelOrder", zap.Reflect("user", user), zap.Reflect("id", id))
+
 	tx := r.db.Begin()
 	var order model.Order
 

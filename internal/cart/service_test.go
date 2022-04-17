@@ -751,7 +751,6 @@ func (r *mockCartRepo) GetOrCreateCart(user *model.User) (*model.Cart, error) {
 func (r *mockCartRepo) GetCreatedCart(user *model.User) (*model.Cart, error) {
 	for _, item := range r.items {
 		if user.ID == item.UserID && item.Status == model.CartStatusCreated {
-			fmt.Println("item", item)
 			return &item, nil
 		}
 	}

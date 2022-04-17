@@ -473,7 +473,6 @@ func (c *mockCategoryService) UpdateCategory(category *model.Category) error {
 			return nil
 		}
 	}
-	fmt.Println("not found")
 	return gorm.ErrRecordNotFound
 }
 

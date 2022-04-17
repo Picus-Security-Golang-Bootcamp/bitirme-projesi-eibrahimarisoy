@@ -2,7 +2,6 @@ package auth
 
 import (
 	"database/sql"
-	"fmt"
 	"patika-ecommerce/internal/model"
 	"regexp"
 	"testing"
@@ -79,7 +78,7 @@ func TestUserRepository_GetUserByEmail(t *testing.T) {
 	mock.ExpectQuery(regexp.QuoteMeta(query)).WithArgs(*u.Email).WillReturnRows(rows)
 
 	user, _ := repo.GetUserByEmail(*u.Email)
-	fmt.Println(user)
+
 	assert.Equal(t, user.ID, id)
 	assert.Equal(t, *user.Username, username)
 }

@@ -1,7 +1,6 @@
 package auth
 
 import (
-	"fmt"
 	"patika-ecommerce/internal/api"
 	httpErr "patika-ecommerce/internal/httpErrors"
 	"patika-ecommerce/pkg/config"
@@ -84,15 +83,12 @@ func (u *authHandler) refreshToken(c *gin.Context) {
 	}
 
 	if err := reqBody.Validate(strfmt.NewFormats()); err != nil {
-		fmt.Println(err)
 		c.JSON(httpErr.ErrorResponse(err))
 		return
 	}
 
 	resp, err := u.authService.RefreshToken(*reqBody.RefreshToken)
-	fmt.Println(err)
 	if err != nil {
-		fmt.Println(err)
 
 		c.JSON(httpErr.ErrorResponse(err))
 		return

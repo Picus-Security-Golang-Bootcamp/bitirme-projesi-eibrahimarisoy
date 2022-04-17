@@ -1,8 +1,6 @@
 package model
 
 import (
-	"fmt"
-
 	"gorm.io/gorm"
 
 	"golang.org/x/crypto/bcrypt"
@@ -30,8 +28,6 @@ func (u *User) BeforeCreate(tx *gorm.DB) (err error) {
 }
 
 func (u *User) CheckPassword(password string) bool {
-	fmt.Printf("Password: %s, %s\n", u.Password, password)
 	err := bcrypt.CompareHashAndPassword([]byte(u.Password), []byte(password))
-	fmt.Println(err)
 	return err == nil
 }
