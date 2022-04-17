@@ -2,7 +2,6 @@ package category
 
 import (
 	"bytes"
-	"fmt"
 	"io"
 	"patika-ecommerce/internal/api"
 	httpErr "patika-ecommerce/internal/httpErrors"
@@ -70,14 +69,11 @@ func (r *categoryHandler) getCategories(c *gin.Context) {
 
 // getCategory returns a category
 func (r *categoryHandler) getCategory(c *gin.Context) {
-	fmt.Println("category update", c.Param("id"))
-
 	id, err := uuid.Parse(c.Param("id"))
 	if err != nil {
 		c.JSON(httpErr.ErrorResponse(err))
 		return
 	}
-	fmt.Println(id)
 
 	category, err := r.categoryService.GetCategoryByID(id)
 	if err != nil {
@@ -90,15 +86,12 @@ func (r *categoryHandler) getCategory(c *gin.Context) {
 
 // updateCategory updates a category
 func (r *categoryHandler) updateCategory(c *gin.Context) {
-	fmt.Println("category update", c.Param("id"))
 	categoryID, err := uuid.Parse(c.Param("id"))
-	fmt.Println(categoryID)
 	if err != nil {
 		c.JSON(httpErr.ErrorResponse(err))
 		return
 	}
 
-	fmt.Println("category", c.Param("id"))
 	reqBody := &api.CategoryRequest{}
 	if err := c.ShouldBindJSON(&reqBody); err != nil {
 		c.JSON(httpErr.ErrorResponse(err))
@@ -111,7 +104,6 @@ func (r *categoryHandler) updateCategory(c *gin.Context) {
 	}
 
 	category := CategoryRequestToCategory(reqBody)
-	fmt.Println(category)
 	category.ID = categoryID
 
 	if err := r.categoryService.UpdateCategory(category); err != nil {
@@ -125,7 +117,6 @@ func (r *categoryHandler) updateCategory(c *gin.Context) {
 // createBulkCategories creates a new categories with file upload
 func (r *categoryHandler) createBulkCategories(c *gin.Context) {
 	file, header, err := c.Request.FormFile("file")
-	// defer file.Close()
 
 	if err != nil {
 		c.JSON(httpErr.ErrorResponse(err))

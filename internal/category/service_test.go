@@ -3,7 +3,6 @@ package category
 import (
 	"bytes"
 	"errors"
-	"fmt"
 	"patika-ecommerce/internal/model"
 	"reflect"
 	"testing"
@@ -11,10 +10,6 @@ import (
 	"github.com/go-playground/assert/v2"
 	"github.com/google/uuid"
 )
-
-// type categoryMockRepository struct {
-// 	items []model.Category
-// }
 
 func TestCategoryService_CreateCategory(t *testing.T) {
 	categoryName := "category name 1"
@@ -310,8 +305,6 @@ func TestCategoryService_DeleteCategory(t *testing.T) {
 }
 
 func TestCategoryService_CreateBulkCategories(t *testing.T) {
-	fmt.Println("TestCategoryService_CreateBulkCategories")
-
 	type fields struct {
 		categoryRepo MockCategoryRepository
 	}
@@ -338,7 +331,7 @@ func TestCategoryService_CreateBulkCategories(t *testing.T) {
 				},
 			},
 			args: args{
-				filename: createFilename(),
+				filename: createFile(),
 			},
 			want: []model.Category{
 				{
@@ -363,8 +356,8 @@ func TestCategoryService_CreateBulkCategories(t *testing.T) {
 	}
 }
 
-func createFilename() *bytes.Buffer {
-	d1 := []byte("category_name,category_description\ncategory name 222,category description 1\ncategory name 3332,category description     2")
+func createFile() *bytes.Buffer {
+	d1 := []byte("category_name,category_description\ncategory name 1,category description 1\ncategory name 2,category description 2")
 	body := bytes.NewBuffer(d1)
 	return body
 }
@@ -394,9 +387,10 @@ func (r *categoryMockRepository) GetCategoryByID(id uuid.UUID) (*model.Category,
 	for _, item := range r.Items {
 		if item.ID == id {
 			category = &item
+			return category, nil
 		}
 	}
-	return category, nil
+	return nil, errors.New("category not found")
 }
 
 // UpdateCategory updates a category with the given id
@@ -406,7 +400,6 @@ func (r *categoryMockRepository) UpdateCategory(category *model.Category) error 
 			r.Items[i] = *category
 		}
 	}
-
 	return nil
 }
 
@@ -420,22 +413,16 @@ func (r *categoryMockRepository) InsertBulkCategory(categories *[]model.Category
 		}
 		r.Items = append(r.Items, category)
 	}
-
 	return nil
 }
 
 // DeleteCategory deletes a category by id
 func (r *categoryMockRepository) Delete(category *model.Category) error {
-	isExist := false
 	for index, item := range r.Items {
 		if item.ID == category.ID {
-			category = &item
-			isExist = true
 			r.Items = append(r.Items[:index], r.Items[index+1:]...)
+			return nil
 		}
 	}
-	if !isExist {
-		return errors.New("category not found")
-	}
-	return nil
+	return errors.New("category not found")
 }

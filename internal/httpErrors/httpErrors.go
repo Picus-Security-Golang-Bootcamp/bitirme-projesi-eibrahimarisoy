@@ -77,7 +77,7 @@ func ParseErrors(err error) RestErr {
 		return NewRestError(http.StatusNotFound, gorm.ErrRecordNotFound.Error(), err)
 	case strings.Contains(err.Error(), "validation"): //validator.ValidationErrorsKey:
 		return NewRestError(http.StatusBadRequest, ValidationError.Error(), err)
-	case strings.Contains(err.Error(), "extension"):
+	case strings.Contains(err.Error(), "extension") || strings.Contains(err.Error(), "Media type"):
 		return NewRestError(http.StatusBadRequest, MediaTypeNotSupported.Error(), err)
 	case strings.Contains(err.Error(), "23505"):
 		return NewRestError(http.StatusBadRequest, UniqueError.Error(), err)
@@ -95,6 +95,11 @@ func ParseErrors(err error) RestErr {
 		return NewRestError(http.StatusBadRequest, UnauthorizedError.Error(), err)
 	case strings.Contains(err.Error(), "token contains an invalid number"):
 		return NewRestError(http.StatusBadRequest, ValidationError.Error(), err)
+	case strings.Contains(err.Error(), "invalid character"):
+		return NewRestError(http.StatusBadRequest, MediaTypeNotSupported.Error(), err)
+	case strings.Contains(err.Error(), "invalid UUID format") || strings.Contains(err.Error(), "invalid UUID"):
+		return NewRestError(http.StatusNotFound, NotFound.Error(), err)
+
 	default:
 		if restErr, ok := err.(RestErr); ok {
 			return restErr
