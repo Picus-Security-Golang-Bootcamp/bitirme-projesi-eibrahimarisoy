@@ -1,6 +1,7 @@
 package cart
 
 import (
+	"fmt"
 	"patika-ecommerce/internal/api"
 	"patika-ecommerce/internal/model"
 
@@ -92,6 +93,7 @@ func (r *cartHandler) updateCartItem(c *gin.Context) {
 	}
 
 	if err := reqBody.Validate(strfmt.NewFormats()); err != nil {
+		fmt.Println("err", err)
 		c.JSON(httpErr.ErrorResponse(err))
 		return
 	}
