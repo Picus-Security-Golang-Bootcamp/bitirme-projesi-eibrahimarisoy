@@ -51,7 +51,7 @@ func (a *AuthService) Login(u *model.User) (api.TokenResponse, error) {
 		}
 		return api.TokenResponse{}, err
 	}
-
+	// check if the password is correct
 	if !user.CheckPassword(u.Password) {
 		return api.TokenResponse{}, httpErr.UnauthorizedError
 	}
@@ -67,6 +67,7 @@ func (a *AuthService) RefreshToken(refreshToken string) (api.TokenResponse, erro
 		return api.TokenResponse{}, httpErr.UnauthorizedError
 	}
 
+	// parse the refresh token
 	token, err := jwtHelper.ParseToken(refreshToken, a.cfg.JWTConfig.SecretKey)
 
 	if err != nil {

@@ -150,7 +150,7 @@ func (r *CartRepository) UpdateCart(cart *model.Cart) error {
 	return r.db.Model(&cart).Updates(cart).Error
 }
 
-// ###### CART ITEM ######
+// ###### CART ITEM REPOSITORY ######
 
 func (r *CartItemRepository) Create(cart *model.Cart, product *model.Product) error {
 	zap.L().Debug("cartItem.repo.Create", zap.Reflect("cart", cart), zap.Reflect("product", product))

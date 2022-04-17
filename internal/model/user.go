@@ -16,6 +16,7 @@ type User struct {
 	IsAdmin   bool    `json:"isAdmin" default:"false" gorm:"type:boolean"`
 }
 
+// BeforeCreate hook
 func (u *User) BeforeCreate(tx *gorm.DB) (err error) {
 	if u.Password != "" {
 		hashed, err := bcrypt.GenerateFromPassword([]byte(u.Password), bcrypt.DefaultCost)
@@ -27,6 +28,7 @@ func (u *User) BeforeCreate(tx *gorm.DB) (err error) {
 	return
 }
 
+//CheckPassword check password against the stored hash
 func (u *User) CheckPassword(password string) bool {
 	err := bcrypt.CompareHashAndPassword([]byte(u.Password), []byte(password))
 	return err == nil

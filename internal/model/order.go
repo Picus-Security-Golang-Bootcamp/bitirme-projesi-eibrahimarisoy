@@ -40,6 +40,7 @@ type OrderItem struct {
 	Price float64 `json:"price" gorm:"type:numeric(10,2)"`
 }
 
+//IsCancelable returns true if order is in created status
 func (o *Order) IsCancelable() bool {
 	lastDay := o.CreatedAt.AddDate(0, 0, 14)
 	if time.Now().Before(lastDay) && o.Status == OrderStatusCompleted {

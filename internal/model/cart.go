@@ -36,11 +36,13 @@ type CartItem struct {
 	Price    float64 `json:"price" gorm:"not null"`
 }
 
+// BeforeCreate hook
 func (c *Cart) BeforeCreate(tx *gorm.DB) error {
 	c.Status = CartStatusCreated
 	return nil
 }
 
+// GetCartItemByID returns cart item by id
 func (c *Cart) GetCartItemByID(id uuid.UUID) (*CartItem, error) {
 	for _, item := range c.Items {
 		if item.ID == id {
@@ -50,6 +52,7 @@ func (c *Cart) GetCartItemByID(id uuid.UUID) (*CartItem, error) {
 	return nil, fmt.Errorf("Cart item not found")
 }
 
+// GetTotalPrice returns total price of cart
 func (c *Cart) GetTotalPrice() float64 {
 	var totalPrice float64
 	for _, item := range c.Items {

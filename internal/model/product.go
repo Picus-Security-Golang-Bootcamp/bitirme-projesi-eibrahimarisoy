@@ -19,6 +19,7 @@ type Product struct {
 	CategoriesID []strfmt.UUID `json:"categories_id" gorm:"-"`
 }
 
+// BeforeCreate hook
 func (p *Product) BeforeCreate(tx *gorm.DB) error {
 	p.Slug = slug.Make(*p.Name + "-" + *p.SKU)
 	return nil

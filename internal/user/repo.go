@@ -42,7 +42,7 @@ func (u *UserRepository) InsertUser(user *model.User) (*model.User, error) {
 
 }
 
-// GetUser
+// GetUser returns a user by id
 func (u *UserRepository) GetUser(id string) (*model.User, error) {
 	zap.L().Debug("user.repo.GetUser", zap.Reflect("id", id))
 
@@ -55,7 +55,7 @@ func (u *UserRepository) GetUser(id string) (*model.User, error) {
 	return &user, nil
 }
 
-// GetUserByEmail
+// GetUserByEmail returns a user by email
 func (u *UserRepository) GetUserByEmail(email string) (*model.User, error) {
 	zap.L().Debug("user.repo.GetUserByEmail", zap.Reflect("email", email))
 

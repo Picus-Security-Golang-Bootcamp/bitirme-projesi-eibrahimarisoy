@@ -14,6 +14,7 @@ type Category struct {
 	Products []Product `json:"products" gorm:"many2many:product_categories"`
 }
 
+// BeforeCreate hook
 func (c *Category) BeforeCreate(tx *gorm.DB) error {
 	if c.Slug == "" {
 		c.Slug = slug.Make(*c.Name)

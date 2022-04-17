@@ -50,6 +50,7 @@ func (r *OrderRepository) CompleteOrder(user *model.User, cartId uuid.UUID) (*mo
 	tx := r.db.Begin()
 	cart := model.Cart{}
 
+	// get cart by id and user id
 	if err := tx.Model(model.Cart{}).
 		Clauses(clause.Locking{Strength: "UPDATE"}).
 		Preload("Items.Product").
@@ -58,7 +59,7 @@ func (r *OrderRepository) CompleteOrder(user *model.User, cartId uuid.UUID) (*mo
 		tx.Rollback()
 		return nil, err
 	}
-
+	// create order from cart
 	order := model.Order{
 		UserID:     cart.UserID,
 		CartID:     cart.ID,
@@ -71,6 +72,7 @@ func (r *OrderRepository) CompleteOrder(user *model.User, cartId uuid.UUID) (*mo
 		return nil, err
 	}
 
+	// create order items from cart items
 	for _, item := range cart.Items {
 		product := item.Product
 		if *product.Stock < item.Quantity {
@@ -78,6 +80,7 @@ func (r *OrderRepository) CompleteOrder(user *model.User, cartId uuid.UUID) (*mo
 			return nil, fmt.Errorf("product %s stock is not enough", *item.Product.Name)
 		}
 		newProd := &model.Product{}
+		// update product stock
 		if err := tx.Model(&model.Product{}).
 			Clauses(clause.Locking{Strength: "UPDATE"}).
 			Where("id = ?", item.Product.ID).
@@ -86,7 +89,7 @@ func (r *OrderRepository) CompleteOrder(user *model.User, cartId uuid.UUID) (*mo
 			tx.Rollback()
 			return nil, err
 		}
-
+		// create order item
 		for i := 0; i < int(item.Quantity); i++ {
 			orderItem := &model.OrderItem{
 				OrderID:   order.ID,
@@ -100,7 +103,7 @@ func (r *OrderRepository) CompleteOrder(user *model.User, cartId uuid.UUID) (*mo
 			}
 		}
 	}
-
+	// save cart
 	cart.Status = model.CartStatusPaid
 	if err := tx.Save(cart).Error; err != nil {
 		tx.Rollback()
@@ -145,7 +148,7 @@ func (r *OrderRepository) CancelOrder(id uuid.UUID, user *model.User) error {
 
 	tx := r.db.Begin()
 	var order model.Order
-
+	// get order by id and user id
 	if err := tx.
 		Clauses(clause.Locking{Strength: "UPDATE"}).
 		Preload("Items.Product").
@@ -154,10 +157,12 @@ func (r *OrderRepository) CancelOrder(id uuid.UUID, user *model.User) error {
 		tx.Rollback()
 		return err
 	}
+	// check if order is cancelable
 	if !order.IsCancelable() {
 		return httpErr.OrderCannotBeCanceledError
 	}
 
+	// update products stock
 	newProd := &model.Product{}
 	for _, item := range order.Items {
 		if err := tx.Model(&model.Product{}).
@@ -169,7 +174,7 @@ func (r *OrderRepository) CancelOrder(id uuid.UUID, user *model.User) error {
 			return err
 		}
 	}
-
+	// update order status
 	order.Status = model.OrderStatusCanceled
 	if err := tx.Save(&order).Error; err != nil {
 		tx.Rollback()

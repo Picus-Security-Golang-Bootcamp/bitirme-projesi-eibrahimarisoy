@@ -831,6 +831,8 @@ definitions:
         type: "number"
       stock:
         type: "integer"
+      sku:
+        type: "string"
       categories:
         type: "array"
         items:

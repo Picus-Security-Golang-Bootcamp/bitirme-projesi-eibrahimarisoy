@@ -7,6 +7,7 @@ import (
 	common "patika-ecommerce/pkg/utils"
 )
 
+// CartToCartResponse converts a cart to a cart response
 func CartToCartResponse(cart *model.Cart) *api.CartResponse {
 	cartItemResponse := []*api.CartItemResponse{}
 
@@ -28,6 +29,7 @@ func CartToCartResponse(cart *model.Cart) *api.CartResponse {
 	}
 }
 
+// CartAddRequestToCartItem converts a cart add request to a cart item
 func CartAddRequestToCartItem(req *api.AddToCartRequest) *model.CartItem {
 	id, _ := common.StrfmtToUUID(req.ProductID)
 

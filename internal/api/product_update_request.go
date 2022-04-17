@@ -31,6 +31,9 @@ type ProductUpdateRequest struct {
 	// price
 	Price float64 `json:"price,omitempty"`
 
+	// sku
+	Sku string `json:"sku,omitempty"`
+
 	// stock
 	Stock int64 `json:"stock,omitempty"`
 }

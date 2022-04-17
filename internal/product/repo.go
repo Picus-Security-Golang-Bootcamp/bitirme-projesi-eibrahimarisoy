@@ -115,33 +115,38 @@ func (r *ProductRepository) Update(product *model.Product) error {
 	tx := r.db.Begin()
 	for index, item := range product.Categories {
 		category := new(model.Category)
-		result := tx.Model(category).Where("id = ?", item.ID).First(&category)
-		if result.Error != nil {
+		if err := tx.Model(category).Where("id = ?", item.ID).First(&category); err != nil {
 			tx.Rollback()
-			return result.Error
+			return err.Error
 		}
 		product.Categories[index] = *category
 	}
 
 	exProduct := new(model.Product)
 
-	// get product
-	err := tx.Where("id = ?", product.ID).Preload("Categories").First(&exProduct)
-
-	if err.Error != nil {
+	// get ex product
+	if err := tx.Where("id = ?", product.ID).Preload("Categories").First(&exProduct); err.Error != nil {
+		tx.Rollback()
 		return err.Error
 	}
 
 	// delete all associated categories
 	if err := tx.Model(&exProduct).Association("Categories").Delete(&exProduct.Categories); err != nil {
+		tx.Rollback()
 		return err
 	}
 
-	result := tx.Model(&product).Updates(&product)
-
-	if result.Error != nil {
+	if result := tx.Model(&product).Updates(&product); result.Error != nil {
 		tx.Rollback()
 		return result.Error
+	}
+
+	// update cart items price if product price is changed
+	if exProduct.Price != product.Price {
+		if err := tx.Model(&model.CartItem{}).Where("product_id = ?", product.ID).Update("price", product.Price).Error; err != nil {
+			tx.Rollback()
+			return err
+		}
 	}
 
 	tx.Commit()

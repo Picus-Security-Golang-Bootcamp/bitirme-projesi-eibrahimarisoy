@@ -117,7 +117,7 @@ func (r *productHandler) deleteProduct(c *gin.Context) {
 
 // updateProduct updates a single product
 func (r *productHandler) updateProduct(c *gin.Context) {
-	reqBody := &api.ProductRequest{}
+	reqBody := &api.ProductUpdateRequest{}
 
 	if err := c.ShouldBindJSON(reqBody); err != nil {
 		c.JSON(httpErr.ErrorResponse(err))
@@ -129,7 +129,7 @@ func (r *productHandler) updateProduct(c *gin.Context) {
 		return
 	}
 
-	product := ProductRequestToProduct(reqBody)
+	product := ProductUpdateRequestToProduct(reqBody)
 
 	id, err := uuid.Parse(c.Param("id"))
 	if err != nil {
