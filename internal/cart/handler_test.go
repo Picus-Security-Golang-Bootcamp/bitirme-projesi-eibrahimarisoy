@@ -187,7 +187,7 @@ func Test_cartHandler_addToCart(t *testing.T) {
 	})
 
 	t.Run("addToCart_Fault_reqBodyFormat", func(t *testing.T) {
-		payloadNotValid := []byte(`{"productId":test, "quantity":2}`)
+		payloadNotValid := []byte(`{"productId": "7eb938ad-c3a9-4605-9277", "quantity": 2 }`)
 		gin.SetMode(gin.TestMode)
 		w := httptest.NewRecorder()
 		c, _ := gin.CreateTestContext(w)

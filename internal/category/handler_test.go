@@ -412,6 +412,25 @@ func Test_categoryHandler_createBulkCategories(t *testing.T) {
 		assert.Equal(t, http.StatusBadRequest, w.Code)
 	})
 
+	t.Run("createBulkCategories_Failed_duplicateName", func(t *testing.T) {
+		body := new(bytes.Buffer)
+		writer := multipart.NewWriter(body)
+		part, _ := writer.CreateFormFile("file", "file.csv")
+		part.Write([]byte("category_name,category_description\ncategory name 1,category description 1\ncategory name 1,category description 2"))
+		writer.Close()
+
+		w := httptest.NewRecorder()
+		c, r := gin.CreateTestContext(w)
+
+		gin.SetMode(gin.TestMode)
+		r.POST("/categories/bulk-upload", categoryHandler.createBulkCategories)
+		c.Request, _ = http.NewRequest("GET", "/categories/bulk-upload", body)
+		c.Request.Header.Set("Content-Type", writer.FormDataContentType())
+		categoryHandler.createBulkCategories(c)
+
+		assert.Equal(t, http.StatusBadRequest, w.Code)
+	})
+
 }
 
 type mockCategoryService struct {
@@ -473,7 +492,7 @@ func (c *mockCategoryService) CreateBulkCategories(filename *bytes.Buffer) ([]mo
 		}
 		for _, item := range c.items {
 			if *item.Name == *category.Name {
-				return nil, fmt.Errorf("category already exists")
+				return nil, fmt.Errorf("23505")
 			}
 		}
 		categories = append(categories, category)

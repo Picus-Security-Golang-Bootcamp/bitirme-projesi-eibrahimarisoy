@@ -132,11 +132,6 @@ func (r *categoryHandler) createBulkCategories(c *gin.Context) {
 		c.JSON(httpErr.ErrorResponse(err))
 	}
 
-	if err != nil {
-		c.JSON(httpErr.ErrorResponse(err))
-		return
-	}
-
 	categories, err := r.categoryService.CreateBulkCategories(buf)
 
 	if err != nil {
