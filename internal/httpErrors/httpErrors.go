@@ -13,16 +13,17 @@ import (
 )
 
 var (
-	InternalServerError      = errors.New("Internal Server Error")
-	NotFound                 = errors.New("Not Found")
-	RequestTimeoutError      = errors.New("Request Timeout")
-	CannotBindGivenData      = errors.New("Could not bind given data")
-	ValidationError          = errors.New("Validation failed for given payload")
-	UniqueError              = errors.New("Item should be unique on database")
-	Unauthorized             = errors.New("Unauthorized")
-	MediaTypeNotSupported    = errors.New("Media type not supported")
-	UnauthorizedError        = errors.New("Unauthorized")
-	GivenAssociationNotFound = errors.New("Given association not found")
+	InternalServerError        = errors.New("Internal Server Error")
+	NotFound                   = errors.New("Not Found")
+	RequestTimeoutError        = errors.New("Request Timeout")
+	CannotBindGivenData        = errors.New("Could not bind given data")
+	ValidationError            = errors.New("Validation failed for given payload")
+	UniqueError                = errors.New("Item should be unique on database")
+	Unauthorized               = errors.New("Unauthorized")
+	MediaTypeNotSupported      = errors.New("Media type not supported")
+	UnauthorizedError          = errors.New("Unauthorized")
+	GivenAssociationNotFound   = errors.New("Given association not found")
+	OrderCannotBeCanceledError = errors.New("Order cannot be canceled")
 )
 
 type RestError api.APIErrorResponse
@@ -76,6 +77,8 @@ func ParseErrors(err error) RestErr {
 		return NewRestError(http.StatusBadRequest, CannotBindGivenData.Error(), err)
 	case errors.Is(err, gorm.ErrRecordNotFound):
 		return NewRestError(http.StatusNotFound, gorm.ErrRecordNotFound.Error(), err)
+	case errors.Is(err, OrderCannotBeCanceledError):
+		return NewRestError(http.StatusBadRequest, OrderCannotBeCanceledError.Error(), err)
 	case strings.Contains(err.Error(), "validation"): //validator.ValidationErrorsKey:
 		return NewRestError(http.StatusBadRequest, ValidationError.Error(), err)
 	case strings.Contains(err.Error(), "extension") || strings.Contains(err.Error(), "Media type"):

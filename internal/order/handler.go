@@ -52,10 +52,6 @@ func (r *orderHandler) completeOrder(c *gin.Context) {
 	order, err := r.orderRepo.CompleteOrder(user, cartId)
 	if err != nil {
 		c.JSON(httpErr.ErrorResponse(err))
-	}
-
-	if err != nil {
-		c.JSON(httpErr.ErrorResponse(err))
 		return
 	}
 

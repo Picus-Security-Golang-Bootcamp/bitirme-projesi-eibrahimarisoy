@@ -6,6 +6,7 @@ import (
 	"io/ioutil"
 	"net/http"
 	"net/http/httptest"
+	httpErr "patika-ecommerce/internal/httpErrors"
 	"patika-ecommerce/internal/model"
 	paginationHelper "patika-ecommerce/pkg/pagination"
 	"testing"
@@ -23,15 +24,11 @@ func getOrderCompletePayload(cartID string) []byte {
 }
 
 func Test_orderHandler_completeOrder(t *testing.T) {
-	cartId := uuid.New()
-	// reqCartId := strfmt.UUID(cartId.String())
-
-	productId := uuid.New()
-	userId := uuid.New()
-	// cartItemId := uuid.New()
-
-	productName := "product name"
-	productStock := int64(10)
+	cartId, productId, userId := uuid.New(), uuid.New(), uuid.New()
+	productName, productStock := "product name", int64(10)
+	user := model.User{
+		Base: model.Base{ID: userId},
+	}
 
 	orderRepo := &mockOrderRepo{
 		orders: []model.Order{},
@@ -57,38 +54,75 @@ func Test_orderHandler_completeOrder(t *testing.T) {
 			},
 		},
 	}
-	gin.SetMode(gin.TestMode)
-
-	user := model.User{
-		Base: model.Base{ID: userId},
-	}
-
-	w := httptest.NewRecorder()
 	orderHandler := &orderHandler{
 		orderRepo: orderRepo,
 	}
-	c, _ := gin.CreateTestContext(w)
-	c.Set("user", &user)
-	c.Request, _ = http.NewRequest("POST", "/orders", nil)
-	c.Request.Header.Set("Content-Type", "application/json")
-	c.Request.Body = ioutil.NopCloser(bytes.NewBuffer(getOrderCompletePayload(cartId.String())))
+	t.Run("completeOrder_Success", func(t *testing.T) {
+		gin.SetMode(gin.TestMode)
+		w := httptest.NewRecorder()
+		c, _ := gin.CreateTestContext(w)
+		c.Set("user", &user)
+		c.Request, _ = http.NewRequest("POST", "/orders", nil)
+		c.Request.Header.Set("Content-Type", "application/json")
+		c.Request.Body = ioutil.NopCloser(bytes.NewBuffer(getOrderCompletePayload(cartId.String())))
 
-	orderHandler.completeOrder(c)
+		orderHandler.completeOrder(c)
 
-	assert.Equal(t, http.StatusOK, w.Code)
-	assert.Equal(t, int64(9), *orderRepo.products[0].Stock)
-	assert.Equal(t, 1, len(orderRepo.orders))
+		assert.Equal(t, http.StatusOK, w.Code)
+		assert.Equal(t, int64(9), *orderRepo.products[0].Stock)
+		assert.Equal(t, 1, len(orderRepo.orders))
+
+	})
+
+	t.Run("completeOrder_Failed_invalidReqBody", func(t *testing.T) {
+		gin.SetMode(gin.TestMode)
+		w := httptest.NewRecorder()
+		c, _ := gin.CreateTestContext(w)
+		c.Set("user", &user)
+		c.Request, _ = http.NewRequest("POST", "/orders", nil)
+		c.Request.Header.Set("Content-Type", "application/json")
+		c.Request.Body = ioutil.NopCloser(bytes.NewBuffer([]byte(`{invalid: "` + cartId.String() + `"}`)))
+
+		orderHandler.completeOrder(c)
+
+		assert.Equal(t, http.StatusBadRequest, w.Code)
+
+	})
+
+	t.Run("completeOrder_Failed_invalidFormat", func(t *testing.T) {
+		gin.SetMode(gin.TestMode)
+		w := httptest.NewRecorder()
+		c, _ := gin.CreateTestContext(w)
+		c.Set("user", &user)
+		c.Request, _ = http.NewRequest("POST", "/orders", nil)
+		c.Request.Header.Set("Content-Type", "application/json")
+		c.Request.Body = ioutil.NopCloser(bytes.NewBuffer([]byte(`{"cartId_not_valid": "` + cartId.String() + `"}`)))
+
+		orderHandler.completeOrder(c)
+
+		assert.Equal(t, http.StatusBadRequest, w.Code)
+	})
+
+	t.Run("completeOrder_Failed_cartIdNotFound", func(t *testing.T) {
+		gin.SetMode(gin.TestMode)
+		w := httptest.NewRecorder()
+		c, _ := gin.CreateTestContext(w)
+		c.Set("user", &user)
+		c.Request, _ = http.NewRequest("POST", "/orders", nil)
+		c.Request.Header.Set("Content-Type", "application/json")
+		c.Request.Body = ioutil.NopCloser(bytes.NewBuffer([]byte(`{"cartId": "` + uuid.New().String() + `"}`)))
+
+		orderHandler.completeOrder(c)
+
+		assert.Equal(t, http.StatusNotFound, w.Code)
+
+	})
 
 }
 
 func Test_orderHandler_listOrders(t *testing.T) {
-	cartId := uuid.New()
-	productId := uuid.New()
-	userId := uuid.New()
-
-	productName := "product name"
-	productStock := int64(10)
-
+	cartId, productId, userId := uuid.New(), uuid.New(), uuid.New()
+	productName, productStock := "product name", int64(10)
 	orderRepo := &mockOrderRepo{
 		orders: []model.Order{
 			{
@@ -112,30 +146,45 @@ func Test_orderHandler_listOrders(t *testing.T) {
 			},
 		},
 	}
+
 	pagination := paginationHelper.Pagination{
 		Limit: 2,
 		Page:  1,
 	}
-
-	gin.SetMode(gin.TestMode)
-
 	user := model.User{
 		Base: model.Base{ID: userId},
 	}
-
-	w := httptest.NewRecorder()
 	orderHandler := &orderHandler{
 		orderRepo: orderRepo,
 	}
-	c, _ := gin.CreateTestContext(w)
-	c.Set("pagination", &pagination)
-	c.Set("user", &user)
-	c.Request, _ = http.NewRequest("GET", "/orders", nil)
-	c.Request.Header.Set("Content-Type", "application/json")
 
-	orderHandler.listOrders(c)
+	t.Run("listOrders_Success", func(t *testing.T) {
+		gin.SetMode(gin.TestMode)
+		w := httptest.NewRecorder()
+		c, _ := gin.CreateTestContext(w)
+		c.Set("pagination", &pagination)
+		c.Set("user", &user)
+		c.Request, _ = http.NewRequest("GET", "/orders", nil)
+		c.Request.Header.Set("Content-Type", "application/json")
 
-	assert.Equal(t, http.StatusOK, w.Code)
+		orderHandler.listOrders(c)
+		assert.Equal(t, http.StatusOK, w.Code)
+	})
+
+	t.Run("listOrders_Failed_userNotFound", func(t *testing.T) {
+		newUser := model.User{Base: model.Base{ID: uuid.New()}}
+
+		gin.SetMode(gin.TestMode)
+		w := httptest.NewRecorder()
+		c, _ := gin.CreateTestContext(w)
+		c.Set("pagination", &pagination)
+		c.Set("user", &newUser)
+		c.Request, _ = http.NewRequest("GET", "/orders", nil)
+		c.Request.Header.Set("Content-Type", "application/json")
+
+		orderHandler.listOrders(c)
+		assert.Equal(t, http.StatusNotFound, w.Code)
+	})
 }
 
 func Test_orderHandler_cancelOrder(t *testing.T) {
@@ -174,31 +223,93 @@ func Test_orderHandler_cancelOrder(t *testing.T) {
 		},
 	}
 
-	gin.SetMode(gin.TestMode)
-
 	user := model.User{
 		Base: model.Base{ID: userId},
 	}
 
-	w := httptest.NewRecorder()
-	orderHandler := &orderHandler{
-		orderRepo: orderRepo,
-	}
-	c, _ := gin.CreateTestContext(w)
-	c.Set("user", &user)
-	c.Params = []gin.Param{{Key: "id", Value: orderId.String()}}
-	c.Request, _ = http.NewRequest("DELETE", "/orders/:id", nil)
-	c.Request.Header.Set("Content-Type", "application/json")
+	t.Run("cancelOrder_Success", func(t *testing.T) {
+		orderHandler := &orderHandler{
+			orderRepo: orderRepo,
+		}
+		w := httptest.NewRecorder()
+		gin.SetMode(gin.TestMode)
+		c, _ := gin.CreateTestContext(w)
+		c.Set("user", &user)
+		c.Params = []gin.Param{{Key: "id", Value: orderId.String()}}
+		c.Request, _ = http.NewRequest("DELETE", "/orders/:id", nil)
+		c.Request.Header.Set("Content-Type", "application/json")
 
-	orderHandler.cancelOrder(c)
+		orderHandler.cancelOrder(c)
 
-	assert.Equal(t, http.StatusOK, w.Code)
-	assert.Equal(t, int64(11), *orderRepo.orders[0].Items[0].Product.Stock)
+		assert.Equal(t, http.StatusOK, w.Code)
+		assert.Equal(t, int64(11), *orderRepo.orders[0].Items[0].Product.Stock)
+	})
+
+	t.Run("cancelOrder_Failed_invalidId", func(t *testing.T) {
+		orderHandler := &orderHandler{
+			orderRepo: orderRepo,
+		}
+		w := httptest.NewRecorder()
+		gin.SetMode(gin.TestMode)
+		c, _ := gin.CreateTestContext(w)
+		c.Set("user", &user)
+		c.Params = []gin.Param{{Key: "id", Value: "orderId.String()"}}
+		c.Request, _ = http.NewRequest("DELETE", "/orders/:id", nil)
+		c.Request.Header.Set("Content-Type", "application/json")
+
+		orderHandler.cancelOrder(c)
+
+		assert.Equal(t, http.StatusNotFound, w.Code)
+	})
+
+	t.Run("cancelOrder_Failed_timeout", func(t *testing.T) {
+		orderRepo := &mockOrderRepo{
+			orders: []model.Order{
+				{
+					Base: model.Base{
+						ID:        orderId,
+						CreatedAt: time.Now().AddDate(0, 0, -15),
+					},
+					CartID: cartId,
+					Status: model.OrderStatusCompleted,
+					Items: []model.OrderItem{
+						{
+							ProductID: productId,
+							Price:     100,
+							Product: model.Product{
+								Base:  model.Base{ID: productId},
+								Name:  &productName,
+								Price: 100,
+								Stock: &productStock,
+							},
+						},
+					},
+					UserID:     userId,
+					TotalPrice: 100,
+				},
+			},
+		}
+
+		orderHandler := &orderHandler{
+			orderRepo: orderRepo,
+		}
+		w := httptest.NewRecorder()
+		gin.SetMode(gin.TestMode)
+		c, _ := gin.CreateTestContext(w)
+		c.Set("user", &user)
+		c.Params = []gin.Param{{Key: "id", Value: orderId.String()}}
+		c.Request, _ = http.NewRequest("DELETE", "/orders/:id", nil)
+		c.Request.Header.Set("Content-Type", "application/json")
+
+		orderHandler.cancelOrder(c)
+
+		assert.Equal(t, http.StatusBadRequest, w.Code)
+
+	})
 }
 
 var (
-	OrderCannotBeCanceledError = fmt.Errorf("order cannot be canceled")
-	OrderNotFoundError         = fmt.Errorf("order not found")
+	OrderNotFoundError = fmt.Errorf("order not found")
 )
 
 type mockOrderRepo struct {
@@ -207,6 +318,10 @@ type mockOrderRepo struct {
 	orderItems []model.OrderItem
 	products   []model.Product
 }
+
+var (
+	CartNotFoundError = fmt.Errorf("cart not found")
+)
 
 func (r *mockOrderRepo) CompleteOrder(user *model.User, cartId uuid.UUID) (*model.Order, error) {
 	for _, item := range r.carts {
@@ -240,15 +355,28 @@ func (r *mockOrderRepo) CompleteOrder(user *model.User, cartId uuid.UUID) (*mode
 			return &order, nil
 		}
 	}
-
-	return nil, fmt.Errorf("cart not found")
+	return nil, CartNotFoundError
 }
 
 // GetOrdersByUser returns all orders of a user
 func (r *mockOrderRepo) GetOrdersByUser(user *model.User, pagination *paginationHelper.Pagination) (*paginationHelper.Pagination, error) {
+	isExist := false
+	for _, order := range r.orders {
+		if order.UserID == user.ID {
+			isExist = true
+			break
+		}
+	}
+	if !isExist {
+		return nil, fmt.Errorf("user not found")
+	}
+
 	orders := []*model.Order{}
 	for _, order := range r.orders {
-		orders = append(orders, &order)
+		if order.UserID == user.ID {
+
+			orders = append(orders, &order)
+		}
 	}
 	pagination.TotalRows = int64(len(orders))
 	pagination.Rows = OrdersToOrderDetailedResponse(orders)
@@ -273,7 +401,7 @@ func (r *mockOrderRepo) CancelOrder(id uuid.UUID, user *model.User) error {
 
 				return nil
 			}
-			return OrderCannotBeCanceledError
+			return httpErr.OrderCannotBeCanceledError
 		}
 	}
 	return OrderNotFoundError

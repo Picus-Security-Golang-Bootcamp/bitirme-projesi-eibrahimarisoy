@@ -1,8 +1,8 @@
 package order
 
 import (
-	"errors"
 	"fmt"
+	httpErr "patika-ecommerce/internal/httpErrors"
 	"patika-ecommerce/internal/model"
 	paginationHelper "patika-ecommerce/pkg/pagination"
 
@@ -148,7 +148,7 @@ func (r *OrderRepository) CancelOrder(id uuid.UUID, user *model.User) error {
 	}
 	if !order.IsCancelable() {
 		// return model.ErrOrderCannotBeCanceled
-		return errors.New("order cannot be canceled")
+		return httpErr.OrderCannotBeCanceledError
 	}
 
 	newProd := &model.Product{}
