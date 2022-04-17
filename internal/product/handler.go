@@ -29,8 +29,7 @@ func NewProductHandler(r *gin.RouterGroup, cfg *config.Config, productRepo *Prod
 	r.GET("/:id", handler.getProduct)
 
 	// Private endpoints
-	r.Use(mw.AuthenticationMiddleware(cfg.JWTConfig.SecretKey))
-	r.Use(mw.AdminMiddleware())
+	r.Use(mw.AuthenticationMiddleware(cfg.JWTConfig.SecretKey), mw.AdminMiddleware())
 	r.POST("", handler.createProduct)
 	r.PUT("/:id", handler.updateProduct)
 	r.DELETE("/:id", handler.deleteProduct)

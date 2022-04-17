@@ -3,6 +3,7 @@ package cart
 import (
 	"fmt"
 	"patika-ecommerce/internal/api"
+	httpErr "patika-ecommerce/internal/httpErrors"
 	"patika-ecommerce/internal/model"
 	product "patika-ecommerce/internal/product"
 	common "patika-ecommerce/pkg/utils"
@@ -52,7 +53,7 @@ func (r *CartService) AddToCart(user *model.User, req *api.AddToCartRequest) (*m
 	// find product by given id
 	product, err := r.productRepo.GetProductWithoutCategories(pId)
 	if err != nil {
-		return nil, err
+		return nil, httpErr.GivenAssociationNotFound
 	}
 
 	// check if product is available in cart
@@ -64,10 +65,11 @@ func (r *CartService) AddToCart(user *model.User, req *api.AddToCartRequest) (*m
 				return nil, fmt.Errorf("Product stock is not enough")
 			}
 			item.Quantity += req.Quantity
+
 			r.cartItemRepo.UpdateCartItem(&item)
 			is_exists = true
 			break
-		}
+		} // FIXME
 	}
 
 	// if product not exists in cart, create new cart item

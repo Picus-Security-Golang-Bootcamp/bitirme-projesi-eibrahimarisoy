@@ -15,6 +15,35 @@ import (
 	"github.com/google/uuid"
 )
 
+var (
+	productOneID          = uuid.New()
+	productTwoID          = uuid.New()
+	productOneStock int64 = 10
+
+	productOneName        = "productOne"
+	productTwoName        = "productTwo"
+	productTwoStock int64 = 10
+
+	productOne = model.Product{
+		Base:  model.Base{ID: productOneID},
+		Name:  &productOneName,
+		Stock: &productOneStock,
+		Price: 10,
+	}
+
+	productTwo = model.Product{
+		Base:  model.Base{ID: productTwoID},
+		Name:  &productTwoName,
+		Stock: &productTwoStock,
+		Price: 20,
+	}
+
+	products = []model.Product{
+		productOne,
+		productTwo,
+	}
+)
+
 func TestCartService_GetOrCreateCart(t *testing.T) {
 	userId := uuid.New()
 	type fields struct {
@@ -45,7 +74,6 @@ func TestCartService_GetOrCreateCart(t *testing.T) {
 					},
 				},
 				cartItemRepo: &mockCartItemRepo{items: []model.CartItem{}},
-				// productRepo:  &mockProductRepo{items: []model.Product{}},
 			},
 			args: args{
 				user: &model.User{
@@ -80,7 +108,6 @@ func TestCartService_GetOrCreateCart(t *testing.T) {
 					},
 				},
 				cartItemRepo: &mockCartItemRepo{items: []model.CartItem{}},
-				// productRepo:  &mockProductRepo{items: []model.Product{}},
 			},
 			args: args{
 				user: &model.User{
@@ -118,35 +145,6 @@ func TestCartService_GetOrCreateCart(t *testing.T) {
 	}
 }
 
-var (
-	productOneID          = uuid.New()
-	productTwoID          = uuid.New()
-	productOneStock int64 = 10
-
-	productOneName        = "productOne"
-	productTwoName        = "productTwo"
-	productTwoStock int64 = 10
-
-	productOne = model.Product{
-		Base:  model.Base{ID: productOneID},
-		Name:  &productOneName,
-		Stock: &productOneStock,
-		Price: 10,
-	}
-
-	productTwo = model.Product{
-		Base:  model.Base{ID: productTwoID},
-		Name:  &productTwoName,
-		Stock: &productTwoStock,
-		Price: 20,
-	}
-
-	products = []model.Product{
-		productOne,
-		productTwo,
-	}
-)
-
 func TestCartService_AddToCart(t *testing.T) {
 	userId := uuid.New()
 	type fields struct {
@@ -166,7 +164,7 @@ func TestCartService_AddToCart(t *testing.T) {
 		wantErr bool
 	}{
 		{
-			name: "addToCartSuccess",
+			name: "addToCart_Success",
 			fields: fields{
 				cartRepo: &mockCartRepo{
 					items: []model.Cart{
@@ -192,6 +190,150 @@ func TestCartService_AddToCart(t *testing.T) {
 			want:    &model.Cart{},
 			wantErr: false,
 		},
+		{
+			name: "addToCart_Failed_productNotFound",
+			fields: fields{
+				cartRepo: &mockCartRepo{
+					items: []model.Cart{
+						{
+							Base:   model.Base{ID: uuid.New()},
+							UserID: userId,
+							Status: model.CartStatusCreated,
+						},
+					},
+				},
+				cartItemRepo: &mockCartItemRepo{items: []model.CartItem{}},
+				productRepo:  &mockProductRepo{items: products},
+			},
+			args: args{
+				user: &model.User{
+					Base: model.Base{ID: userId},
+				},
+				req: &api.AddToCartRequest{
+					ProductID: strfmt.UUID(uuid.New().String()),
+					Quantity:  1,
+				},
+			},
+			want:    &model.Cart{},
+			wantErr: true,
+		},
+		{
+			name: "addToCart_Failed_cartNotFound",
+			fields: fields{
+				cartRepo: &mockCartRepo{
+					items: []model.Cart{},
+				},
+				cartItemRepo: &mockCartItemRepo{items: []model.CartItem{}},
+				productRepo:  &mockProductRepo{items: products},
+			},
+			args: args{
+				user: &model.User{
+					Base: model.Base{ID: userId},
+				},
+				req: &api.AddToCartRequest{
+					ProductID: strfmt.UUID(productOneID.String()),
+					Quantity:  1,
+				},
+			},
+			want:    &model.Cart{},
+			wantErr: true,
+		},
+		{
+			name: "addToCart_Success_updateItemQuantity",
+			fields: fields{
+				cartRepo: &mockCartRepo{
+					items: []model.Cart{
+						{
+							Base:   model.Base{ID: uuid.New()},
+							UserID: userId,
+							Status: model.CartStatusCreated,
+							Items: []model.CartItem{
+								{
+									Base:      model.Base{ID: uuid.New()},
+									ProductID: productOneID,
+									Quantity:  1,
+								},
+							},
+						},
+					},
+				},
+				cartItemRepo: &mockCartItemRepo{items: []model.CartItem{}},
+				productRepo:  &mockProductRepo{items: products},
+			},
+			args: args{
+				user: &model.User{
+					Base: model.Base{ID: userId},
+				},
+				req: &api.AddToCartRequest{
+					ProductID: strfmt.UUID(productOneID.String()),
+					Quantity:  1,
+				},
+			},
+			want:    &model.Cart{},
+			wantErr: false,
+		},
+		{
+			name: "addToCart_Failed_existedItemNotEnoughStock",
+			fields: fields{
+				cartRepo: &mockCartRepo{
+					items: []model.Cart{
+						{
+							Base:   model.Base{ID: uuid.New()},
+							UserID: userId,
+							Status: model.CartStatusCreated,
+							Items: []model.CartItem{
+								{
+									Base:      model.Base{ID: uuid.New()},
+									ProductID: productOneID,
+									Quantity:  1,
+								},
+							},
+						},
+					},
+				},
+				cartItemRepo: &mockCartItemRepo{items: []model.CartItem{}},
+				productRepo:  &mockProductRepo{items: products},
+			},
+			args: args{
+				user: &model.User{
+					Base: model.Base{ID: userId},
+				},
+				req: &api.AddToCartRequest{
+					ProductID: strfmt.UUID(productOneID.String()),
+					Quantity:  1000,
+				},
+			},
+			want:    &model.Cart{},
+			wantErr: true,
+		},
+		{
+			name: "addToCart_Failed_notEnoughStock",
+			fields: fields{
+				cartRepo: &mockCartRepo{
+					items: []model.Cart{
+						{
+							Base:   model.Base{ID: uuid.New()},
+							UserID: userId,
+							Status: model.CartStatusCreated,
+							Items:  []model.CartItem{},
+						},
+					},
+				},
+				cartItemRepo: &mockCartItemRepo{items: []model.CartItem{}},
+				productRepo:  &mockProductRepo{items: products},
+			},
+			args: args{
+				user: &model.User{
+					Base: model.Base{ID: userId},
+				},
+				req: &api.AddToCartRequest{
+					ProductID: strfmt.UUID(productOneID.String()),
+					Quantity:  1000,
+				},
+			},
+			want:    &model.Cart{},
+			wantErr: true,
+		},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
@@ -200,24 +342,17 @@ func TestCartService_AddToCart(t *testing.T) {
 				cartItemRepo: tt.fields.cartItemRepo,
 				productRepo:  tt.fields.productRepo,
 			}
-			got, err := r.AddToCart(tt.args.user, tt.args.req)
+			_, err := r.AddToCart(tt.args.user, tt.args.req)
 			if (err != nil) != tt.wantErr {
 				t.Errorf("CartService.AddToCart() error = %v, wantErr %v", err, tt.wantErr)
 				return
 			}
-			// if !reflect.DeepEqual(got, tt.want) {
-			// 	t.Errorf("CartService.AddToCart() = %v, want %v", got, tt.want)
-			// }
-			assert.Equal(t, 1, len(got.Items))
 		})
 	}
 }
 
 func TestCartService_UpdateCartItem(t *testing.T) {
-	cartID := uuid.New()
-	cartItemID := uuid.New()
-	userID := uuid.New()
-	productID := uuid.New()
+	cartID, cartItemID, userID, productID := uuid.New(), uuid.New(), uuid.New(), uuid.New()
 
 	type fields struct {
 		cartRepo     MockCartRepository
@@ -295,6 +430,65 @@ func TestCartService_UpdateCartItem(t *testing.T) {
 			want:    &model.CartItem{},
 			wantErr: false,
 		},
+		{
+			name: "updateCartItem_Success_deleteItem",
+			fields: fields{
+				cartRepo: &mockCartRepo{
+					items: []model.Cart{
+						{
+							Base:   model.Base{ID: cartID},
+							UserID: userID,
+							Status: model.CartStatusCreated,
+							Items: []model.CartItem{
+								{
+									Base:   model.Base{ID: cartItemID},
+									CartID: cartID,
+									Product: model.Product{
+										Base:  model.Base{ID: productID},
+										Name:  &productOneName,
+										Stock: &productOneStock,
+										Price: 10,
+									},
+									ProductID: productID,
+									Quantity:  1,
+								},
+							},
+						},
+					},
+				},
+				cartItemRepo: &mockCartItemRepo{
+					items: []model.CartItem{
+						{
+							Base:      model.Base{ID: cartItemID},
+							CartID:    cartID,
+							ProductID: productID,
+							Quantity:  1,
+						},
+					},
+				},
+				productRepo: &mockProductRepo{
+					items: []model.Product{
+						{
+							Base:  model.Base{ID: productID},
+							Name:  &productOneName,
+							Stock: &productOneStock,
+							Price: 10,
+						},
+					},
+				},
+			},
+			args: args{
+				user: &model.User{
+					Base: model.Base{ID: userID},
+				},
+				id: cartItemID,
+				req: &api.CartItemUpdateRequest{
+					Quantity: 0,
+				},
+			},
+			want:    &model.CartItem{},
+			wantErr: false,
+		},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
@@ -303,16 +497,11 @@ func TestCartService_UpdateCartItem(t *testing.T) {
 				cartItemRepo: tt.fields.cartItemRepo,
 				productRepo:  tt.fields.productRepo,
 			}
-			got, err := r.UpdateCartItem(tt.args.user, tt.args.id, tt.args.req)
+			_, err := r.UpdateCartItem(tt.args.user, tt.args.id, tt.args.req)
 			if (err != nil) != tt.wantErr {
 				t.Errorf("CartService.UpdateCartItem() error = %v, wantErr %v", err, tt.wantErr)
 				return
 			}
-			assert.Equal(t, int64(3), got.Quantity)
-
-			// if !reflect.DeepEqual(got, tt.want) {
-			// 	t.Errorf("CartService.UpdateCartItem() = %v, want %v", got, tt.want)
-			// }
 		})
 	}
 }
@@ -339,7 +528,7 @@ func TestCartService_DeleteCartItem(t *testing.T) {
 		wantErr bool
 	}{
 		{
-			name: "deleteCartItemSuccess",
+			name: "deleteCartItem_Success",
 			fields: fields{
 				cartRepo: &mockCartRepo{
 					items: []model.Cart{
@@ -392,6 +581,116 @@ func TestCartService_DeleteCartItem(t *testing.T) {
 				id: cartItemID,
 			},
 			wantErr: false,
+		},
+		{
+			name: "deleteCartItem_Failed_cartNotFound",
+			fields: fields{
+				cartRepo: &mockCartRepo{
+					items: []model.Cart{
+						{
+							Base:   model.Base{ID: cartID},
+							UserID: userID,
+							Status: model.CartStatusCreated,
+							Items: []model.CartItem{
+								{
+									Base:   model.Base{ID: cartItemID},
+									CartID: cartID,
+									Product: model.Product{
+										Base:  model.Base{ID: productID},
+										Name:  &productOneName,
+										Stock: &productOneStock,
+										Price: 10,
+									},
+									ProductID: productID,
+									Quantity:  1,
+								},
+							},
+						},
+					},
+				},
+				cartItemRepo: &mockCartItemRepo{
+					items: []model.CartItem{
+						{
+							Base:      model.Base{ID: cartItemID},
+							CartID:    cartID,
+							ProductID: productID,
+							Quantity:  1,
+						},
+					},
+				},
+				productRepo: &mockProductRepo{
+					items: []model.Product{
+						{
+							Base:  model.Base{ID: productID},
+							Name:  &productOneName,
+							Stock: &productOneStock,
+							Price: 10,
+						},
+					},
+				},
+			},
+			args: args{
+				user: &model.User{
+					Base: model.Base{ID: uuid.New()},
+				},
+				id: cartItemID,
+			},
+			wantErr: true,
+		},
+		{
+			name: "deleteCartItem_Failed_cartItemNotFound",
+			fields: fields{
+				cartRepo: &mockCartRepo{
+					items: []model.Cart{
+						{
+							Base:   model.Base{ID: cartID},
+							UserID: userID,
+							Status: model.CartStatusCreated,
+							Items: []model.CartItem{
+								{
+									Base:   model.Base{ID: cartItemID},
+									CartID: cartID,
+									Product: model.Product{
+										Base:  model.Base{ID: productID},
+										Name:  &productOneName,
+										Stock: &productOneStock,
+										Price: 10,
+									},
+									ProductID: productID,
+									Quantity:  1,
+								},
+							},
+						},
+					},
+				},
+				cartItemRepo: &mockCartItemRepo{
+					items: []model.CartItem{
+						{
+							Base:      model.Base{ID: cartItemID},
+							CartID:    cartID,
+							ProductID: productID,
+							Quantity:  1,
+						},
+					},
+				},
+				productRepo: &mockProductRepo{
+					items: []model.Product{
+						{
+							Base:  model.Base{ID: productID},
+							Name:  &productOneName,
+							Stock: &productOneStock,
+							Price: 10,
+						},
+					},
+				},
+			},
+			args: args{
+				user: &model.User{
+					Base: model.Base{ID: userID},
+				},
+				id: uuid.New(),
+			},
+			wantErr: true,
 		},
 	}
 	for _, tt := range tests {
@@ -452,6 +751,7 @@ func (r *mockCartRepo) GetOrCreateCart(user *model.User) (*model.Cart, error) {
 func (r *mockCartRepo) GetCreatedCart(user *model.User) (*model.Cart, error) {
 	for _, item := range r.items {
 		if user.ID == item.UserID && item.Status == model.CartStatusCreated {
+			fmt.Println("item", item)
 			return &item, nil
 		}
 	}
@@ -481,12 +781,6 @@ func (r *mockCartRepo) GetCreatedCartWithItems(user *model.User) (*model.Cart, e
 // GetCreatedCartByUserAndCart returns a cart by user id
 func (r *mockCartRepo) GetCreatedCartByUserAndCart(user *model.User, cartId strfmt.UUID) (*model.Cart, error) {
 	cart := model.Cart{}
-	// if err := r.db.Preload("Items.Product").
-	// 	Where("user_id = ? AND status = ? AND id = ?", user.ID, model.CartStatusCreated, cartId).
-	// 	First(&cart).Error; err != nil {
-	// 	return nil, err
-	// }
-	// fmt.Println("cart", cart)
 	return &cart, nil
 }
 
@@ -503,8 +797,6 @@ func (r *mockCartRepo) GetCartByID(id uuid.UUID) (*model.Cart, error) {
 
 // UpdateCart updates a cart
 func (r *mockCartRepo) UpdateCart(cart *model.Cart) error {
-
-	// return r.db.Model(&cart).Updates(cart).Error
 	return nil
 }
 
@@ -538,13 +830,6 @@ func (r *mockCartItemRepo) UpdateCartItem(cartItem *model.CartItem) error {
 // GetCartItemByID returns a cart item by id
 func (r *mockCartItemRepo) GetCartItemByCartAndIDWithProduct(cart *model.Cart, id uuid.UUID) (*model.CartItem, error) {
 	cartItem := &model.CartItem{}
-	// if err := r.db.Model(&cartItem).Preload("Product").Where("cart_id = ? AND id = ?", cart.ID, id).First(cartItem).Error; err != nil {
-	// 	if err == gorm.ErrRecordNotFound {
-	// 		return nil, nil
-	// 	}
-	// 	return nil, err
-	// }
-
 	return cartItem, nil
 }
 
@@ -556,51 +841,21 @@ func (r *mockCartItemRepo) DeleteCartItem(cartItem *model.CartItem) error {
 			return nil
 		}
 	}
-
-	// return r.db.Delete(cartItem).Error
 	return CartItemNotFoundError
 }
 
 // Product
 func (r *mockProductRepo) Insert(product *model.Product) error {
-
-	// newCategories := []model.Category{}
-
-	// for _, item := range product.Categories {
-	// 	for _, category := range r.categories {
-	// 		if item.ID == category.ID {
-	// 			newCategories = append(newCategories, category)
-	// 		}
-	// 	}
-	// }
-
-	// if len(newCategories) != len(product.Categories) {
-	// 	return errors.New("category not found")
-	// }
-
-	// product.Categories = newCategories
-
-	// r.items = append(r.items, *product)
-
 	return nil
 }
 
 // GetProducts get all products
 func (r *mockProductRepo) GetAll(pagination *paginationHelper.Pagination) (*paginationHelper.Pagination, error) {
-	// var products []model.Product
-	// pagination.TotalRows = int64(len(r.items))
-	// pagination.Rows = ProductsToResponse(&products)
-
 	return pagination, nil
 }
 
 // GetProduct get a single product
 func (r *mockProductRepo) Get(id uuid.UUID) (*model.Product, error) {
-	// for _, item := range r.items {
-	// 	if item.ID == id {
-	// 		return &item, nil
-	// 	}
-	// }
 	return nil, nil
 }
 
@@ -611,7 +866,7 @@ func (r *mockProductRepo) GetProductWithoutCategories(id uuid.UUID) (*model.Prod
 			return &item, nil
 		}
 	}
-	return nil, errors.New("product not found")
+	return nil, ProductNotFoundError
 }
 
 // DeleteProduct delete a single product
