@@ -107,7 +107,7 @@ func (r *productHandler) deleteProduct(c *gin.Context) {
 
 	product.ID = id
 
-	if err := r.productRepo.Delete(*product); err != nil {
+	if err := r.productRepo.Delete(product); err != nil {
 		if errors.Is(err, gorm.ErrRecordNotFound) {
 			c.JSON(httpErr.ErrorResponse(err))
 			return
@@ -136,7 +136,7 @@ func (r *productHandler) updateProduct(c *gin.Context) {
 
 	id, err := uuid.Parse(c.Param("id"))
 	if err != nil {
-		c.JSON(400, gin.H{"msg": err.Error()})
+		c.JSON(httpErr.ErrorResponse(err))
 		return
 	}
 

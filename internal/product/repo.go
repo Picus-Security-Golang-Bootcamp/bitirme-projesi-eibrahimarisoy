@@ -15,7 +15,7 @@ type MockProductRepository interface {
 	GetAll(pagination *paginationHelper.Pagination) (*paginationHelper.Pagination, error)
 	Get(id uuid.UUID) (*model.Product, error)
 	GetProductWithoutCategories(id uuid.UUID) (*model.Product, error)
-	Delete(product model.Product) error
+	Delete(product *model.Product) error
 	Update(product *model.Product) error
 }
 
@@ -90,11 +90,11 @@ func (r *ProductRepository) GetProductWithoutCategories(id uuid.UUID) (*model.Pr
 }
 
 // DeleteProduct delete a single product
-func (r *ProductRepository) Delete(product model.Product) error {
+func (r *ProductRepository) Delete(product *model.Product) error {
 	// r.db.Model(&product).Association("Categories").Delete(&product)
 	// r.db.Model(&product).Association("Categories").Delete(&product)
 
-	result := r.db.Select(clause.Associations).Delete(&product)
+	result := r.db.Select(clause.Associations).Delete(product)
 	// result := r.db.Where(model.Product{}).Delete(&product)
 
 	if result.Error != nil {

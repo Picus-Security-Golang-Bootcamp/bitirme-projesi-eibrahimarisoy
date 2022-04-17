@@ -615,7 +615,7 @@ func (r *mockProductRepo) GetProductWithoutCategories(id uuid.UUID) (*model.Prod
 }
 
 // DeleteProduct delete a single product
-func (r *mockProductRepo) Delete(product model.Product) error {
+func (r *mockProductRepo) Delete(product *model.Product) error {
 	for i, item := range r.items {
 		if item.ID == product.ID {
 			r.items = append(r.items[:i], r.items[i+1:]...)
