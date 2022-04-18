@@ -30,15 +30,17 @@ Authenticated user can;
  - swagger
  - zap (logger)
 
-## Clone the project
-```
-$ git clone https://github.com/Picus-Security-Golang-Bootcamp/bitirme-projesi-eibrahimarisoy.git
-$ cd bitirme-projesi-eibrahimarisoy.git
-```
 
 ## Dependencies used in the project
  - Go 1.18
  - Postgres 14.2
+
+## Clone the project
+```
+$ git clone https://github.com/Picus-Security-Golang-Bootcamp/bitirme-projesi-eibrahimarisoy.git
+$ cd bitirme-projesi-eibrahimarisoy.git
+$ go mod tidy
+```
 
 ## Configuration
 App uses viper to read configuration file.

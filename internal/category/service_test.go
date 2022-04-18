@@ -16,7 +16,7 @@ func TestCategoryService_CreateCategory(t *testing.T) {
 	categoryDescription := "category description 1"
 
 	type fields struct {
-		categoryRepo MockCategoryRepository
+		categoryRepo CategoryRepositoryInterface
 	}
 	type args struct {
 		category *model.Category
@@ -84,7 +84,7 @@ func TestCategoryService_GetCategories(t *testing.T) {
 	categoryDescription := "category description 1"
 
 	type fields struct {
-		categoryRepo MockCategoryRepository
+		categoryRepo CategoryRepositoryInterface
 	}
 	tests := []struct {
 		name    string
@@ -136,7 +136,7 @@ func TestCategoryService_GetCategoryByID(t *testing.T) {
 	id := uuid.New()
 
 	type fields struct {
-		categoryRepo MockCategoryRepository
+		categoryRepo CategoryRepositoryInterface
 	}
 	type args struct {
 		id uuid.UUID
@@ -198,7 +198,7 @@ func TestCategoryService_UpdateCategory(t *testing.T) {
 	newCategoryDescription := "new category description"
 
 	type fields struct {
-		categoryRepo MockCategoryRepository
+		categoryRepo CategoryRepositoryInterface
 	}
 	type args struct {
 		category *model.Category
@@ -248,7 +248,7 @@ func TestCategoryService_DeleteCategory(t *testing.T) {
 	id := uuid.New()
 	idTwo := uuid.New()
 	type fields struct {
-		categoryRepo MockCategoryRepository
+		categoryRepo CategoryRepositoryInterface
 	}
 	type args struct {
 		id uuid.UUID
@@ -306,7 +306,7 @@ func TestCategoryService_DeleteCategory(t *testing.T) {
 
 func TestCategoryService_CreateBulkCategories(t *testing.T) {
 	type fields struct {
-		categoryRepo MockCategoryRepository
+		categoryRepo CategoryRepositoryInterface
 	}
 	type args struct {
 		filename *bytes.Buffer

@@ -12,7 +12,7 @@ import (
 	"gorm.io/gorm/clause"
 )
 
-type MockOrderRepository interface {
+type OrderRepositoryInterface interface {
 	CompleteOrder(user *model.User, cartId uuid.UUID) (*model.Order, error)
 	GetOrdersByUser(user *model.User, pagination *paginationHelper.Pagination) (*paginationHelper.Pagination, error)
 	GetOrderByIdAndUser(user *model.User, id uuid.UUID) (*model.Order, error)

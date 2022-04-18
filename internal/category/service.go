@@ -9,7 +9,7 @@ import (
 )
 
 type CategoryService struct {
-	categoryRepo MockCategoryRepository
+	categoryRepo CategoryRepositoryInterface
 }
 
 type MockCategoryService interface {
@@ -21,7 +21,7 @@ type MockCategoryService interface {
 	CreateBulkCategories(filename *bytes.Buffer) ([]model.Category, error)
 }
 
-func NewCategoryService(categoryRepo MockCategoryRepository) *CategoryService {
+func NewCategoryService(categoryRepo CategoryRepositoryInterface) *CategoryService {
 	return &CategoryService{categoryRepo: categoryRepo}
 }
 

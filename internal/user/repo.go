@@ -7,13 +7,7 @@ import (
 	"patika-ecommerce/internal/model"
 )
 
-type AuthRepository interface {
-	InsertUser(user *model.User) (*model.User, error)
-	GetUser(id string) (*model.User, error)
-	GetUserByEmail(email string) (*model.User, error)
-}
-
-type UserRepositoryForMock interface {
+type UserRepositoryInterface interface {
 	InsertUser(user *model.User) (*model.User, error)
 	GetUser(id string) (*model.User, error)
 	GetUserByEmail(email string) (*model.User, error)

@@ -16,7 +16,7 @@ import (
 
 type AuthService struct {
 	cfg      *config.Config
-	userRepo user.UserRepositoryForMock
+	userRepo user.UserRepositoryInterface
 }
 
 type AuthServiceInterface interface {
@@ -26,7 +26,7 @@ type AuthServiceInterface interface {
 }
 
 // NewAuthService creates a new AuthService
-func NewAuthService(cfg *config.Config, userRepo user.UserRepositoryForMock) *AuthService {
+func NewAuthService(cfg *config.Config, userRepo user.UserRepositoryInterface) *AuthService {
 	return &AuthService{
 		cfg:      cfg,
 		userRepo: userRepo,

@@ -20,7 +20,7 @@ func TestAuthService_Login(t *testing.T) {
 
 	type fields struct {
 		cfg      *config.Config
-		userRepo user.UserRepositoryForMock
+		userRepo user.UserRepositoryInterface
 	}
 	type args struct {
 		user *model.User
@@ -146,7 +146,7 @@ func TestAuthService_Register(t *testing.T) {
 
 	type fields struct {
 		cfg      *config.Config
-		userRepo user.UserRepositoryForMock
+		userRepo user.UserRepositoryInterface
 	}
 	type args struct {
 		user *model.User
@@ -258,7 +258,7 @@ func TestAuthService_RefreshToken(t *testing.T) {
 
 	type fields struct {
 		cfg      *config.Config
-		userRepo user.UserRepositoryForMock
+		userRepo user.UserRepositoryInterface
 	}
 	type args struct {
 		refreshToken string

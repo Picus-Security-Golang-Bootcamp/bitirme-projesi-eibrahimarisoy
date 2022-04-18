@@ -11,7 +11,7 @@ import (
 	"github.com/google/uuid"
 )
 
-type MockCartService interface {
+type CartServiceInterface interface {
 	GetOrCreateCart(user *model.User) (*model.Cart, error)
 	AddToCart(user *model.User, req *api.AddToCartRequest) (*model.Cart, error)
 	UpdateCartItem(user *model.User, id uuid.UUID, req *api.CartItemUpdateRequest) (*model.CartItem, error)
@@ -19,9 +19,9 @@ type MockCartService interface {
 }
 
 type CartService struct {
-	cartRepo     MockCartRepository
-	cartItemRepo MockCartItemRepository
-	productRepo  product.MockProductRepository
+	cartRepo     CartRepositoryInterface
+	cartItemRepo CartItemRepositoryInterface
+	productRepo  product.ProductRepositoryInterface
 }
 
 // NewCartService creates a new CartService

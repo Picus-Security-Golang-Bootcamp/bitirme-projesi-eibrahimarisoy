@@ -14,7 +14,7 @@ type CategoryRepository struct {
 	db *gorm.DB
 }
 
-type MockCategoryRepository interface {
+type CategoryRepositoryInterface interface {
 	InsertCategory(category *model.Category) error
 	GetCategories() (*[]model.Category, error)
 	GetCategoryByID(id uuid.UUID) (*model.Category, error)

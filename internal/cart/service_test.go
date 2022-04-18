@@ -47,9 +47,9 @@ var (
 func TestCartService_GetOrCreateCart(t *testing.T) {
 	userId := uuid.New()
 	type fields struct {
-		cartRepo     MockCartRepository
-		cartItemRepo MockCartItemRepository
-		productRepo  product.MockProductRepository
+		cartRepo     CartRepositoryInterface
+		cartItemRepo CartItemRepositoryInterface
+		productRepo  product.ProductRepositoryInterface
 	}
 	type args struct {
 		user *model.User
@@ -148,9 +148,9 @@ func TestCartService_GetOrCreateCart(t *testing.T) {
 func TestCartService_AddToCart(t *testing.T) {
 	userId := uuid.New()
 	type fields struct {
-		cartRepo     MockCartRepository
-		cartItemRepo MockCartItemRepository
-		productRepo  product.MockProductRepository
+		cartRepo     CartRepositoryInterface
+		cartItemRepo CartItemRepositoryInterface
+		productRepo  product.ProductRepositoryInterface
 	}
 	type args struct {
 		user *model.User
@@ -355,9 +355,9 @@ func TestCartService_UpdateCartItem(t *testing.T) {
 	cartID, cartItemID, userID, productID := uuid.New(), uuid.New(), uuid.New(), uuid.New()
 
 	type fields struct {
-		cartRepo     MockCartRepository
-		cartItemRepo MockCartItemRepository
-		productRepo  product.MockProductRepository
+		cartRepo     CartRepositoryInterface
+		cartItemRepo CartItemRepositoryInterface
+		productRepo  product.ProductRepositoryInterface
 	}
 	type args struct {
 		user *model.User
@@ -513,9 +513,9 @@ func TestCartService_DeleteCartItem(t *testing.T) {
 	productID := uuid.New()
 
 	type fields struct {
-		cartRepo     MockCartRepository
-		cartItemRepo MockCartItemRepository
-		productRepo  product.MockProductRepository
+		cartRepo     CartRepositoryInterface
+		cartItemRepo CartItemRepositoryInterface
+		productRepo  product.ProductRepositoryInterface
 	}
 	type args struct {
 		user *model.User

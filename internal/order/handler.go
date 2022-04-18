@@ -16,7 +16,7 @@ import (
 )
 
 type orderHandler struct {
-	orderRepo MockOrderRepository
+	orderRepo OrderRepositoryInterface
 }
 
 func NewOrderHandler(r *gin.RouterGroup, cfg *config.Config, orderRepo *OrderRepository) {

@@ -10,7 +10,7 @@ import (
 	"gorm.io/gorm/clause"
 )
 
-type MockProductRepository interface {
+type ProductRepositoryInterface interface {
 	Insert(product *model.Product) error
 	GetAll(pagination *paginationHelper.Pagination) (*paginationHelper.Pagination, error)
 	Get(id uuid.UUID) (*model.Product, error)

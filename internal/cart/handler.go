@@ -14,11 +14,11 @@ import (
 )
 
 type cartHandler struct {
-	cartService MockCartService
+	cartService CartServiceInterface
 }
 
 // NewCartHandler creates a new cart handler
-func NewCartHandler(r *gin.RouterGroup, cfg *config.Config, cartService MockCartService) {
+func NewCartHandler(r *gin.RouterGroup, cfg *config.Config, cartService CartServiceInterface) {
 	handler := &cartHandler{cartService: cartService}
 
 	r.Use(mw.AuthenticationMiddleware(cfg.JWTConfig.SecretKey))

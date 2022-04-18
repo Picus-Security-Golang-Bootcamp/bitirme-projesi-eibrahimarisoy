@@ -18,7 +18,7 @@ import (
 )
 
 type productHandler struct {
-	productRepo MockProductRepository
+	productRepo ProductRepositoryInterface
 }
 
 func NewProductHandler(r *gin.RouterGroup, cfg *config.Config, productRepo *ProductRepository) {

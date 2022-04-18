@@ -178,7 +178,7 @@ func Test_categoryHandler_getCategory(t *testing.T) {
 		gin.SetMode(gin.TestMode)
 		w := httptest.NewRecorder()
 		c, _ := gin.CreateTestContext(w)
-		c.Params = []gin.Param{gin.Param{Key: "id", Value: id.String()}}
+		c.Params = []gin.Param{{Key: "id", Value: id.String()}}
 		c.Request, _ = http.NewRequest("GET", "categories/"+id.String(), nil)
 		c.Request.Header.Set("Content-Type", "application/json")
 		categoryHandler.getCategory(c)
